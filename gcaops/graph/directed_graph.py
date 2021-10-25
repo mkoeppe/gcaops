@@ -72,6 +72,15 @@ class DirectedGraph:
             degrees[a] += 1
         return tuple(degrees)
 
+    def in_degrees(self):
+        """
+        Return the tuple of in-degrees of vertices of this graph.
+        """
+        degrees = [0 for i in range(self._num_vertices)]
+        for (a,b) in self._edges:
+            degrees[b] += 1
+        return tuple(degrees)
+
     def _sage_(self):
         """
         Return a Sage version of this graph.
