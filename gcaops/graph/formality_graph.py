@@ -94,6 +94,15 @@ class FormalityGraph:
             degrees[a] += 1
         return tuple(degrees)
 
+    def in_degrees(self):
+        """
+        Return the tuple of in-degrees of vertices of this graph.
+        """
+        degrees = [0 for i in range(self._num_ground_vertices + self._num_aerial_vertices)]
+        for (a,b) in self._edges:
+            degrees[b] += 1
+        return tuple(degrees)
+
     def differential_orders(self):
         """
         Return the tuple of in-degrees of the ground vertices of this graph.
