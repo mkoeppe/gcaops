@@ -80,7 +80,7 @@ class DifferentialPolynomial:
         return self * other
 
     def __pow__(self, other):
-        return __class__(self._parent, self._polynomial^other)
+        return __class__(self._parent, self._polynomial**other)
 
     def __truediv__(self, other):
         if isinstance(other, __class__):
