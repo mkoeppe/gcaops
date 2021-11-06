@@ -31,7 +31,7 @@ class GraphFileView(ABC):
 
     def __getitem__(self, index):
         cur = self._con.cursor()
-        result = cur.execute('SELECT graph FROM graphs WHERE id = ?', (index + 1,)).fetchone()
+        result = cur.execute('SELECT graph FROM graphs WHERE id = ?', (int(index) + 1,)).fetchone()
         if result is not None:
             return self._encoding_to_graph(result[0])
         else:
