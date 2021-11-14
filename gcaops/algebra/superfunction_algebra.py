@@ -259,16 +259,26 @@ class Superfunction:
         """
         return reduce(lambda a,b: a*b, [self]*exponent, self._parent.base_ring().one())
 
+    def is_zero(self):
+        """
+        Return ``True`` if this superfunction equals zero and ``False`` otherwise.
+        """
+        for degree in self._monomial_coefficients:
+            for k in range(len(self._monomial_coefficients[degree])):
+                if not self._parent._is_zero(self._monomial_coefficients[degree][k]):
+                    return False
+        return True
+
     def __eq__(self, other):
         """
         Return ``True`` if this superfunction equals ``other`` and ``False`` otherwise.
+
+        NOTE::
+
+            This takes the difference and calls ``is_zero()`` on it.
+            For comparison with zero it is faster to call ``is_zero()`` directly.
         """
-        difference = self - other
-        for degree in difference._monomial_coefficients:
-            for k in range(len(difference._monomial_coefficients[degree])):
-                if not self._parent._is_zero(difference._monomial_coefficients[degree][k]):
-                    return False
-        return True
+        return (self - other).is_zero()
 
     def degree(self):
         """
