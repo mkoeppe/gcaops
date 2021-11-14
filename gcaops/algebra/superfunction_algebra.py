@@ -200,7 +200,7 @@ class Superfunction:
                 for k in range(len(other._monomial_coefficients[degree])):
                     monomial_coefficients[degree][k] = self._parent._simplify(monomial_coefficients[degree][k] - other._monomial_coefficients[degree][k])
         elif other in self._parent.base_ring():
-            monomial_coefficients[0][0] -= other
+            monomial_coefficients[0][0] = self._parent._simplify(monomial_coefficients[0][0] - other)
         else:
             return NotImplemented
         return self.__class__(self._parent, monomial_coefficients)
