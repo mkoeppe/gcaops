@@ -12,7 +12,8 @@ from graph.undirected_graph_vector import UndirectedGraphVector
 from graph.directed_graph_vector import DirectedGraphVector
 
 def zero_vector(superfunction_algebra, degree):
-    return [superfunction_algebra.base_ring().zero() for k in range(superfunction_algebra.dimension(degree))]
+    zero_value = superfunction_algebra.base_ring().zero()
+    return [zero_value]*superfunction_algebra.dimension(degree)
 
 class Superfunction:
     """
