@@ -17,12 +17,13 @@ class FormalityGraphComplexBasis(FormalityGraphBasis):
     """
     Basis consisting of representatives of isomorphism classes of formality graphs with no automorphisms that induce an odd permutation on edges.
     """
-    def __init__(self, positive_differential_order=None):
+    def __init__(self, positive_differential_order=None, connected=None):
         """
         Initialize this basis.
         """
         self._positive_differential_order = positive_differential_order
-        self._graphs = keydefaultdict(partial(formality_graph_cache.graphs, positive_differential_order=positive_differential_order, has_odd_automorphism=False))
+        self._connected = connected
+        self._graphs = keydefaultdict(partial(formality_graph_cache.graphs, positive_differential_order=positive_differential_order, connected=connected, has_odd_automorphism=False))
 
     def graph_to_key(self, graph):
         """
@@ -69,6 +70,8 @@ class FormalityGraphComplexBasis(FormalityGraphBasis):
         filters = []
         if self._positive_differential_order:
             filters.append('of positive differential order')
+        if self._connected:
+            filters.append('connected')
         if filters:
             filters_str = ' ({})'.format(', '.join(filters))
         else:
@@ -79,7 +82,7 @@ class FormalityGraphComplexBasis(FormalityGraphBasis):
         """
         Return a dictionary containing the properties of the graphs in this basis.
         """
-        return {'positive_differential_order' : self._positive_differential_order, 'has_odd_automorphism' : False}
+        return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'has_odd_automorphism' : False}
 
     def graphs(self, num_ground_vertices, num_aerial_vertices, num_edges):
         """
@@ -97,12 +100,13 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
     """
     Basis consisting of labeled formality graphs with no automorphisms that induce an odd permutation on edges
     """
-    def __init__(self, positive_differential_order=None):
+    def __init__(self, positive_differential_order=None, connected=None):
         """
         Initialize this basis.
         """
         self._positive_differential_order = positive_differential_order
-        self._graphs = keydefaultdict(partial(formality_graph_cache.graphs, positive_differential_order=positive_differential_order, has_odd_automorphism=False))
+        self._connected = connected
+        self._graphs = keydefaultdict(partial(formality_graph_cache.graphs, positive_differential_order=positive_differential_order, connected=connected, has_odd_automorphism=False))
 
     def graph_to_key(self, graph):
         """
@@ -153,6 +157,8 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
         filters = []
         if self._positive_differential_order:
             filters.append('of positive differential order')
+        if self._connected:
+            filters.append('connected')
         if filters:
             filters_str = ' ({})'.format(', '.join(filters))
         else:
@@ -163,5 +169,5 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
         """
         Return a dictionary containing the properties of the graphs in this basis.
         """
-        return {'positive_differential_order' : self._positive_differential_order, 'has_odd_automorphism' : False}
+        return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'has_odd_automorphism' : False}
 
