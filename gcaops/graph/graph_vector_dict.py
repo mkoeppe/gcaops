@@ -235,6 +235,8 @@ class GraphModule_dict(GraphModule):
             return v
         elif isinstance(arg, self.element_class) and arg.parent() is self:
             return arg
+        elif isinstance(arg, GraphVector):
+            return self(list(arg))
         elif arg == 0:
             return self.zero()
         else:
