@@ -1,5 +1,6 @@
 from collections.abc import MutableSequence
 from util.permutation import selection_sort
+from math import factorial
 
 class FormalityGraph:
     """
@@ -112,6 +113,27 @@ class FormalityGraph:
             if b < self._num_ground_vertices:
                 degrees[b] += 1
         return tuple(degrees)
+
+    def automorphism_group(self):
+        """
+        Return the automorphism group of this graph.
+        """
+        from sage.graphs.digraph import DiGraph
+        g = DiGraph([list(range(len(self))), self.edges()])
+        partition = [[k] for k in range(self._num_ground_vertices)] + [list(range(self._num_ground_vertices, len(self)))]
+        return g.automorphism_group(partition=partition)
+
+    def multiplicity(self):
+        """
+        Return the number of formality graphs isomorphic to this one, under isomorphisms that preserve the ground vertices pointwise.
+        """
+        m = 1
+        # edge permutations:
+        for d in self.out_degrees():
+            m *= factorial(d)
+        # vertex permutations:
+        m *= factorial(self._num_aerial_vertices) // len(self.automorphism_group())
+        return m
 
     def get_pos(self):
         """
