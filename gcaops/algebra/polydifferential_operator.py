@@ -302,6 +302,12 @@ class PolyDifferentialOperator:
         """
         return next(iter(self._coefficients), 0)
 
+    def bracket(self, other):
+        """
+        Return the Gerstenhaber bracket of this polydifferential operator with ``other``.
+        """
+        return self * other - (1 if (self.arity()-1)*(other.arity()-1) % 2 == 0 else -1) * other * self
+
 def identity(x):
     return x
 
