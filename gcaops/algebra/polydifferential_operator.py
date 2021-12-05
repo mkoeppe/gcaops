@@ -318,6 +318,12 @@ class PolyDifferentialOperator:
         """
         return self.map_coefficients(lambda c: c.coefficient(variable))
 
+    def subs(self, *args, **kwargs):
+        """
+        Return this polydifferential operator with the ``subs`` method applied (with the given arguments) to each coefficient.
+        """
+        return self.map_coefficients(lambda c: c.subs(*args, **kwargs))
+
 def identity(x):
     return x
 
