@@ -1,8 +1,15 @@
 from collections.abc import Iterable, MutableMapping
-from itertools import product
+from itertools import product, combinations
 from functools import reduce, partial
 from operator import mul
 from collections import defaultdict
+
+def compositions(num, width):
+    m = num + width - 1
+    last = (m,)
+    first = (-1,)
+    for t in combinations(range(m), width - 1):
+        yield [v - u - 1 for u, v in zip(first + t, t + last)]
 
 class PolyDifferentialOperator:
     """
@@ -193,37 +200,44 @@ class PolyDifferentialOperator:
         """
         return -(self - other)
 
+    def insertion(self, position, other):
+        """
+        Return the insertion of ``other`` into the ``position``th argument of this polydifferential operator.
+        """
+        coefficients = defaultdict(dict)
+        for arity1 in self._coefficients:
+            for multi_indices1, coefficient1 in self._coefficients[arity1].items():
+                if self._parent._is_zero(coefficient1):
+                    continue
+                for arity2 in other._coefficients:
+                    for multi_indices2, coefficient2 in other._coefficients[arity2].items():
+                        if self._parent._is_zero(coefficient2):
+                            continue
+                        # product rule: split multi_indices1[position] into arity2+1 parts (1 for coefficient of other)
+                        for partition in [list(zip(*L)) for L in product(*[list(compositions(k, arity2+1)) for k in multi_indices1[position]])]:
+                            prod = multi_indices1[:position] + self._parent._mul_on_basis(arity2, partition[:-1], arity2, multi_indices2) + multi_indices1[position+1:]
+                            coeff = coefficient2
+                            for k in range(len(partition[-1])):
+                                for m in range(partition[-1][k]):
+                                    coeff = coeff.diff(self._parent.coordinate(k))
+                            coeff *= coefficient1
+                            if self._parent._is_zero(coeff):
+                                continue
+                            coefficients[arity1 + arity2 - 1][prod] = self._parent._simplify(coefficients[arity1 + arity2 - 1].get(prod, self._parent.base_ring().zero()) + coeff)
+        return self.__class__(self._parent, coefficients)
+
     def __mul__(self, other):
         """
         Return this polydifferential operator multiplied by ``other``.
         """
-        coefficients = defaultdict(dict)
         if isinstance(other, self.__class__):
             if self.arity() != 1 or other.arity() != 1:
                 raise ValueError("Don't know how to multiply polydifferential operators of arities not equal to 1.")
-            for multi_indices1, coefficient1 in self._coefficients[1].items():
-                if self._parent._is_zero(coefficient1):
-                    continue
-                for multi_indices2, coefficient2 in other._coefficients[1].items():
-                    if self._parent._is_zero(coefficient2):
-                        continue
-                    # product rule: split multi_indices1[0] into left_multi_index + right_multi_index in all possible ways:
-                    for left_multi_index in product(*[range(k+1) for k in multi_indices1[0]]):
-                        right_multi_index = tuple(multi_indices1[0][i] - left_multi_index[i] for i in range(len(left_multi_index)))
-                        prod = self._parent._mul_on_basis(1, (right_multi_index,), 1, multi_indices2)
-                        coeff = coefficient2
-                        for k in range(len(left_multi_index)):
-                            for m in range(left_multi_index[k]):
-                                coeff = coeff.diff(self._parent.coordinate(k))
-                        coeff *= coefficient1
-                        if self._parent._is_zero(coeff):
-                            continue
-                        coefficients[1][prod] = self._parent._simplify(coefficients[1].get(prod, self._parent.base_ring().zero()) + coeff)
+            return self.insertion(0, other)
         elif other in self._parent.base_ring():
             return self * self._parent(other)
         else:
             return NotImplemented
-        return self.__class__(self._parent, coefficients)
 
     def __rmul__(self, other):
         """
