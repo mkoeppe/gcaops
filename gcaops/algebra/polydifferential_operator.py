@@ -1,5 +1,5 @@
 from collections.abc import Iterable, MutableMapping
-from itertools import product, combinations
+from itertools import product, combinations, permutations
 from functools import reduce, partial
 from operator import mul
 from collections import defaultdict
@@ -215,12 +215,16 @@ class PolyDifferentialOperator:
                             continue
                         # product rule: split multi_indices1[position] into arity2+1 parts (1 for coefficient of other)
                         for partition in [list(zip(*L)) for L in product(*[list(compositions(k, arity2+1)) for k in multi_indices1[position]])]:
+                            decompositions = list(zip(*partition))
+                            multiplicity = 1
+                            for decomposition in decompositions:
+                                multiplicity *= 1 + list(permutations(decomposition)).count(decomposition) - (reduce(mul, [k+1 for k in range(decomposition.count(0))]) if decomposition.count(0) > 0 else 0)
                             prod = multi_indices1[:position] + self._parent._mul_on_basis(arity2, partition[:-1], arity2, multi_indices2) + multi_indices1[position+1:]
                             coeff = coefficient2
                             for k in range(len(partition[-1])):
                                 for m in range(partition[-1][k]):
                                     coeff = coeff.diff(self._parent.coordinate(k))
-                            coeff *= coefficient1
+                            coeff *= coefficient1 * multiplicity
                             if self._parent._is_zero(coeff):
                                 continue
                             coefficients[arity1 + arity2 - 1][prod] = self._parent._simplify(coefficients[arity1 + arity2 - 1].get(prod, self._parent.base_ring().zero()) + coeff)
