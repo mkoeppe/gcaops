@@ -312,6 +312,12 @@ class PolyDifferentialOperator:
         """
         return self * other - (1 if (self.arity()-1)*(other.arity()-1) % 2 == 0 else -1) * other * self
 
+    def coefficient(self, variable):
+        """
+        Return the coefficient of ``variable`` of this polydifferential operator.
+        """
+        return self.map_coefficients(lambda c: c.coefficient(variable))
+
 def identity(x):
     return x
 
