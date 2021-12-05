@@ -229,11 +229,14 @@ class PolyDifferentialOperator:
     def __mul__(self, other):
         """
         Return this polydifferential operator multiplied by ``other``.
+
+        NOTE::
+
+            This is the pre-Lie product, a sum (with signs) of insertions of ``other`` into this polydifferential operator.
+            For unary operators, it is simply composition.
         """
         if isinstance(other, self.__class__):
-            if self.arity() != 1 or other.arity() != 1:
-                raise ValueError("Don't know how to multiply polydifferential operators of arities not equal to 1.")
-            return self.insertion(0, other)
+            return sum((1 if (i*(other.arity()-1)) % 2 == 0 else -1)*self.insertion(i, other) for i in range(self.arity()))
         elif other in self._parent.base_ring():
             return self * self._parent(other)
         else:
