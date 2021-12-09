@@ -218,7 +218,11 @@ class PolyDifferentialOperator:
                             decompositions = list(zip(*partition))
                             multiplicity = 1
                             for decomposition in decompositions:
-                                multiplicity *= 1 + list(permutations(decomposition)).count(decomposition) - (reduce(mul, [k+1 for k in range(decomposition.count(0))]) if decomposition.count(0) > 0 else 0)
+                                # the number of ways to distribute a derivative over factors with the multiplicities given by decomposition is the multinomial coefficient
+                                multinomial_coefficient_denominator = reduce(mul, [reduce(mul, [j+1 for j in range(d)], 1) for d in decomposition], 1)
+                                multinomial_coefficient_numerator = reduce(mul, [k+1 for k in range(sum(decomposition))], 1)
+                                multinomial_coefficient = multinomial_coefficient_numerator // multinomial_coefficient_denominator
+                                multiplicity *= multinomial_coefficient
                             prod = multi_indices1[:position] + self._parent._mul_on_basis(arity2, partition[:-1], arity2, multi_indices2) + multi_indices1[position+1:]
                             coeff = coefficient2
                             for k in range(len(partition[-1])):
