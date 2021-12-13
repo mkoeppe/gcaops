@@ -183,3 +183,13 @@ class FormalityGraph:
         from sage.graphs.graph_plot import graphplot_options
         plot_options = {k: options.pop(k) for k in graphplot_options if k in options}
         return self.plot(**plot_options).show(**options)
+
+    def kontsevint_encoding(self):
+        """
+        Return the encoding of this graph for use in Panzer's kontsevint program.
+        """
+        relabeling = ['p{}'.format(k+1) if k < self._num_ground_vertices else str(k - self._num_ground_vertices + 1) for k in range(self._num_ground_vertices + self._num_aerial_vertices)]
+        targets = [[] for k in range(self._num_aerial_vertices)]
+        for (a,b) in self._edges:
+            targets[a - self._num_ground_vertices].append(relabeling[b])
+        return '[{}]'.format(','.join('[{}]'.format(','.join(t)) for t in targets))
