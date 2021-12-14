@@ -54,27 +54,8 @@ class UndirectedGraphCochain_dict(UndirectedGraphCochain, UndirectedGraphVector_
                 continue
             user, user_sign = self._parent._graph_basis.key_to_graph(user_key)
             user_coeff *= user_sign
-            vertices, edges = user_key[:2]
-            for position in range(vertices):
-                # relabel user (vertices > position are shifted to make room for stick)
-                user_edges = [[a + 1 if a > position else a, b + 1 if b > position else b] for (a,b) in user.edges()]
-                # relabel stick
-                stick_edges = [(position, position + 1)]
-                # find edges which are incident to position
-                incident = [(i,user_edges[i].index(position)) for i in range(len(user_edges)) if position in user_edges[i]]
-                # loop over all possible new endpoints (in stick) for these edges
-                for endpoints in product(range(2), repeat=len(incident)):
-                    # NOTE: skip creation of graphs with leaves:
-                    if endpoints.count(0) == 0 or endpoints.count(1) == 0:
-                        continue
-                    # TODO: skip handshakes, if all degrees > 2
-                    # redirect edges (which were incident to position) to stick
-                    for k in range(len(incident)):
-                        a, b = incident[k]
-                        user_edges[a][b] = position + endpoints[k]
-                    # NOTE: the convention is that stick edges go last:
-                    term = self._parent._graph_basis.graph_class(len(user) + 1, [tuple(e) for e in user_edges] + stick_edges)
-                    terms.append([user_coeff, term])
+            for g in user._expanding_differential_graphs():
+                terms.append([user_coeff, g])
         return self._parent(terms)
 
     def _indices_and_coefficients(self, bi_grading):
@@ -137,27 +118,8 @@ class UndirectedGraphCochain_vector(UndirectedGraphCochain, UndirectedGraphVecto
                 for (user_idx, user_coeff) in vector.items():
                     user, user_sign = self._parent._graph_basis.key_to_graph(bi_grading + (user_idx,))
                     user_coeff *= user_sign
-                    vertices, edges = bi_grading
-                    for position in range(vertices):
-                        # relabel user (vertices > position are shifted to make room for stick)
-                        user_edges = [[a + 1 if a > position else a, b + 1 if b > position else b] for (a,b) in user.edges()]
-                        # relabel stick
-                        stick_edges = [(position, position + 1)]
-                        # find edges which are incident to position
-                        incident = [(i,user_edges[i].index(position)) for i in range(len(user_edges)) if position in user_edges[i]]
-                        # loop over all possible new endpoints (in stick) for these edges
-                        for endpoints in product(range(2), repeat=len(incident)):
-                            # NOTE: skip creation of graphs with leaves:
-                            if endpoints.count(0) == 0 or endpoints.count(1) == 0:
-                                continue
-                            # TODO: skip handshakes, if all degrees > 2
-                            # redirect edges (which were incident to position) to stick
-                            for k in range(len(incident)):
-                                a, b = incident[k]
-                                user_edges[a][b] = position + endpoints[k]
-                            # NOTE: the convention is that stick edges go last:
-                            term = self._parent._graph_basis.graph_class(len(user) + 1, [tuple(e) for e in user_edges] + stick_edges)
-                            terms.append([user_coeff, term])
+                    for g in user._expanding_differential_graphs():
+                        terms.append([user_coeff, g])
             return self._parent(terms)
 
     def is_coboundary(self, certificate=False):

@@ -1,5 +1,6 @@
 from collections.abc import MutableSequence
 from util.permutation import selection_sort
+from .undirected_graph import UndirectedGraph
 
 class DirectedGraph:
     """
@@ -62,6 +63,10 @@ class DirectedGraph:
         """
         new_edges = [(relabeling[a], relabeling[b]) for (a,b) in self._edges]
         return __class__(self._num_vertices, new_edges)
+
+    _insertion_graphs = UndirectedGraph._insertion_graphs
+
+    _expanding_differential_graphs = UndirectedGraph._expanding_differential_graphs
 
     def out_degrees(self):
         """
