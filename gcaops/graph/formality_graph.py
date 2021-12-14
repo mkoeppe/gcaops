@@ -1,6 +1,7 @@
 from collections.abc import MutableSequence
 from util.permutation import selection_sort
 from math import factorial
+from itertools import product
 
 class FormalityGraph:
     """
@@ -113,6 +114,53 @@ class FormalityGraph:
             if b < self._num_ground_vertices:
                 degrees[b] += 1
         return tuple(degrees)
+
+    def _insertion_graphs(self, position, other):
+        """
+        An iterator producing the graphs which are obtained by inserting ``other`` into the vertex ``position`` of this graph.
+
+        NOTE::
+
+            The convention used is that the edges which originate from ``other`` are last in the edge ordering of each produced graph.
+        """
+        if position >= self._num_ground_vertices: # insert into an aerial vertex
+            if other.num_ground_vertices() != 0:
+                raise ValueError("can't insert graph with ground vertices into an aerial vertex")
+            # relabel user (vertices > position are shifted to make room for victim)
+            user_edges = [[a + len(other) - 1 if a > position else a, b + len(other) - 1 if b > position else b] for (a,b) in self.edges()]
+            # relabel victim
+            victim_edges = [(position + a, position + b) for (a,b) in other.edges()]
+            # find edges which are incident to position
+            incident = [(i,user_edges[i].index(position)) for i in range(len(user_edges)) if position in user_edges[i]]
+            # loop over all possible new endpoints (in victim) for these edges
+            for endpoints in product(range(len(other)), repeat=len(incident)):
+                # redirect edges (which were incident to position) to victim
+                for k in range(len(incident)):
+                    a, b = incident[k]
+                    user_edges[a][b] = position + endpoints[k]
+                yield __class__(self._num_ground_vertices,
+                                self._num_aerial_vertices + len(other) - 1,
+                                [tuple(e) for e in user_edges] + victim_edges)
+        else: # insert into a ground vertex
+            # relabel user
+            user_relabeling = [k + other.num_ground_vertices() - 1 if k > position else k for k in range(self.num_ground_vertices())] + \
+                              [self._num_ground_vertices + other.num_ground_vertices() - 1 + k for k in range(self.num_aerial_vertices())]
+            user_edges = [[user_relabeling[a], user_relabeling[b]] for (a,b) in self.edges()]
+            # relabel victim
+            victim_relabeling = [position + k for k in range(other.num_ground_vertices())] + \
+                                [len(self) + other.num_ground_vertices() - 1 + k for k in range(other.num_aerial_vertices())]
+            victim_edges = [(victim_relabeling[a], victim_relabeling[b]) for (a,b) in other.edges()]
+            # find edges which are incident to position
+            incident = [(i,user_edges[i].index(position)) for i in range(len(user_edges)) if position in user_edges[i]]
+            # loop over all possible new endpoints (in victim) for these edges
+            for endpoints in product(range(len(other)), repeat=len(incident)):
+                # redirect edges (which were incident to position) to victim
+                for k in range(len(incident)):
+                    a, b = incident[k]
+                    user_edges[a][b] = victim_relabeling[endpoints[k]]
+                yield __class__(self._num_ground_vertices + other.num_ground_vertices() - 1,
+                                self._num_aerial_vertices + other.num_aerial_vertices(),
+                                [tuple(e) for e in user_edges] + victim_edges)
 
     def automorphism_group(self):
         """
