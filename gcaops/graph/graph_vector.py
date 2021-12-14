@@ -96,6 +96,13 @@ class GraphVector(ABC):
         pass
 
     @abstractmethod
+    def homogeneous_part(self, *grading):
+        """
+        Return the homogeneous part of this graph vector consisting only of terms with the given ``grading``.
+        """
+        pass
+
+    @abstractmethod
     def nvertices(self):
         """
         Return the number of vertices in each graph in this graph vector.
