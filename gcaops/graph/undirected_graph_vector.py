@@ -158,21 +158,8 @@ class UndirectedGraphVector_vector(UndirectedGraphVector, GraphVector_vector):
                         victim_key = victim_bigrading + (victim_idx,)
                         victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
                         victim_coeff *= victim_sign
-                        # relabel user (vertices > position are shifted to make room for victim)
-                        user_edges = [[a + len(victim) - 1 if a > position else a, b + len(victim) - 1 if b > position else b] for (a,b) in user.edges()]
-                        # relabel victim
-                        victim_edges = [(position + a, position + b) for (a,b) in victim.edges()]
-                        # find edges which are incident to position
-                        incident = [(i,user_edges[i].index(position)) for i in range(len(user_edges)) if position in user_edges[i]]
-                        # loop over all possible new endpoints (in victim) for these edges
-                        for endpoints in product(range(len(victim)), repeat=len(incident)):
-                            # redirect edges (which were incident to position) to victim
-                            for k in range(len(incident)):
-                                a, b = incident[k]
-                                user_edges[a][b] = position + endpoints[k]
-                            # NOTE: the convention is that victim edges go last:
-                            term = self._parent._graph_basis.graph_class(len(user) + len(victim) - 1, [tuple(e) for e in user_edges] + victim_edges)
-                            terms.append([user_coeff*victim_coeff, term])
+                        for g in user._insertion_graphs(position, victim):
+                            terms.append([user_coeff*victim_coeff, g])
         return self._parent(terms)
 
 class UndirectedGraphModule_vector(UndirectedGraphModule, GraphModule_vector):
