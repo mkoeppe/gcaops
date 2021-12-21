@@ -17,7 +17,9 @@ def nauty_generate_formality(num_ground_vertices, num_aerial_vertices, num_undir
     directg_args = ['-e{}:{}'.format(num_directed_edges, num_directed_edges)]
     if loops is not None and not loops:
         directg_args.append('-o')
-    pickg_args = ['-d0', '-m{}'.format(num_ground_vertices)]
+    pickg_args = []
+    if num_ground_vertices > 0: # NOTE: avoid edge case of pickg seemingly not working
+        pickg_args = ['-d0', '-m{}:'.format(num_ground_vertices)] # NOTE: can have more vertices of out-degree 0, namely aerial vertices
     if max_out_degree:
         pickg_args.append('-D{}'.format(max_out_degree))
     if num_verts_of_max_out_degree:
@@ -43,33 +45,35 @@ def formality_graph_generate(num_ground_vertices, num_aerial_vertices, num_edges
         for h in nauty_generate_formality(num_ground_vertices, num_aerial_vertices, num_edges - loop_order, num_edges,
                                           connected=connected, max_out_degree=max_out_degree,
                                           num_verts_of_max_out_degree=num_verts_of_max_out_degree, loops=loops):
-            # Relabel sinks to 0, 1, ...
+            # Choose sinks
             possible_sinks = [v for v in h if h.out_degree(v) == 0]
-            assert len(possible_sinks) == num_ground_vertices # TODO: check if other cases are relevant
-            non_sinks = [v for v in h if not v in possible_sinks]
-            relabeling = dict(zip(possible_sinks + non_sinks, range(num_vertices)))
-            h.relabel(relabeling, inplace=True)
-            if mod_ground_permutations:
-                ground_permutations = [list(range(num_ground_vertices))]
-            else:
-                ground_permutations = itertools.permutations(range(num_ground_vertices))
+            # TODO: instead of all combinations, mod out by automorphisms
             seen = []
-            for sigma in ground_permutations:
-                hh = h.relabel(dict(zip(range(num_ground_vertices), sigma)), inplace=False)
-                hh = hh.canonical_label(partition=partition)
-                g = FormalityGraph(num_ground_vertices, num_aerial_vertices, list(hh.edges(labels=False)))
-                g.canonicalize_edges()
-                if g in seen:
-                    continue
+            for sinks in itertools.combinations(possible_sinks, num_ground_vertices):
+                # Relabel sinks to 0, 1, ...
+                non_sinks = tuple(v for v in h if not v in sinks)
+                relabeling = dict(zip(sinks + non_sinks, range(num_vertices)))
+                k = h.relabel(relabeling, inplace=False)
+                if mod_ground_permutations:
+                    ground_permutations = [list(range(num_ground_vertices))]
                 else:
-                    seen.append(g)
-                if positive_differential_order is not None and positive_differential_order != (not 0 in g.differential_orders()):
-                    continue
-                if has_odd_automorphism is not None and formality_graph_has_odd_automorphism(g) != has_odd_automorphism:
-                    continue
-                if prime is not None and formality_graph_is_prime(g) != prime:
-                    continue
-                yield g
+                    ground_permutations = itertools.permutations(range(num_ground_vertices))
+                for sigma in ground_permutations:
+                    hh = k.relabel(dict(zip(range(num_ground_vertices), sigma)), inplace=False)
+                    hh = hh.canonical_label(partition=partition)
+                    g = FormalityGraph(num_ground_vertices, num_aerial_vertices, list(hh.edges(labels=False)))
+                    g.canonicalize_edges()
+                    if g in seen:
+                        continue
+                    else:
+                        seen.append(g)
+                    if positive_differential_order is not None and positive_differential_order != (not 0 in g.differential_orders()):
+                        continue
+                    if has_odd_automorphism is not None and formality_graph_has_odd_automorphism(g) != has_odd_automorphism:
+                        continue
+                    if prime is not None and formality_graph_is_prime(g) != prime:
+                        continue
+                    yield g
 
 def formality_graph_canonicalize(g):
     n = len(g)
