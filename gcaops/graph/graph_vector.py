@@ -138,6 +138,12 @@ class GraphVector(ABC):
         """
         pass
 
+    def coefficient(self, variable):
+        """
+        Return the coefficient of ``variable`` in this graph vector.
+        """
+        return self.apply_map(lambda c: c.coefficient(variable))
+
     def plot(self, **options):
         """
         Return a plot of this graph vector.
