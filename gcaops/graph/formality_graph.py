@@ -162,6 +162,38 @@ class FormalityGraph:
                                 self._num_aerial_vertices + other.num_aerial_vertices(),
                                 [tuple(e) for e in user_edges] + victim_edges)
 
+    def _hochschild_differential_terms(self):
+        """
+        An iterator producing the terms (sign, graph) in the Hochschild differential of this graph.
+
+        NOTE::
+
+            The convention used is that the graphical Hochschild differential is the Gerstenhaber bracket [mu, -] with the graph mu consisting of two ground vertices.
+        """
+        prefactor = -1 if (self._num_ground_vertices - 1) % 2 == 0 else 1
+        for position in range(self._num_ground_vertices):
+            insertion_sign = -1 if position % 2 == 1 else 1
+            # relabel user
+            user_relabeling = [k + 1 if k > position else k for k in range(self.num_ground_vertices())] + \
+                              [self._num_ground_vertices + 1 + k for k in range(self.num_aerial_vertices())]
+            user_edges = [[user_relabeling[a], user_relabeling[b]] for (a,b) in self.edges()]
+            # relabel victim
+            victim_relabeling = [position + k for k in range(2)]
+            # find edges which are incident to position
+            incident = [(i,user_edges[i].index(position)) for i in range(len(user_edges)) if position in user_edges[i]]
+            # loop over all possible new endpoints (in victim) for these edges
+            for endpoints in product(range(2), repeat=len(incident)):
+                # redirect edges (which were incident to position) to victim
+                # skip the two terms with the loose ground vertex
+                if (position == 0 and endpoints.count(0) == 0) or (position == self._num_ground_vertices - 1 and endpoints.count(1) == 0):
+                    continue
+                for k in range(len(incident)):
+                    a, b = incident[k]
+                    user_edges[a][b] = victim_relabeling[endpoints[k]]
+                yield prefactor * insertion_sign, __class__(self._num_ground_vertices + 1,
+                                                            self._num_aerial_vertices,
+                                                            [tuple(e) for e in user_edges])
+
     def automorphism_group(self):
         """
         Return the automorphism group of this graph.
