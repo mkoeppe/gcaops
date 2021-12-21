@@ -131,6 +131,13 @@ class GraphVector(ABC):
         """
         pass
 
+    @abstractmethod
+    def apply_map(self, f, new_parent=None):
+        """
+        Apply ``f`` to each of this graph vector's coefficients and return the resulting graph vector.
+        """
+        pass
+
     def plot(self, **options):
         """
         Return a plot of this graph vector.

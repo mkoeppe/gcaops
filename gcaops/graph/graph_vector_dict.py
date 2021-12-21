@@ -170,6 +170,17 @@ class GraphVector_dict(GraphVector):
                 v[key] = self._vector[key]
         return self.__class__(self._parent, v)
 
+    def apply_map(self, f, new_parent=None):
+        """
+        Apply ``f`` to each of this graph vector's coefficients and return the resulting graph vector.
+        """
+        if new_parent is None:
+            new_parent = self._parent
+        new_vector = {}
+        for k,v in self._vector.items():
+            new_vector[k] = f(v)
+        return self.__class__(new_parent, new_vector)
+
 class GraphModule_dict(GraphModule):
     """
     Module spanned by graphs (with elements stored as dictionaries).

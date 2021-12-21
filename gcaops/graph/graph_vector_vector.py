@@ -162,6 +162,17 @@ class GraphVector_vector(GraphVector):
         """
         return self.__class__(self._parent, { grading : self._vectors[grading]})
 
+    def apply_map(self, f, new_parent=None):
+        """
+        Apply ``f`` to each of this graph vector's coefficients and return the resulting graph vector.
+        """
+        if new_parent is None:
+            new_parent = self._parent
+        new_vectors = {}
+        for k,v in self._vectors.items():
+            new_vectors[k] = v.apply_map(f)
+        return self.__class__(new_parent, new_vectors)
+
     def vector(self, *grading):
         """
         Return the vector of coefficients of graphs with the given ``grading``.
