@@ -99,6 +99,46 @@ class FormalityGraphComplexBasis(FormalityGraphBasis):
         """
         return len(self._graphs[num_ground_vertices, num_aerial_vertices, num_edges])
 
+class FormalityGraphComplexBasis_lazy(FormalityGraphComplexBasis):
+    """
+    Basis consisting of representatives of isomorphism classes of formality graphs with no automorphisms that induce an odd permutation on edges.
+    """
+    def graph_to_key(self, graph):
+        """
+        Return a tuple consisting of the key in this basis and the sign factor such that ``graph`` equals the sign times the graph identified by the key.
+
+        INPUT:
+
+        - ``graph`` -- a FormalityGraph
+
+        OUTPUT:
+
+        Either ``(None, 1)`` if the input ``graph`` is not in the span of the basis, or a tuple consisting of a key and a sign, where a key is a tuple consisting of the number of ground vertices, the number of aerial vertices, the number of edges, and the index of the graph in the list.
+        """
+        if graph.has_odd_automorphism():
+            return None, 1
+        g, _, sign = formality_graph_cache.canonicalize_graph(graph)
+        gv, av, e = g.num_ground_vertices(), g.num_aerial_vertices(), len(g.edges())
+        return (gv,av,e) + tuple(g.edges()), sign
+
+    def key_to_graph(self, key):
+        """
+        Return a tuple consisting of a FormalityGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+
+        INPUT:
+
+        - ``key`` -- a key in this basis
+
+        OUTPUT:
+
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a FormalityGraph and a sign which is always +1.
+        """
+        gv, av, e = key[:3]
+        graph = FormalityGraph(gv, av, list(key[3:]))
+        if graph.has_odd_automorphism():
+            return None, 1
+        return graph, 1
+
 class FormalityGraphOperadBasis(FormalityGraphBasis):
     """
     Basis consisting of labeled formality graphs with no automorphisms that induce an odd permutation on edges
@@ -176,4 +216,3 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
         Return a dictionary containing the properties of the graphs in this basis.
         """
         return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'has_odd_automorphism' : False}
-
