@@ -132,7 +132,7 @@ class GraphVector(ABC):
         pass
 
     @abstractmethod
-    def apply_map(self, f, new_parent=None):
+    def map_coefficients(self, f, new_parent=None):
         """
         Apply ``f`` to each of this graph vector's coefficients and return the resulting graph vector.
         """
@@ -143,9 +143,9 @@ class GraphVector(ABC):
         Return the coefficient of ``monomial`` in this graph vector.
         """
         try:
-            return self.apply_map(lambda c: c.coefficient(monomial))
+            return self.map_coefficients(lambda c: c.coefficient(monomial))
         except AttributeError:
-            return self.apply_map(lambda c: c.parent()(c.lift().coefficient(monomial.lift())))
+            return self.map_coefficients(lambda c: c.parent()(c.lift().coefficient(monomial.lift())))
 
     def plot(self, **options):
         """

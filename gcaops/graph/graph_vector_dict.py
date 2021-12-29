@@ -170,7 +170,7 @@ class GraphVector_dict(GraphVector):
                 v[key] = self._vector[key]
         return self.__class__(self._parent, v)
 
-    def apply_map(self, f, new_parent=None):
+    def map_coefficients(self, f, new_parent=None):
         """
         Apply ``f`` to each of this graph vector's coefficients and return the resulting graph vector.
         """
