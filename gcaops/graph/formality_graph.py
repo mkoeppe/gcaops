@@ -115,7 +115,7 @@ class FormalityGraph:
                 degrees[b] += 1
         return tuple(degrees)
 
-    def _insertion_graphs(self, position, other):
+    def _insertion_graphs(self, position, other, max_out_degree=None):
         """
         An iterator producing the graphs which are obtained by inserting ``other`` into the vertex ``position`` of this graph.
 
@@ -138,9 +138,12 @@ class FormalityGraph:
                 for k in range(len(incident)):
                     a, b = incident[k]
                     user_edges[a][b] = position + endpoints[k]
-                yield __class__(self._num_ground_vertices,
-                                self._num_aerial_vertices + len(other) - 1,
-                                [tuple(e) for e in user_edges] + victim_edges)
+                g = __class__(self._num_ground_vertices,
+                              self._num_aerial_vertices + len(other) - 1,
+                              [tuple(e) for e in user_edges] + victim_edges)
+                if max_out_degree is not None and max(g.out_degrees()) > max_out_degree:
+                    continue
+                yield g
         else: # insert into a ground vertex
             # relabel user
             user_relabeling = [k + other.num_ground_vertices() - 1 if k > position else k for k in range(self.num_ground_vertices())] + \
@@ -158,9 +161,12 @@ class FormalityGraph:
                 for k in range(len(incident)):
                     a, b = incident[k]
                     user_edges[a][b] = victim_relabeling[endpoints[k]]
-                yield __class__(self._num_ground_vertices + other.num_ground_vertices() - 1,
-                                self._num_aerial_vertices + other.num_aerial_vertices(),
-                                [tuple(e) for e in user_edges] + victim_edges)
+                g = __class__(self._num_ground_vertices + other.num_ground_vertices() - 1,
+                              self._num_aerial_vertices + other.num_aerial_vertices(),
+                              [tuple(e) for e in user_edges] + victim_edges)
+                if max_out_degree is not None and max(g.out_degrees()) > max_out_degree:
+                    continue
+                yield g
 
     def _hochschild_differential_terms(self):
         """
