@@ -116,13 +116,13 @@ class FormalityGraphVector_dict(FormalityGraphVector, GraphVector_dict):
             raise ValueError("graph vector containing graphs with more than zero ground vertices can't be aerial")
         self._is_aerial = is_aerial
 
-    def insertion(self, position, other):
+    def insertion(self, position, other, **kwargs):
         """
         Return the insertion of ``other`` into this graph vector at the vertex ``position``.
         """
         if self.is_aerial() and not other.is_aerial():
             raise ValueError("can't insert non-aerial graph vector into aerial graph vector")
-        result = UndirectedGraphVector_dict.insertion(self, position, other)
+        result = UndirectedGraphVector_dict.insertion(self, position, other, **kwargs)
         result.set_aerial(self.is_aerial())
         return result
 
@@ -216,13 +216,13 @@ class FormalityGraphVector_vector(FormalityGraphVector, GraphVector_vector):
             raise ValueError("graph vector containing graphs with more than zero ground vertices can't be aerial")
         self._is_aerial = is_aerial
 
-    def insertion(self, position, other):
+    def insertion(self, position, other, **kwargs):
         """
         Return the insertion of ``other`` into this graph vector at the vertex ``position``.
         """
         if self.is_aerial() and not other.is_aerial():
             raise ValueError("can't insert non-aerial graph vector into aerial graph vector")
-        result = UndirectedGraphVector_vector.insertion(self, position, other)
+        result = UndirectedGraphVector_vector.insertion(self, position, other, **kwargs)
         result.set_aerial(self.is_aerial())
         return result
 

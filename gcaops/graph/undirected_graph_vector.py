@@ -60,7 +60,7 @@ class UndirectedGraphVector_dict(UndirectedGraphVector, GraphVector_dict):
             if not self._vector[key].is_zero():
                 return e
 
-    def insertion(self, position, other):
+    def insertion(self, position, other, **kwargs):
         """
         Return the insertion of ``other`` into this graph vector at the vertex ``position``.
         """
@@ -81,7 +81,7 @@ class UndirectedGraphVector_dict(UndirectedGraphVector, GraphVector_dict):
                 user_coeff *= user_sign
                 victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
                 victim_coeff *= victim_sign
-                for g in user._insertion_graphs(position, victim):
+                for g in user._insertion_graphs(position, victim, **kwargs):
                     terms.append([product_coeff, g])
         return self._parent(terms)
 
@@ -146,7 +146,7 @@ class UndirectedGraphVector_vector(UndirectedGraphVector, GraphVector_vector):
             if not self._vectors[bi_grading].is_zero():
                 return bi_grading[1]
 
-    def insertion(self, position, other):
+    def insertion(self, position, other, **kwargs):
         """
         Return the insertion of ``other`` into this graph vector at the vertex ``position``.
         """
@@ -164,7 +164,7 @@ class UndirectedGraphVector_vector(UndirectedGraphVector, GraphVector_vector):
                         product_coeff = user_coeff * victim_coeff
                         if product_coeff.is_zero():
                             continue
-                        for g in user._insertion_graphs(position, victim):
+                        for g in user._insertion_graphs(position, victim, **kwargs):
                             terms.append([product_coeff, g])
         return self._parent(terms)
 

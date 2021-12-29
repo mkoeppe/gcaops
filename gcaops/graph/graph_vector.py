@@ -125,7 +125,7 @@ class GraphVector(ABC):
         pass
 
     @abstractmethod
-    def insertion(self, position, other):
+    def insertion(self, position, other, **kwargs):
         """
         Return the insertion of ``other`` into this graph vector at the vertex ``position``.
         """
