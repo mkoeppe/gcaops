@@ -209,6 +209,17 @@ class FormalityGraph:
         partition = [[k] for k in range(self._num_ground_vertices)] + [list(range(self._num_ground_vertices, len(self)))]
         return g.automorphism_group(partition=partition)
 
+    def has_odd_automorphism(self):
+        """
+        Return ``True`` if this graph has an automorphism that induces an odd permutation on its ordered set of edges.
+        """
+        for sigma in self.automorphism_group().gens(): # NOTE: it suffices to check generators
+            edge_permutation = [tuple([sigma(edge[0]),sigma(edge[1])]) for edge in self._edges]
+            index_permutation = [self._edges.index(e) for e in edge_permutation]
+            if selection_sort(index_permutation) == -1:
+                return True
+        return False
+
     def multiplicity(self):
         """
         Return the number of formality graphs isomorphic to this one, under isomorphisms that preserve the ground vertices pointwise.
