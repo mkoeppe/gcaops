@@ -74,12 +74,15 @@ class UndirectedGraphVector_dict(UndirectedGraphVector, GraphVector_dict):
                 victim_coeff = other._vector[victim_key]
                 if victim_coeff.is_zero():
                     continue
+                product_coeff = user_coeff * victim_coeff
+                if product_coeff.is_zero():
+                    continue
                 user, user_sign = self._parent._graph_basis.key_to_graph(user_key)
                 user_coeff *= user_sign
                 victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
                 victim_coeff *= victim_sign
                 for g in user._insertion_graphs(position, victim):
-                    terms.append([user_coeff*victim_coeff, g])
+                    terms.append([product_coeff, g])
         return self._parent(terms)
 
 class UndirectedGraphModule_dict(UndirectedGraphModule, GraphModule_dict):
@@ -158,8 +161,11 @@ class UndirectedGraphVector_vector(UndirectedGraphVector, GraphVector_vector):
                         victim_key = victim_bigrading + (victim_idx,)
                         victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
                         victim_coeff *= victim_sign
+                        product_coeff = user_coeff * victim_coeff
+                        if product_coeff.is_zero():
+                            continue
                         for g in user._insertion_graphs(position, victim):
-                            terms.append([user_coeff*victim_coeff, g])
+                            terms.append([product_coeff, g])
         return self._parent(terms)
 
 class UndirectedGraphModule_vector(UndirectedGraphModule, GraphModule_vector):
