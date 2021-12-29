@@ -138,11 +138,14 @@ class GraphVector(ABC):
         """
         pass
 
-    def coefficient(self, variable):
+    def coefficient(self, monomial):
         """
-        Return the coefficient of ``variable`` in this graph vector.
+        Return the coefficient of ``monomial`` in this graph vector.
         """
-        return self.apply_map(lambda c: c.coefficient(variable))
+        try:
+            return self.apply_map(lambda c: c.coefficient(monomial))
+        except AttributeError:
+            return self.apply_map(lambda c: c.parent()(c.lift().coefficient(monomial.lift())))
 
     def plot(self, **options):
         """
@@ -156,7 +159,7 @@ class GraphVector(ABC):
         my_options.update(options)
         fontsize = my_options.pop('fontsize', 16)
         label = lambda c: text('${}' + (latex(c) if str(c)[0] == '-' else '+' + latex(c)) + '$', (0.4,0.0), fontsize=fontsize, axes=False)
-        return graphics_array([g.plot(**my_options) + label(c) for (c,g) in self], ncols=ncols)
+        return graphics_array([g.plot(**my_options) + label(c.lift() if hasattr(c, 'lift') else c) for (c,g) in self], ncols=ncols)
 
     def show(self, **options):
         """
