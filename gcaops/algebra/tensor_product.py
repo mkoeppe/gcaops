@@ -137,7 +137,7 @@ class TensorProduct:
         """
         if isinstance(arg, self.element_class) and arg.parent() is self:
             return arg
-        elif isinstance(arg, MutableSequence) and all(isinstance(term, MutableSequence) for term in arg):
+        elif isinstance(arg, MutableSequence) and all(isinstance(term, MutableSequence) for term in arg) and all(len(term) == self.nfactors() for term in arg):
             return self.element_class(self, arg)
         else:
             raise ValueError('cannot convert {} into element of {}'.format(arg, self))
