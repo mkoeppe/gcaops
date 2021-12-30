@@ -178,7 +178,10 @@ class GraphVector_dict(GraphVector):
             new_parent = self._parent
         new_vector = {}
         for k,v in self._vector.items():
-            new_vector[k] = f(v)
+            new_v = f(v)
+            if new_v.is_zero():
+                continue
+            new_vector[k] = new_v
         return self.__class__(new_parent, new_vector)
 
 class GraphModule_dict(GraphModule):

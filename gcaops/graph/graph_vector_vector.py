@@ -170,7 +170,10 @@ class GraphVector_vector(GraphVector):
             new_parent = self._parent
         new_vectors = {}
         for k,v in self._vectors.items():
-            new_vectors[k] = v.apply_map(f)
+            new_vector = v.apply_map(f)
+            if new_vector.is_zero():
+                continue
+            new_vectors[k] = new_vector
         return self.__class__(new_parent, new_vectors)
 
     def vector(self, *grading):
