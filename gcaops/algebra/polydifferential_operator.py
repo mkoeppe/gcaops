@@ -116,6 +116,13 @@ class PolyDifferentialOperator:
         arity = len(multi_indices)
         self._coefficients[arity][multi_indices] = new_value
 
+    def multi_indices(self):
+        """
+        Return an iterator over the multi-indices of the terms in this polydifferential operator.
+        """
+        for arity in self._coefficients:
+            yield from self._coefficients[arity]
+
     def homogeneous_part(self, arity):
         """
         Return the homogeneous part of this polydifferential operator of arity ``arity``.
