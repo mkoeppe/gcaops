@@ -3,6 +3,7 @@ from copy import copy
 from .graph_vector import GraphVector, GraphModule
 from .graph_vector_dict import GraphVector_dict, GraphModule_dict
 from .graph_vector_vector import GraphVector_vector, GraphModule_vector
+from .formality_graph import FormalityGraph
 from .formality_graph_basis import FormalityGraphBasis
 # for insertion:
 from .undirected_graph_vector import UndirectedGraphVector_dict, UndirectedGraphVector_vector
@@ -40,7 +41,43 @@ class FormalityGraphModule(GraphModule):
     """
     Module spanned by formality graphs.
     """
-    pass
+    def element_from_kgs_encoding(self, kgs_encoding, hbar):
+        """
+        Return the linear combination of Kontsevich graphs specified by an encoding, as an element of this module.
+
+        INPUT:
+
+        - ``kgs_encoding`` -- a string, containing an encoding of a graph series expansion as used in the ``kontsevich_graph_series-cpp`` program
+
+        - ``hbar`` -- an element of the base ring, to be used as the series expansion parameter
+        """
+        from sage.misc.sage_eval import sage_eval
+        terms = []
+        exponent = 0
+        for line in kgs_encoding.split('\n'):
+            line = line.strip()
+            if line[0] == 'h':
+                exponent = int(line[2:-1])
+                continue
+            elif line[0] == '#':
+                continue
+            encoding_str, coeff_str = line.rsplit('    ')
+            coeff = self.base_ring()(sage_eval(coeff_str)) * hbar**exponent
+            encoding_parts = encoding_str.split('   ')
+            if encoding_parts[1] == '':
+                # no edges
+                prefix = [int(v) for v in encoding_parts[0].split(' ')]
+                terms.append((coeff, FormalityGraph(prefix[0], prefix[1], [])))
+                continue
+            prefix_str, targets_str = encoding_parts
+            prefix = [int(v) for v in prefix_str.split(' ')]
+            targets_flat = [int(v) for v in targets_str.split(' ')]
+            edges = []
+            for k in range(prefix[1]):
+                edges.append((prefix[0] + k, targets_flat[2*k]))
+                edges.append((prefix[0] + k, targets_flat[2*k+1]))
+            terms.append((coeff, FormalityGraph(prefix[0], prefix[1], edges)))
+        return self(terms)
 
 class FormalityGraphVector_dict(FormalityGraphVector, GraphVector_dict):
     """
