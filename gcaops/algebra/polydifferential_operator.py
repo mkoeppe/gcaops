@@ -227,7 +227,7 @@ class PolyDifferentialOperator:
                             coeff = coefficient2
                             for k in range(len(partition[-1])):
                                 for m in range(partition[-1][k]):
-                                    coeff = coeff.diff(self._parent.coordinate(k))
+                                    coeff = coeff.derivative(self._parent.coordinate(k))
                             coeff *= coefficient1 * multiplicity
                             if self._parent._is_zero(coeff):
                                 continue

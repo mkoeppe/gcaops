@@ -202,18 +202,18 @@ class SuperfunctionAlgebraUndirectedGraphOperation(SuperfunctionAlgebraOperation
                 if any(f.is_zero() for f in term0):
                     continue
                 for k in range(self._codomain.ngens()):
-                    left_odd_derivative = term0[e[1]].diff(odds[k])
+                    left_odd_derivative = term0[e[1]].derivative(odds[k])
                     if not left_odd_derivative.is_zero():
-                        left_even_derivative = term0[e[0]].diff(evens[k])
+                        left_even_derivative = term0[e[0]].derivative(evens[k])
                         if not left_even_derivative.is_zero():
                             left_term = [f.copy() for f in term0]
                             left_sign = 1 if sum(term0[j].degree() for j in range(e[1])) % 2 == 0 else -1
                             left_term[e[1]] = left_sign * left_odd_derivative
                             left_term[e[0]] = left_even_derivative
                             new_terms.append(left_term)
-                    right_odd_derivative = term0[e[0]].diff(odds[k])
+                    right_odd_derivative = term0[e[0]].derivative(odds[k])
                     if not right_odd_derivative.is_zero():
-                        right_even_derivative = term0[e[1]].diff(evens[k])
+                        right_even_derivative = term0[e[1]].derivative(evens[k])
                         if not right_even_derivative.is_zero():
                             right_term = [f.copy() for f in term0]
                             right_sign = 1 if sum(term0[j].degree() for j in range(e[0])) % 2 == 0 else -1
@@ -303,9 +303,9 @@ class SuperfunctionAlgebraDirectedGraphOperation(SuperfunctionAlgebraOperation):
                 if any(f.is_zero() for f in term0):
                     continue
                 for k in range(self._codomain.ngens()):
-                    right_odd_derivative = term0[e[0]].diff(odds[k])
+                    right_odd_derivative = term0[e[0]].derivative(odds[k])
                     if not right_odd_derivative.is_zero():
-                        right_even_derivative = term0[e[1]].diff(evens[k])
+                        right_even_derivative = term0[e[1]].derivative(evens[k])
                         if not right_even_derivative.is_zero():
                             right_term = [f.copy() for f in term0]
                             right_sign = 1 if sum(term0[j].degree() for j in range(e[0])) % 2 == 0 else -1
