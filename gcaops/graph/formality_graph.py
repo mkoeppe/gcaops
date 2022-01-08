@@ -87,6 +87,15 @@ class FormalityGraph:
         new_edges = [(relabeling[a], relabeling[b]) for (a,b) in self._edges]
         return __class__(self._num_ground_vertices, self._num_aerial_vertices, new_edges)
 
+    def ground_relabeled(self, relabeling):
+        """
+        Return a ground vertex relabeling of this graph.
+        """
+        if any(v >= self._num_ground_vertices for v in relabeling):
+            raise ValueError('Relabeling must map ground vertices to ground vertices')
+        new_edges = [(relabeling[a] if a < self._num_ground_vertices else a, relabeling[b] if b < self._num_ground_vertices else b) for (a,b) in self._edges]
+        return __class__(self._num_ground_vertices, self._num_aerial_vertices, new_edges)
+
     def out_degrees(self):
         """
         Return the tuple of out-degrees of vertices of this graph.
