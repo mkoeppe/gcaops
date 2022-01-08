@@ -37,6 +37,27 @@ class FormalityGraphVector(GraphVector):
         """
         pass
 
+    def differential_orders(self):
+        """
+        Return an iterator over the tuples of in-degrees of ground vertices of graphs in this graph vector.
+        """
+        seen = set([])
+        for (_, g) in self:
+            diff_order = g.differential_orders()
+            if diff_order not in seen:
+                yield diff_order
+                seen.add(diff_order)
+
+    def part_of_differential_order(self, diff_order):
+        """
+        Return the graph vector which is the summand of this graph vector containing only graphs such that the in-degrees of the ground vertices are ``diff_order``.
+        """
+        terms = []
+        for (c,g) in self:
+            if g.differential_orders() == diff_order:
+                terms.append((c,g))
+        return self.parent()(terms)
+
 class FormalityGraphModule(GraphModule):
     """
     Module spanned by formality graphs.
