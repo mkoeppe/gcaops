@@ -131,6 +131,14 @@ class GraphVector(ABC):
         """
         pass
 
+    def map_graphs(self, f, new_parent=None):
+        """
+        Apply ``f`` to each of this graph vector's graphs and return the resulting graph vector.
+        """
+        if new_parent is None:
+            new_parent = self.parent()
+        return new_parent([(c, f(g)) for (c,g) in self])
+
     @abstractmethod
     def map_coefficients(self, f, new_parent=None):
         """
