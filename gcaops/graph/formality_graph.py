@@ -176,6 +176,10 @@ class FormalityGraph:
 
             The convention used is that the graphical Hochschild differential is the Gerstenhaber bracket [mu, -] with the graph mu consisting of two ground vertices.
         """
+        yield 1, __class__(self._num_ground_vertices + 1,
+                           self._num_aerial_vertices,
+                           [(a + 1 if a >= self._num_ground_vertices else a, b + 1 if b >= self._num_ground_vertices else b) for (a,b) in self.edges()])
+        yield 1 if (self._num_ground_vertices - 1) % 2 == 0 else -1, __class__(self._num_ground_vertices + 1, self._num_aerial_vertices, [(a + 1, b + 1) for (a,b) in self.edges()])
         prefactor = -1 if (self._num_ground_vertices - 1) % 2 == 0 else 1
         for position in range(self._num_ground_vertices):
             insertion_sign = -1 if position % 2 == 1 else 1
@@ -190,9 +194,6 @@ class FormalityGraph:
             # loop over all possible new endpoints (in victim) for these edges
             for endpoints in product(range(2), repeat=len(incident)):
                 # redirect edges (which were incident to position) to victim
-                # skip the two terms with the loose ground vertex
-                if (position == 0 and endpoints.count(0) == 0) or (position == self._num_ground_vertices - 1 and endpoints.count(1) == 0):
-                    continue
                 for k in range(len(incident)):
                     a, b = incident[k]
                     user_edges[a][b] = victim_relabeling[endpoints[k]]
