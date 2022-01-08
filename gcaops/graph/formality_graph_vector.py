@@ -37,6 +37,36 @@ class FormalityGraphVector(GraphVector):
         """
         pass
 
+    def ground_symmetrization(self):
+        """
+        Return the symmetrization of this graph vector with respect to the ground vertices.
+
+        ASSUMPTIONS:
+
+        Assumes all graphs in this graph vector have the same number of ground vertices.
+        """
+        from itertools import permutations
+        result = self.parent().zero()
+        for sigma in permutations(range(self.nground())):
+            result += self.map_graphs(lambda g: g.ground_relabeled(sigma))
+        return result
+
+    def ground_skew_symmetrization(self):
+        """
+        Return the skew-symmetrization (or anti-symmetrization) of this graph vector with respect to the ground vertices.
+
+        ASSUMPTIONS:
+
+        Assumes all graphs in this graph vector have the same number of ground vertices.
+        """
+        from itertools import permutations
+        from util.permutation import selection_sort
+        result = self.parent().zero()
+        for sigma in permutations(range(self.nground())):
+            sign = selection_sort(list(sigma))
+            result += sign * self.map_graphs(lambda g: g.ground_relabeled(sigma))
+        return result
+
     def differential_orders(self):
         """
         Return an iterator over the tuples of in-degrees of ground vertices of graphs in this graph vector.
