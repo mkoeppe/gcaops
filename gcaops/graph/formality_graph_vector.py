@@ -45,6 +45,8 @@ class FormalityGraphVector(GraphVector):
 
         Assumes all graphs in this graph vector have the same number of ground vertices.
         """
+        if self.nground() is None:
+            return self.parent().zero()
         from itertools import permutations
         result = self.parent().zero()
         for sigma in permutations(range(self.nground())):
@@ -59,6 +61,8 @@ class FormalityGraphVector(GraphVector):
 
         Assumes all graphs in this graph vector have the same number of ground vertices.
         """
+        if self.nground() is None:
+            return self.parent().zero()
         from itertools import permutations
         from util.permutation import selection_sort
         result = self.parent().zero()
