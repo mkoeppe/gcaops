@@ -444,6 +444,10 @@ class SuperfunctionAlgebra:
     def __call__(self, arg):
         """
         Return ``arg`` converted into an element of this superfunction algebra.
+
+        ASSUMPTIONS:
+
+        If ``arg`` is a ``PolyDifferentialOperator``, it is assumed that its coefficients are skew-symmetric.
         """
         if arg in self._base_ring:
             return self.element_class(self, { 0 : [arg]})
@@ -455,6 +459,27 @@ class SuperfunctionAlgebra:
                     return arg.map_coefficients(self._base_ring, new_parent=self)
                 except:
                     raise ValueError('cannot convert {} into element of {}'.format(arg, self))
+        from .polydifferential_operator import PolyDifferentialOperator
+        if isinstance(arg, PolyDifferentialOperator):
+            if arg.parent().base_ring() is self.base_ring():
+                seen = set([])
+                result = self.zero()
+                for multi_indices in arg.multi_indices():
+                    degrees = [sum(multi_index) for multi_index in multi_indices]
+                    if any(degree != 1 for degree in degrees):
+                        continue
+                    indices = [multi_index.index(1) for multi_index in multi_indices]
+                    sign = selection_sort(indices)
+                    if tuple(indices) in seen:
+                        continue
+                    seen.add(tuple(indices))
+                    monomial = reduce(lambda a,b: a*b, [self.gen(idx) for idx in indices], self.one())
+                    coeff = arg[multi_indices]
+                    arity = len(indices)
+                    result += coeff * sign * monomial
+                return result
+            else:
+                raise ValueError('cannot convert {} into element of {}'.format(arg, self))
         else:
             raise ValueError('cannot convert {} into element of {}'.format(arg, self))
 
