@@ -578,6 +578,12 @@ class SuperfunctionAlgebra:
         """
         return self.element_class(self, {})
 
+    def one(self):
+        """
+        Return the unit element of this superfunction algebra.
+        """
+        return self.element_class(self, {0 : [self._base_ring.one()]})
+
     def tensor_power(self, n):
         """
         Return the ``n``th tensor power of this superfunction algebra.
