@@ -291,6 +291,22 @@ class FormalityGraph:
         plot_options = {k: options.pop(k) for k in graphplot_options if k in options}
         return self.plot(**plot_options).show(**options)
 
+    def kgs_encoding(self):
+        """
+        Return the encoding of this graph for use in Buring's kontsevich_graph_series-cpp programs.
+
+        ASSUMPTIONS:
+
+        Assumes that this graph is built of wedges (i.e. each aerial vertex has out-degree two).
+        """
+        if self.out_degrees() != tuple([0]*self._num_ground_vertices + [2]*self._num_aerial_vertices):
+            raise ValueError('kgs_encoding is only defined for graphs built of wedges')
+        prefix = "{} {} 1   ".format(self._num_ground_vertices, self._num_aerial_vertices)
+        targets = [[] for k in range(self._num_aerial_vertices)]
+        for (a,b) in self._edges:
+            targets[a - self._num_ground_vertices].append(b)
+        return prefix + ' '.join(' '.join(map(str, t)) for t in targets)
+
     def kontsevint_encoding(self):
         """
         Return the encoding of this graph for use in Panzer's kontsevint program.
