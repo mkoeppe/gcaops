@@ -460,6 +460,20 @@ class PolyDifferentialOperatorAlgebra:
                         return arg.map_coefficients(self._base_ring, new_parent=self)
                     except:
                         raise ValueError('cannot convert {} into element of {}'.format(arg, self))
+            from .superfunction_algebra import Superfunction
+            if isinstance(arg, Superfunction):
+                if arg.parent().base_ring() is self.base_ring():
+                    result = self.zero()
+                    for indices in arg.indices():
+                        coeff = arg[indices]
+                        if len(indices) == 0:
+                            op = self.identity_operator()
+                        else:
+                            op = self.tensor_product(*[self.derivative(index) for index in indices])
+                        result += coeff * op.skew_symmetrization()
+                    return result
+                else:
+                    raise ValueError('cannot convert {} into element of {}'.format(arg, self))
             else:
                 raise ValueError('cannot convert {} into element of {}'.format(arg, self))
 
