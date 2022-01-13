@@ -343,6 +343,32 @@ class PolyDifferentialOperator:
         """
         return self.map_coefficients(lambda c: c.subs(*args, **kwargs))
 
+    def symmetrization(self):
+        """
+        Return the polydifferential operator which is the symmetrization of this polydifferential operator.
+        """
+        coefficients = defaultdict(dict)
+        for arity in self._coefficients:
+            for multi_indices, coefficient in self._coefficients[arity].items():
+                for multi_indices_permuted in permutations(multi_indices):
+                    coefficients[arity][multi_indices_permuted] = coefficients[arity].get(multi_indices_permuted, self._parent.base_ring().zero()) + coefficient
+        return self.__class__(self._parent, coefficients)
+
+    def skew_symmetrization(self):
+        """
+        Return the polydifferential operator which is the skew-symmetrization of this polydifferential operator.
+        """
+        from util.permutation import selection_sort
+        coefficients = defaultdict(dict)
+        for arity in self._coefficients:
+            arguments = list(range(arity))
+            for multi_indices, coefficient in self._coefficients[arity].items():
+                for sigma in permutations(arguments):
+                    sign = selection_sort(list(sigma))
+                    multi_indices_permuted = tuple([multi_indices[sigma[k]] for k in range(arity)])
+                    coefficients[arity][multi_indices_permuted] = coefficients[arity].get(multi_indices_permuted, self._parent.base_ring().zero()) + sign*coefficient
+        return self.__class__(self._parent, coefficients)
+
 def identity(x):
     return x
 
