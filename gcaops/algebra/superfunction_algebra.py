@@ -128,6 +128,15 @@ class Superfunction:
         if index is not None:
             self._monomial_coefficients[degree][index] = sign * new_value
 
+    def indices(self):
+        """
+        Return an iterator over the tuples of indices of this superfunction.
+        """
+        for degree in reversed(sorted(self._monomial_coefficients.keys())):
+            for k, coefficient in enumerate(self._monomial_coefficients[degree]):
+                if not self._parent._is_zero(self._monomial_coefficients[degree][k]):
+                    yield self._parent._basis[degree][k]
+
     def homogeneous_part(self, degree):
         """
         Return the homogeneous part of this superfunction of total degree ``degree`` in the odd coordinates.
