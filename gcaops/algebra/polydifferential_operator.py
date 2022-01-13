@@ -317,17 +317,19 @@ class PolyDifferentialOperator:
         """
         return next(iter(self._coefficients), 0)
 
-    def bracket(self, other):
+    def gerstenhaber_bracket(self, other):
         """
         Return the Gerstenhaber bracket of this polydifferential operator with ``other``.
         """
         return self * other - (1 if (self.arity()-1)*(other.arity()-1) % 2 == 0 else -1) * other * self
 
+    bracket = gerstenhaber_bracket
+
     def hochschild_differential(self):
         """
         Return the Hochschild differential of this polydifferential operator, with respect to the multiplication operator of the parent.
         """
-        return self._parent.multiplication_operator().bracket(self)
+        return self._parent.multiplication_operator().gerstenhaber_bracket(self)
 
     def coefficient(self, variable):
         """
