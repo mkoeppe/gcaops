@@ -216,3 +216,97 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
         Return a dictionary containing the properties of the graphs in this basis.
         """
         return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'has_odd_automorphism' : False}
+
+def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, has_odd_automorphism=None):
+    num_ground_vertices, num_aerial_vertices = key
+    return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, has_odd_automorphism=False, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
+
+class KontsevichGraphBasis(GraphBasis):
+    """
+    Basis consisting of representatives of isomorphism classes of Kontsevich graphs (built of wedges) with no automorphisms that induce an odd permutation on edges.
+    """
+    graph_class = FormalityGraph
+    grading_size = 2
+
+    def __init__(self, positive_differential_order=None, connected=None, loops=None):
+        """
+        Initialize this basis.
+        """
+        self._positive_differential_order = positive_differential_order
+        self._connected = connected
+        self._loops = loops
+        self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, has_odd_automorphism=False))
+
+    def graph_to_key(self, graph):
+        """
+        Return a tuple consisting of the key in this basis and the sign factor such that ``graph`` equals the sign times the graph identified by the key.
+
+        INPUT:
+
+        - ``graph`` -- a FormalityGraph
+
+        OUTPUT:
+
+        Either ``(None, 1)`` if the input ``graph`` is not in the span of the basis, or a tuple consisting of a key and a sign, where a key is a tuple consisting of the number of ground vertices, the number of aerial vertices, the number of edges, and the index of the graph in the list.
+        """
+        g, _, sign = formality_graph_cache.canonicalize_graph(graph)
+        gv, av, e = g.num_ground_vertices(), g.num_aerial_vertices(), len(g.edges())
+        try:
+            index = self._graphs[gv,av].index(g)
+            return (gv,av,index), sign
+        except ValueError:
+            return None, 1
+
+    def key_to_graph(self, key):
+        """
+        Return a tuple consisting of a FormalityGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+
+        INPUT:
+
+        - ``key`` -- a key in this basis
+
+        OUTPUT:
+
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a FormalityGraph and a sign which is always +1.
+        """
+        gv, av, index = key
+        try:
+            return self._graphs[gv,av][index], 1
+        except IndexError:
+            return None, 1
+
+    def __repr__(self):
+        """
+        Return a string representation of this basis.
+        """
+        filters = []
+        if self._positive_differential_order:
+            filters.append('of positive differential order')
+        if self._connected:
+            filters.append('connected')
+        if not self._loops is None:
+            filters.append('{} loops'.format('with' if self._loops else 'without'))
+        if filters:
+            filters_str = ' ({})'.format(', '.join(filters))
+        else:
+            filters_str = ''
+        return 'Basis consisting of representatives of isomorphism classes of Kontsevich graphs{} with no automorphisms that induce an odd permutation on edges'.format(filters_str)
+
+    def graph_properties(self):
+        """
+        Return a dictionary containing the properties of the graphs in this basis.
+        """
+        return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'has_odd_automorphism' : False}
+
+    def graphs(self, num_ground_vertices, num_aerial_vertices):
+        """
+        Return the list of graphs in this basis with the given ``num_ground_vertices`` and ``num_aerial_vertices``.
+        """
+        return self._graphs[num_ground_vertices, num_aerial_vertices]
+
+    def cardinality(self, num_ground_vertices, num_aerial_vertices):
+        """
+        Return the number of graphs in this basis with the given ``num_ground_vertices`` and ``num_aerial_vertices``.
+        """
+        return len(self._graphs[num_ground_vertices, num_aerial_vertices])
