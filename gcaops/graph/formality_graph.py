@@ -18,6 +18,10 @@ class FormalityGraph:
         - ``num_aerial_vertices`` -- a natural number, the number of aerial vertices
 
         - ``edges`` -- a list of tuples of natural numbers
+
+        .. SEEALSO::
+
+            :meth:`from_kgs_encoding`
         """
         if not num_ground_vertices >= 0:
             raise ValueError('num_ground_vertices must be a natural number')
@@ -35,6 +39,33 @@ class FormalityGraph:
                 raise ValueError('Ground vertices (< {}) must not have any outgoing edges. Got edge {}'.format(num_ground_vertices, (source, target)))
         self._edges = edges
         self._vertex_positions = None
+
+    @staticmethod
+    def from_kgs_encoding(kgs_encoding):
+        """
+        Return a tuple consisting of a sign and a FormalityGraph built of wedges, as specified by the given encoding.
+
+        INPUT:
+
+        - ``kgs_encoding`` -- a string, containing a graph encoding as used in Buring's ``kontsevich_graph_series-cpp`` programs
+
+        .. SEEALSO::
+
+            :meth:`kgs_encoding`
+        """
+        encoding_integers = [int(x) for x in kgs_encoding.split()] # split on whitespace
+        if len(encoding_integers) < 3:
+            raise ValueError("kgs_encoding must contain at least three integers separated by whitespace")
+        num_ground = encoding_integers.pop(0)
+        num_aerial = encoding_integers.pop(0)
+        sign = encoding_integers.pop(0)
+        if len(encoding_integers) != 2*num_aerial:
+            raise ValueError("kgs_encoding must contain exactly two targets for each aerial vertex")
+        edges = []
+        for k in range(num_aerial):
+            edges.append((num_ground + k, encoding_integers[2*k]))
+            edges.append((num_ground + k, encoding_integers[2*k+1]))
+        return sign, FormalityGraph(num_ground, num_aerial, edges)
 
     def __repr__(self):
         """
@@ -293,11 +324,15 @@ class FormalityGraph:
 
     def kgs_encoding(self):
         """
-        Return the encoding of this graph for use in Buring's kontsevich_graph_series-cpp programs.
+        Return the encoding of this graph for use in Buring's ``kontsevich_graph_series-cpp`` programs.
 
         ASSUMPTIONS:
 
         Assumes that this graph is built of wedges (i.e. each aerial vertex has out-degree two).
+
+        .. SEEALSO::
+
+            :meth:`from_kgs_encoding`
         """
         if self.out_degrees() != tuple([0]*self._num_ground_vertices + [2]*self._num_aerial_vertices):
             raise ValueError('kgs_encoding is only defined for graphs built of wedges')

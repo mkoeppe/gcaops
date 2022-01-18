@@ -102,7 +102,7 @@ class FormalityGraphModule(GraphModule):
 
         INPUT:
 
-        - ``kgs_encoding`` -- a string, containing an encoding of a graph series expansion as used in the ``kontsevich_graph_series-cpp`` program
+        - ``kgs_encoding`` -- a string, containing an encoding of a graph series expansion as used in Buring's ``kontsevich_graph_series-cpp`` program
 
         - ``hbar`` -- an element of the base ring, to be used as the series expansion parameter
         """
@@ -116,22 +116,11 @@ class FormalityGraphModule(GraphModule):
                 continue
             elif line[0] == '#':
                 continue
-            encoding_str, coeff_str = line.rsplit('    ')
+            encoding_str, coeff_str = line.rsplit(None, 1) # split on whitespace, from the right
             coeff = self.base_ring()(sage_eval(coeff_str)) * hbar**exponent
-            encoding_parts = encoding_str.split('   ')
-            if encoding_parts[1] == '':
-                # no edges
-                prefix = [int(v) for v in encoding_parts[0].split(' ')]
-                terms.append((coeff, FormalityGraph(prefix[0], prefix[1], [])))
-                continue
-            prefix_str, targets_str = encoding_parts
-            prefix = [int(v) for v in prefix_str.split(' ')]
-            targets_flat = [int(v) for v in targets_str.split(' ')]
-            edges = []
-            for k in range(prefix[1]):
-                edges.append((prefix[0] + k, targets_flat[2*k]))
-                edges.append((prefix[0] + k, targets_flat[2*k+1]))
-            terms.append((coeff, FormalityGraph(prefix[0], prefix[1], edges)))
+            sign, g = FormalityGraph.from_kgs_encoding(encoding_str)
+            coeff *= sign
+            terms.append((coeff, g))
         return self(terms)
 
 class FormalityGraphVector_dict(FormalityGraphVector, GraphVector_dict):
