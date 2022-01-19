@@ -375,10 +375,16 @@ class FormalityGraph:
         """
         Return the encoding of this graph for use in Panzer's kontsevint program.
 
+        ASSUMPTIONS:
+
+        Assumes ``len(self.edges()) == 2*self.num_aerial_vertices() - 2 + self.num_ground_vertices()``.
+
         .. SEEALSO::
 
             :meth:`from_kontsevint_encoding`
         """
+        if len(self._edges) != 2*self._num_aerial_vertices - 2 + self._num_ground_vertices:
+            raise ValueError('kontsevint_encoding is only defined for graphs with the balance of vertices and edges e = 2*n - 2 + m')
         relabeling = ['p{}'.format(k+1) if k < self._num_ground_vertices else str(k - self._num_ground_vertices + 1) for k in range(self._num_ground_vertices + self._num_aerial_vertices)]
         targets = [[] for k in range(self._num_aerial_vertices)]
         for (a,b) in self._edges:
