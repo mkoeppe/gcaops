@@ -67,6 +67,35 @@ class FormalityGraph:
             edges.append((num_ground + k, encoding_integers[2*k+1]))
         return sign, FormalityGraph(num_ground, num_aerial, edges)
 
+    @staticmethod
+    def from_kontsevint_encoding(kontsevint_encoding):
+        """
+        Return the Formalitygraph specified by the given encoding.
+
+        INPUT:
+
+        - ``kontsevint_encoding`` -- a string, containing a graph encoding as used in Panzer's ``kontsevint`` program
+
+        .. SEEALSO::
+
+            :meth:`kontsevint_encoding`
+        """
+        kontsevint_encoding = kontsevint_encoding.replace(' ', '').replace('\t','') # remove whitespace
+        targets_strs = kontsevint_encoding[2:-2].split('],[')
+        targets = [targets_str.split(',') for targets_str in targets_strs]
+        num_aerial = len(targets)
+        num_edges = sum(len(t) for t in targets)
+        num_ground = num_edges + 2 - 2*num_aerial # NOTE: this is the only type of FormalityGraph considered in kontsevint
+        vertex_numbering = { 'p{}'.format(v+1) : v for v in range(num_ground) }
+        vertex_numbering.update({'L' : 0, 'R' : 1}) # aliases for the first two ground vertices p1, p2
+        vertex_numbering.update({ str(v+1) : num_ground + v for v in range(num_aerial) })
+        targets = [[vertex_numbering[t] for t in targets_str] for targets_str in targets]
+        edges = []
+        for v in range(num_aerial):
+            for t in targets[v]:
+                edges.append((num_ground + v, t))
+        return FormalityGraph(num_ground, num_aerial, edges)
+
     def __repr__(self):
         """
         Return a string representation of this graph.
@@ -345,6 +374,10 @@ class FormalityGraph:
     def kontsevint_encoding(self):
         """
         Return the encoding of this graph for use in Panzer's kontsevint program.
+
+        .. SEEALSO::
+
+            :meth:`from_kontsevint_encoding`
         """
         relabeling = ['p{}'.format(k+1) if k < self._num_ground_vertices else str(k - self._num_ground_vertices + 1) for k in range(self._num_ground_vertices + self._num_aerial_vertices)]
         targets = [[] for k in range(self._num_aerial_vertices)]
