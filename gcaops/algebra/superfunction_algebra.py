@@ -474,7 +474,6 @@ class SuperfunctionAlgebra:
                     seen.add(tuple(indices))
                     monomial = reduce(lambda a,b: a*b, [self.gen(idx) for idx in indices], self.one())
                     coeff = arg[multi_indices]
-                    arity = len(indices)
                     result += coeff * sign * monomial
                 return result
             else:
