@@ -35,7 +35,7 @@ class PolyDifferentialOperator:
         self._coefficients = defaultdict(dict)
         for arity in coefficients:
             for (multi_indices, coefficient) in coefficients[arity].items():
-                self._coefficients[arity][multi_indices] = self._parent.base_ring()(coefficients[arity][multi_indices]) # conversion
+                self._coefficients[arity][multi_indices] = self._parent.base_ring()(coefficient) # conversion
 
     def __repr__(self):
         """
@@ -48,11 +48,11 @@ class PolyDifferentialOperator:
                 if c == '0':
                     continue
                 elif c == '1' and arity > 0: # mainly for generators and basis
-                    term = self._parent._repr_monomial(arity, multi_indices)
+                    term = self._parent._repr_monomial(multi_indices)
                 elif arity == 0:
                     term = '({})'.format(c)
                 else:
-                    term = '({})*{}'.format(c, self._parent._repr_monomial(arity, multi_indices))
+                    term = '({})*{}'.format(c, self._parent._repr_monomial(multi_indices))
                 terms.append(term)
         if terms:
             return ' + '.join(terms)
@@ -68,7 +68,7 @@ class PolyDifferentialOperator:
         for arity in reversed(sorted(self._coefficients.keys())):
             for multi_indices, coefficient in self._coefficients[arity].items():
                 c = coefficient._latex_()
-                monomial = self._parent._repr_monomial(arity, multi_indices).replace('*', '')
+                monomial = self._parent._repr_monomial(multi_indices).replace('*', '')
                 if c == '0':
                     continue
                 if arity == 0:
@@ -142,7 +142,7 @@ class PolyDifferentialOperator:
         coefficients = defaultdict(dict)
         for arity in self._coefficients:
             for multi_indices, coefficient in self._coefficients[arity].items():
-                coefficients[arity][multi_indices] = new_parent._simplify(f(self._coefficients[arity][multi_indices]))
+                coefficients[arity][multi_indices] = new_parent._simplify(f(coefficient))
         return self.__class__(new_parent, coefficients)
 
     def copy(self):
@@ -230,10 +230,10 @@ class PolyDifferentialOperator:
                                 multinomial_coefficient_numerator = reduce(mul, [k+1 for k in range(sum(decomposition))], 1)
                                 multinomial_coefficient = multinomial_coefficient_numerator // multinomial_coefficient_denominator
                                 multiplicity *= multinomial_coefficient
-                            prod = multi_indices1[:position] + self._parent._mul_on_basis(arity2, partition[:-1], arity2, multi_indices2) + multi_indices1[position+1:]
+                            prod = multi_indices1[:position] + self._parent._mul_on_basis(partition[:-1], multi_indices2) + multi_indices1[position+1:]
                             coeff = coefficient2
                             for k in range(len(partition[-1])):
-                                for m in range(partition[-1][k]):
+                                for _ in range(partition[-1][k]):
                                     coeff = coeff.derivative(self._parent.coordinate(k))
                             coeff *= coefficient1 * multiplicity
                             if self._parent._is_zero(coeff):
@@ -291,7 +291,7 @@ class PolyDifferentialOperator:
         Return ``True`` if this polydifferential operator equals zero and ``False`` otherwise.
         """
         for arity in self._coefficients:
-            for multi_indices, coefficient in self._coefficients[arity].items():
+            for coefficient in self._coefficients[arity].values():
                 if not self._parent._is_zero(coefficient):
                     return False
         return True
@@ -537,13 +537,11 @@ class PolyDifferentialOperatorAlgebra:
 
     derivative = gen
 
-    def _repr_monomial(self, arity, multi_indices):
+    def _repr_monomial(self, multi_indices):
         """
         Return a string representation of the respective differential monomial.
 
         INPUT:
-
-        - ``arity`` -- a natural number, the arity of the monomial
 
         - ``multi_indices`` -- a tuple of multi-indices
         """
@@ -565,11 +563,11 @@ class PolyDifferentialOperatorAlgebra:
         else:
             return '(' + factors_str + ')'
 
-    def _mul_on_basis(self, arity1, multi_indices1, arity2, multi_indices2):
+    def _mul_on_basis(self, multi_indices1, multi_indices2):
         """
         Return the multi-index that results from multiplying the differential monomial given by ``multi_indices1`` by the differential monomial given by ``multi_indices2``.
         """
-        assert arity1 == arity2
+        assert len(multi_indices1) == len(multi_indices2)
         multi_indices = []
         for (multi_index1, multi_index2) in zip(multi_indices1, multi_indices2):
             multi_indices.append(tuple(multi_index1[i] + multi_index2[i] for i in range(self.__ngens)))
