@@ -217,10 +217,10 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
         """
         return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'has_odd_automorphism' : False}
 
-def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, has_odd_automorphism=None):
+def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
-            positive_differential_order=positive_differential_order, connected=connected, loops=loops, has_odd_automorphism=False, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
 
 class KontsevichGraphBasis(GraphBasis):
     """
@@ -229,14 +229,15 @@ class KontsevichGraphBasis(GraphBasis):
     graph_class = FormalityGraph
     grading_size = 2
 
-    def __init__(self, positive_differential_order=None, connected=None, loops=None):
+    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False):
         """
         Initialize this basis.
         """
         self._positive_differential_order = positive_differential_order
         self._connected = connected
         self._loops = loops
-        self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, has_odd_automorphism=False))
+        self._mod_ground_permutations = False
+        self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
 
     def graph_to_key(self, graph):
         """
@@ -287,6 +288,8 @@ class KontsevichGraphBasis(GraphBasis):
             filters.append('connected')
         if not self._loops is None:
             filters.append('{} loops'.format('with' if self._loops else 'without'))
+        if self._mod_ground_permutations:
+            filters.append('modulo permutations of ground vertices')
         if filters:
             filters_str = ' ({})'.format(', '.join(filters))
         else:
@@ -297,7 +300,7 @@ class KontsevichGraphBasis(GraphBasis):
         """
         Return a dictionary containing the properties of the graphs in this basis.
         """
-        return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'has_odd_automorphism' : False}
+        return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'mod_ground_permutations' : self._mod_ground_permutations, 'has_odd_automorphism' : False}
 
     def graphs(self, num_ground_vertices, num_aerial_vertices):
         """
