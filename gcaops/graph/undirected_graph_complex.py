@@ -179,7 +179,7 @@ class UndirectedGraphComplex_vector(UndirectedGraphComplex_, UndirectedGraphModu
         """
         Return a string representation of this graph complex.
         """
-        return 'Graph complex over {} with {}'.format(self._base_ring, self._graph_basis)
+        return 'Undirected graph complex over {} with {}'.format(self._base_ring, self._graph_basis)
 
     def cohomology_basis(self, vertices, edges):
         """
@@ -205,12 +205,6 @@ class UndirectedGraphComplex_vector(UndirectedGraphComplex_, UndirectedGraphModu
             v = self(g).differential(use_cache=False).vector(vertices + 1, edges + 1)
             M.set_column(idx, v)
         return M
-
-    def __repr__(self):
-        """
-        Return a string representation of this graph complex.
-        """
-        return 'Undirected graph complex over {} with {}'.format(self._base_ring, self._graph_basis)
 
 def UndirectedGraphComplex(base_ring, connected=None, biconnected=None, min_degree=0, implementation='dict', vector_constructor=None, matrix_constructor=None):
     """
