@@ -57,7 +57,6 @@ class TensorProductElement:
         prefactor_inverse = factorial(n)
         new_terms = []
         for term in self._terms:
-            symmetrized_terms = []
             # label the indices of identical factors by the minimal index which they are identical to
             minimal_label = {}
             for i in range(n):
