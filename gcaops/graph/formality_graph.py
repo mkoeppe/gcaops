@@ -184,7 +184,7 @@ class FormalityGraph:
                 degrees[b] += 1
         return tuple(degrees)
 
-    def _insertion_graphs(self, position, other, max_out_degree=None):
+    def _insertion_graphs(self, position, other, max_out_degree=None, skip_attaching_to_ground=False):
         """
         An iterator producing the graphs which are obtained by inserting ``other`` into the vertex ``position`` of this graph.
 
@@ -203,6 +203,8 @@ class FormalityGraph:
             incident = [(i,user_edges[i].index(position)) for i in range(len(user_edges)) if position in user_edges[i]]
             # loop over all possible new endpoints (in victim) for these edges
             for endpoints in product(range(len(other)), repeat=len(incident)):
+                if skip_attaching_to_ground and any(v < other.num_ground_vertices() for v in endpoints):
+                    continue
                 # redirect edges (which were incident to position) to victim
                 for k in range(len(incident)):
                     a, b = incident[k]
