@@ -21,6 +21,22 @@ class FormalityGraphCochain(GraphCochain, FormalityGraphVector):
 
     bracket = gerstenhaber_bracket
 
+    def schouten_bracket(self, other):
+        """
+        Return the graph analogue of the Schouten bracket (or Schouten-Nijenhuis bracket) of this graph cochain with ``other``.
+
+        ASSUMPTIONS:
+
+        Assumes that this graph vector and ``other`` both are skew-symmetric and have differential order equal to one on each ground vertex.
+        """
+        # TODO: divide by product of factorials?
+        # TODO: flip sign?
+        result = sum((1 if k % 2 == 0 else -1) * (1 if k*self.nground() % 2 == 0 else -1) * \
+                     other.insertion(k, self, skip_attaching_to_ground=True) for k in range(other.nground())) \
+                + sum((-1 if (self.nground() - 1 - k) % 2 == 0 else 1) * (1 if (self.nground() - 1 - k)*other.nground() % 2 == 0 else -1) * \
+                      self.insertion(k, other, skip_attaching_to_ground=True) for k in range(self.nground()))
+        return result.ground_skew_symmetrization()
+
 class FormalityGraphComplex_(GraphComplex, FormalityGraphModule):
     """
     Formality graph complex.
