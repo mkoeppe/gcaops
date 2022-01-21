@@ -295,9 +295,8 @@ class Superfunction:
         Return the degree of this superfunction as a polynomial in the odd coordinates.
         """
         for d in reversed(sorted(self._monomial_coefficients.keys())):
-            for k in range(len(self._monomial_coefficients[d])):
-                if any(not self._parent._is_zero(c) for c in self._monomial_coefficients[d]):
-                    return d
+            if any(not self._parent._is_zero(c) for c in self._monomial_coefficients[d]):
+                return d
         return 0
 
     def derivative(self, *args):
