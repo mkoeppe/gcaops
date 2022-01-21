@@ -197,8 +197,8 @@ class SuperfunctionAlgebraUndirectedGraphOperation(SuperfunctionAlgebraOperation
         terms = arg.terms()
         for e in graph.edges():
             new_terms = []
-            for k in range(len(terms)):
-                term0 = terms[k]
+            for i in range(len(terms)):
+                term0 = terms[i]
                 if any(f.is_zero() for f in term0):
                     continue
                 for k in range(self._codomain.ngens()):
@@ -298,8 +298,8 @@ class SuperfunctionAlgebraDirectedGraphOperation(SuperfunctionAlgebraOperation):
         terms = arg.terms()
         for e in graph.edges():
             new_terms = []
-            for k in range(len(terms)):
-                term0 = terms[k]
+            for i in range(len(terms)):
+                term0 = terms[i]
                 if any(f.is_zero() for f in term0):
                     continue
                 for k in range(self._codomain.ngens()):
