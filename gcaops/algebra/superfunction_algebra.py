@@ -343,7 +343,7 @@ class Superfunction:
 
     diff = derivative
 
-    def bracket(self, other):
+    def schouten_bracket(self, other):
         """
         Return the Schouten bracket (odd Poisson bracket) of this superfunction with ``other``.
         """
@@ -353,7 +353,9 @@ class Superfunction:
             other = self._parent(other) # handle the case of a bracket with an even function
             return sum((sign*self.derivative(self._parent.gen(i))*other.derivative(self._parent.even_coordinate(i)) - self.derivative(self._parent.even_coordinate(i))*other.derivative(self._parent.gen(i)) for i in range(self._parent.ngens())), self._parent.zero())
         else:
-            return sum((self.homogeneous_part(d).bracket(other) for d in self._monomial_coefficients.keys()), self._parent.zero())
+            return sum((self.homogeneous_part(d).schouten_bracket(other) for d in self._monomial_coefficients.keys()), self._parent.zero())
+
+    bracket = schouten_bracket
 
 def list_combinations(n, k):
     return list(combinations(range(n), k))
