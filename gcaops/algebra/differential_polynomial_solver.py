@@ -91,7 +91,7 @@ def solve_homogeneous_diffpoly(target, source, unknowns):
     verbose('len(target_basis) == {}'.format(len(target_basis)), level=1)
     verbose('target basis: {}'.format(target_basis), level=2)
 
-    M = matrix(R.base_ring(), len(target_basis), 0)
+    M = matrix(R.base_ring(), len(target_basis), 0, sparse=True)
     ansatz_basis = []
     for v in unknowns:
         pre_subs = dict(zip(all_unknowns, [R.zero()]*len(all_unknowns)))
@@ -110,13 +110,13 @@ def solve_homogeneous_diffpoly(target, source, unknowns):
                 continue
             ansatz_basis.append((v, m))
             f = source_part[v].subs(subs)
-            V = vector(R.base_ring(), [f.monomial_coefficient(b) for b in target_basis])
+            V = vector(R.base_ring(), len(target_basis), {target_basis.index(m) : c for c,m in f}, sparse=True)
             M = M.augment(V)
 
     verbose('len(ansatz_basis) == {}'.format(len(ansatz_basis)), level=1)
     verbose('ansatz basis: {}'.format(ansatz_basis), level=2)
 
-    target_vector = vector(R.base_ring(), [target.monomial_coefficient(b) for b in target_basis])
+    target_vector = vector(R.base_ring(), len(target_basis), {target_basis.index(m) : c for c,m in target}, sparse=True)
 
     solution_vector = M.solve_right(target_vector)
     solution = {v : R.zero() for v in unknowns}
