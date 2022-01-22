@@ -4,7 +4,7 @@ from .graph_vector import GraphVector, GraphModule
 from .graph_basis import GraphBasis
 
 def zero_vector(graph_module, grading):
-    return graph_module._vector_constructor(graph_module.base_ring(), graph_module.basis().cardinality(*grading))
+    return graph_module._vector_constructor(graph_module.base_ring(), graph_module.basis().cardinality(*grading), sparse=graph_module._sparse)
 
 class GraphVector_vector(GraphVector):
     """
@@ -18,7 +18,7 @@ class GraphVector_vector(GraphVector):
 
         - ``parent`` -- a GraphModule
 
-        - ``vectors`` -- a dictionary, mapping gradings to sparse vectors of coefficients with respect to the basis of ``parent``
+        - ``vectors`` -- a dictionary, mapping gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
         """
         if not isinstance(parent, GraphModule_vector):
             raise ValueError("parent must be a GraphModule_vector")
@@ -186,7 +186,7 @@ class GraphModule_vector(GraphModule):
     """
     Module spanned by graphs (with elements stored as dictionaries of vectors).
     """
-    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor):
+    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=True):
         """
         Initialize this graph module.
 
@@ -199,6 +199,8 @@ class GraphModule_vector(GraphModule):
         - ``vector_constructor`` -- constructor of (sparse) vectors
 
         - ``matrix_constructor`` -- constructor of (sparse) matrices
+
+        - ``sparse`` -- (default: ``True``) a boolean, passed along to both constructors as a keyword argument
         """
         self._base_ring = base_ring
         if not isinstance(graph_basis, GraphBasis):
@@ -206,6 +208,7 @@ class GraphModule_vector(GraphModule):
         self._graph_basis = graph_basis
         self._vector_constructor = vector_constructor
         self._matrix_constructor = matrix_constructor
+        self._sparse = sparse
         self.element_class = GraphVector_vector
 
     def base_ring(self):

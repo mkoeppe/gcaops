@@ -150,7 +150,7 @@ class UndirectedGraphComplex_vector(UndirectedGraphComplex_, UndirectedGraphModu
     """
     Undirected graph complex (with elements stored as dictionaries of vectors).
     """
-    def __init__(self, base_ring, vector_constructor, matrix_constructor, connected=None, biconnected=None, min_degree=0):
+    def __init__(self, base_ring, vector_constructor, matrix_constructor, sparse=True, connected=None, biconnected=None, min_degree=0):
         """
         Initialize this graph complex.
 
@@ -163,13 +163,15 @@ class UndirectedGraphComplex_vector(UndirectedGraphComplex_, UndirectedGraphModu
         - ``vector_constructor`` -- constructor of (sparse) vectors
 
         - ``matrix_constructor`` -- constructor of (sparse) matrices
+
+        - ``sparse`` -- (default: ``True``) a boolean, passed along to both constructors as a keyword argument
         """
         if vector_constructor is None:
             raise ValueError('vector_constructor is required')
         if matrix_constructor is None:
             raise ValueError('matrix_constructor is required')
         graph_basis = UndirectedGraphComplexBasis(connected=connected, biconnected=biconnected, min_degree=min_degree)
-        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor)
+        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=sparse)
         self.element_class = UndirectedGraphCochain_vector
         # TODO: load differentials from files
         self._differentials = keydefaultdict(partial(__class__._differential_matrix, self))
@@ -199,17 +201,20 @@ class UndirectedGraphComplex_vector(UndirectedGraphComplex_, UndirectedGraphModu
         basis = self.basis()
         columns = basis.cardinality(vertices, edges)
         rows = basis.cardinality(vertices + 1, edges + 1)
-        M = self._matrix_constructor(self.base_ring(), rows, columns)
+        M = self._matrix_constructor(self.base_ring(), rows, columns, sparse=self._sparse)
         for (idx, g) in enumerate(basis.graphs(vertices, edges)):
             v = self(g).differential(use_cache=False).vector(vertices + 1, edges + 1)
             M.set_column(idx, v)
         return M
 
-def UndirectedGraphComplex(base_ring, connected=None, biconnected=None, min_degree=0, implementation='dict', vector_constructor=None, matrix_constructor=None):
+def UndirectedGraphComplex(base_ring, connected=None, biconnected=None, min_degree=0, implementation='dict', vector_constructor=None, matrix_constructor=None, sparse=True):
     """
     Return the undirected graph complex over ``base_ring`` with the given properties.
     """
     if implementation == 'dict':
         return UndirectedGraphComplex_dict(base_ring, connected=connected, biconnected=biconnected, min_degree=min_degree)
     elif implementation == 'vector':
-        return UndirectedGraphComplex_vector(base_ring, vector_constructor, matrix_constructor, connected=connected, biconnected=biconnected, min_degree=min_degree)
+        if vector_constructor is None and matrix_constructor is None:
+            from sage.modules.free_module_element import vector as vector_constructor
+            from sage.matrix.constructor import matrix as matrix_constructor
+        return UndirectedGraphComplex_vector(base_ring, vector_constructor, matrix_constructor, sparse=sparse, connected=connected, biconnected=biconnected, min_degree=min_degree)

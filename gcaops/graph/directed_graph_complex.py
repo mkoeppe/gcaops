@@ -104,7 +104,7 @@ class DirectedGraphComplex_vector(DirectedGraphComplex_, DirectedGraphModule_vec
     """
     Directed graph complex (with elements stored as dictionaries of vectors).
     """
-    def __init__(self, base_ring, vector_constructor, matrix_constructor, connected=None, biconnected=None, min_degree=0, loops=True):
+    def __init__(self, base_ring, vector_constructor, matrix_constructor, sparse=True, connected=None, biconnected=None, min_degree=0, loops=True):
         """
         Initialize this graph complex.
         """
@@ -113,7 +113,7 @@ class DirectedGraphComplex_vector(DirectedGraphComplex_, DirectedGraphModule_vec
         if matrix_constructor is None:
             raise ValueError('matrix_constructor is required')
         graph_basis = DirectedGraphComplexBasis(connected=connected, biconnected=biconnected, min_degree=min_degree, loops=loops)
-        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor)
+        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=sparse)
         self.element_class = DirectedGraphCochain_vector
         # TODO: load differentials from files
         self._differentials = keydefaultdict(partial(__class__._differential_matrix, self))
@@ -128,12 +128,15 @@ class DirectedGraphComplex_vector(DirectedGraphComplex_, DirectedGraphModule_vec
         """
         return 'Directed graph complex over {} with {}'.format(self._base_ring, self._graph_basis)
 
-def DirectedGraphComplex(base_ring, connected=None, biconnected=None, min_degree=0, loops=True, implementation='dict', vector_constructor=None, matrix_constructor=None):
+def DirectedGraphComplex(base_ring, connected=None, biconnected=None, min_degree=0, loops=True, implementation='dict', vector_constructor=None, matrix_constructor=None, sparse=True):
     """
     Return the directed graph complex over ``base_ring`` with the given properties.
     """
     if implementation == 'dict':
         return DirectedGraphComplex_dict(base_ring, connected=connected, biconnected=biconnected, min_degree=min_degree, loops=loops)
     elif implementation == 'vector':
-        return DirectedGraphComplex_vector(base_ring, vector_constructor, matrix_constructor, connected=connected, biconnected=biconnected, min_degree=min_degree, loops=loops)
+        if vector_constructor is None and matrix_constructor is None:
+            from sage.modules.free_module_element import vector as vector_constructor
+            from sage.matrix.constructor import matrix as matrix_constructor
+        return DirectedGraphComplex_vector(base_ring, vector_constructor, matrix_constructor, sparse=sparse, connected=connected, biconnected=biconnected, min_degree=min_degree, loops=loops)
 

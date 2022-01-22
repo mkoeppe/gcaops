@@ -129,7 +129,7 @@ class FormalityGraphComplex_vector(FormalityGraphComplex_, FormalityGraphModule_
     """
     Formality graph complex (with elements stored as dictionaries of vectors).
     """
-    def __init__(self, base_ring, vector_constructor, matrix_constructor, connected=None, loops=None):
+    def __init__(self, base_ring, vector_constructor, matrix_constructor, sparse=True, connected=None, loops=None):
         """
         Initialize this graph complex.
         """
@@ -138,7 +138,7 @@ class FormalityGraphComplex_vector(FormalityGraphComplex_, FormalityGraphModule_
         if matrix_constructor is None:
             raise ValueError('matrix_constructor is required')
         graph_basis = FormalityGraphComplexBasis(connected=connected, loops=loops)
-        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor)
+        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=sparse)
         self.element_class = FormalityGraphCochain_vector
         # TODO: load differentials from files
         self._differentials = keydefaultdict(partial(__class__._differential_matrix, self))
@@ -162,7 +162,7 @@ class FormalityGraphComplex_vector(FormalityGraphComplex_, FormalityGraphModule_
         basis = self.basis()
         columns = basis.cardinality(ground_vertices, aerial_vertices, edges)
         rows = basis.cardinality(ground_vertices + 1, aerial_vertices, edges)
-        M = self._matrix_constructor(self.base_ring(), rows, columns)
+        M = self._matrix_constructor(self.base_ring(), rows, columns, sparse=self._sparse)
         for (idx, g) in enumerate(basis.graphs(ground_vertices, aerial_vertices, edges)):
             v = self(g).differential(use_cache=False).vector(ground_vertices + 1, aerial_vertices, edges)
             M.set_column(idx, v)
@@ -174,7 +174,7 @@ class FormalityGraphComplex_vector(FormalityGraphComplex_, FormalityGraphModule_
         """
         return 'Formality graph complex over {} with {}'.format(self._base_ring, self._graph_basis)
 
-def FormalityGraphComplex(base_ring, connected=None, loops=None, implementation='dict', lazy=False, vector_constructor=None, matrix_constructor=None):
+def FormalityGraphComplex(base_ring, connected=None, loops=None, implementation='dict', lazy=False, vector_constructor=None, matrix_constructor=None, sparse=True):
     """
     Return the Formality graph complex over ``base_ring`` with the given properties.
     """
@@ -183,4 +183,7 @@ def FormalityGraphComplex(base_ring, connected=None, loops=None, implementation=
     elif implementation == 'vector':
         if lazy:
             raise ValueError("lazy=True makes sense only when implementation == 'dict'")
-        return FormalityGraphComplex_vector(base_ring, vector_constructor, matrix_constructor, connected=connected, loops=loops)
+        if vector_constructor is None and matrix_constructor is None:
+            from sage.modules.free_module_element import vector as vector_constructor
+            from sage.matrix.constructor import matrix as matrix_constructor
+        return FormalityGraphComplex_vector(base_ring, vector_constructor, matrix_constructor, sparse=sparse, connected=connected, loops=loops)

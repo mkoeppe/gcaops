@@ -237,7 +237,7 @@ class FormalityGraphVector_vector(FormalityGraphVector, GraphVector_vector):
 
         - ``parent`` -- a FormalityGraphModule
 
-        - ``vectors`` -- a dictionary, mapping tri-gradings to sparse vectors of coefficients with respect to the basis of ``parent``
+        - ``vectors`` -- a dictionary, mapping tri-gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
 
         - ``is_aerial`` -- (default: False) a boolean, if True then this graph vector will be aerial
         """
@@ -310,7 +310,7 @@ class FormalityGraphModule_vector(FormalityGraphModule, GraphModule_vector):
     """
     Module spanned by formality graphs (with elements stored as dictionaries of vectors).
     """
-    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor):
+    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=True):
         """
         Initialize this formality graph module.
 
@@ -323,9 +323,11 @@ class FormalityGraphModule_vector(FormalityGraphModule, GraphModule_vector):
         - ``vector_constructor`` -- constructor of (sparse) vectors
 
         - ``matrix_constructor`` -- constructor of (sparse) matrices
+
+        - ``sparse`` -- (default: ``True``) a boolean, passed along to both constructors as a keyword argument
         """
         if not isinstance(graph_basis, FormalityGraphBasis):
             raise ValueError('graph_basis must be a FormalityGraphBasis')
-        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor)
+        super().__init__(base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=sparse)
         self.element_class = FormalityGraphVector_vector
 

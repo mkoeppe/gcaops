@@ -114,7 +114,7 @@ class DirectedGraphVector_vector(DirectedGraphVector, GraphVector_vector):
 
         - ``parent`` -- a DirectedGraphModule
 
-        - ``vectors`` -- a dictionary, mapping bi-gradings to sparse vectors of coefficients with respect to the basis of ``parent``
+        - ``vectors`` -- a dictionary, mapping bi-gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
         """
         if not isinstance(parent, DirectedGraphModule_vector):
             raise ValueError("parent must be a DirectedGraphModule_vector")
@@ -143,7 +143,7 @@ class DirectedGraphModule_vector(DirectedGraphModule, GraphModule_vector):
     """
     Module spanned by directed graphs (with elements stored as dictionaries of vectors).
     """
-    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor):
+    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=True):
         """
         Initialize this directed graph module.
 
@@ -156,6 +156,8 @@ class DirectedGraphModule_vector(DirectedGraphModule, GraphModule_vector):
         - ``vector_constructor`` -- constructor of (sparse) vectors
 
         - ``matrix_constructor`` -- constructor of (sparse) matrices
+
+        - ``sparse`` -- (default: ``True``) a boolean, passed along to both constructors as a keyword argument
         """
         if not isinstance(graph_basis, DirectedGraphBasis):
             raise ValueError('graph_basis must be a DirectedGraphBasis')

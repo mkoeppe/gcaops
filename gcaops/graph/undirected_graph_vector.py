@@ -115,7 +115,7 @@ class UndirectedGraphVector_vector(UndirectedGraphVector, GraphVector_vector):
 
         - ``parent`` -- an UndirectedGraphModule
 
-        - ``vectors`` -- a dictionary, mapping bi-gradings to sparse vectors of coefficients with respect to the basis of ``parent``
+        - ``vectors`` -- a dictionary, mapping bi-gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
         """
         if not isinstance(parent, UndirectedGraphModule_vector):
             raise ValueError("parent must be a UndirectedGraphModule_vector")
@@ -171,7 +171,7 @@ class UndirectedGraphModule_vector(UndirectedGraphModule, GraphModule_vector):
     """
     Module spanned by undirected graphs (with elements stored as dictionaries of vectors).
     """
-    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor):
+    def __init__(self, base_ring, graph_basis, vector_constructor, matrix_constructor, sparse=True):
         """
         Initialize this undirected graph module.
 
@@ -184,6 +184,8 @@ class UndirectedGraphModule_vector(UndirectedGraphModule, GraphModule_vector):
         - ``vector_constructor`` -- constructor of (sparse) vectors
 
         - ``matrix_constructor`` -- constructor of (sparse) matrices
+
+        - ``sparse`` -- (default: ``True``) a boolean, passed along to both constructors as a keyword argument
         """
         if not isinstance(graph_basis, UndirectedGraphBasis):
             raise ValueError('graph_basis must be an UndirectedGraphBasis')
