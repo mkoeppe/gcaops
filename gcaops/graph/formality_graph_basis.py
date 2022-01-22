@@ -1,8 +1,8 @@
-from graph.formality_graph import FormalityGraph
-from graph.graph_basis import GraphBasis
-from graph.graph_cache import formality_graph_cache
-from util.misc import keydefaultdict
 from functools import partial
+from gcaops.util.misc import keydefaultdict
+from .formality_graph import FormalityGraph
+from .graph_basis import GraphBasis
+from .graph_cache import formality_graph_cache
 
 class FormalityGraphBasis(GraphBasis):
     """

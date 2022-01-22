@@ -1,7 +1,7 @@
 from collections.abc import MutableSequence
 from itertools import permutations
-from util.permutation import selection_sort_graded
 from math import factorial
+from gcaops.util.permutation import selection_sort_graded
 
 class TensorProductElement:
     """

@@ -1,9 +1,9 @@
-from .graph_file import UndirectedGraphFileView, DirectedGraphFileView, UndirectedToDirectedGraphFileView, FormalityGraphFileView
 from abc import ABC, abstractmethod
-from util.undirected_graph_sage import undirected_graph_canonicalize, undirected_graph_generate
-from util.directed_graph_sage import directed_graph_canonicalize, directed_graph_generate_from_undirected, undirected_to_directed_graph_coefficient
-from util.formality_graph_sage import formality_graph_canonicalize, formality_graph_generate
 import os
+from gcaops.util.undirected_graph_sage import undirected_graph_canonicalize, undirected_graph_generate
+from gcaops.util.directed_graph_sage import directed_graph_canonicalize, directed_graph_generate_from_undirected, undirected_to_directed_graph_coefficient
+from gcaops.util.formality_graph_sage import formality_graph_canonicalize, formality_graph_generate
+from .graph_file import UndirectedGraphFileView, DirectedGraphFileView, UndirectedToDirectedGraphFileView, FormalityGraphFileView
 
 GRAPH_CACHE_DIR = None # e.g. '/home/rburing/src/gcaops/.graph_cache'
 

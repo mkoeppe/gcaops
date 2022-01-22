@@ -1,8 +1,8 @@
-from graph.directed_graph import DirectedGraph
-from graph.graph_basis import GraphBasis
-from graph.graph_cache import directed_graph_cache
-from util.misc import keydefaultdict
 from functools import partial
+from gcaops.util.misc import keydefaultdict
+from .directed_graph import DirectedGraph
+from .graph_basis import GraphBasis
+from .graph_cache import directed_graph_cache
 
 class DirectedGraphBasis(GraphBasis):
     """

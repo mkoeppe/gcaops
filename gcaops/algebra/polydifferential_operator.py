@@ -358,7 +358,7 @@ class PolyDifferentialOperator:
         """
         Return the polydifferential operator which is the skew-symmetrization of this polydifferential operator.
         """
-        from util.permutation import selection_sort
+        from gcaops.util.permutation import selection_sort
         coefficients = defaultdict(dict)
         for arity in self._coefficients:
             arguments = list(range(arity))

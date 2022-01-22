@@ -1,12 +1,11 @@
-from graph.directed_graph import DirectedGraph
-from util.undirected_graph_sage import undirected_graph_to_encoding
-from util.permutation import selection_sort
-from itertools import combinations
+import subprocess
+import os
 import sage.all # make SageMath work when called from Python
 from sage.graphs.digraph import DiGraph
 from sage.graphs.graph import Graph
-import subprocess
-import os
+from gcaops.graph.directed_graph import DirectedGraph
+from .undirected_graph_sage import undirected_graph_to_encoding
+from .permutation import selection_sort
 
 NAUTY_PREFIX = '' # e.g. '/home/rburing/src/nauty27r1/'
 

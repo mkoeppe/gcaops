@@ -1,9 +1,9 @@
-from graph.undirected_graph import UndirectedGraph
-from util.permutation import selection_sort
-import sage.all # make SageMath work when called from Python
-from sage.graphs.graph import Graph
 import subprocess
 import os
+import sage.all # make SageMath work when called from Python
+from sage.graphs.graph import Graph
+from gcaops.graph.undirected_graph import UndirectedGraph
+from .permutation import selection_sort
 
 NAUTY_PREFIX = '' # e.g. '/home/rburing/src/nauty27r1/'
 

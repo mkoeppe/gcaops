@@ -1,9 +1,9 @@
-from util.permutation import selection_sort_graded
 from abc import ABC, abstractmethod
-from .tensor_product import TensorProduct
 from functools import reduce
 from itertools import combinations
 import operator
+from gcaops.util.permutation import selection_sort_graded
+from .tensor_product import TensorProduct
 
 # TODO: sum of operations
 

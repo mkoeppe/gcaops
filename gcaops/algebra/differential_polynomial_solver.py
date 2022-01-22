@@ -1,8 +1,8 @@
-from .differential_polynomial_ring import DifferentialPolynomial
 from collections import defaultdict
 from sage.matrix.constructor import matrix
 from sage.modules.free_module_element import vector
 from sage.misc.verbose import verbose
+from .differential_polynomial_ring import DifferentialPolynomial
 
 # TODO: system of equations, e.g. for H
 

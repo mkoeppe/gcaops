@@ -1,10 +1,10 @@
-from graph.formality_graph import FormalityGraph
-from util.permutation import selection_sort
-import sage.all # make SageMath work when called from Python
-from sage.graphs.digraph import DiGraph
 import itertools
 import subprocess
 import os
+import sage.all # make SageMath work when called from Python
+from sage.graphs.digraph import DiGraph
+from gcaops.graph.formality_graph import FormalityGraph
+from .permutation import selection_sort
 
 NAUTY_PREFIX = '' # e.g. '/home/rburing/src/nauty27r1/'
 

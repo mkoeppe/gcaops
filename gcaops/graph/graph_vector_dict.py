@@ -1,7 +1,7 @@
-from .graph_vector import GraphVector, GraphModule
-from .graph_basis import GraphBasis
 from collections import defaultdict
 from functools import partial
+from .graph_vector import GraphVector, GraphModule
+from .graph_basis import GraphBasis
 
 def zero_in_base_ring(graph_module):
     return graph_module.base_ring().zero()

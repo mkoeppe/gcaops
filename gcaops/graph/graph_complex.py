@@ -1,5 +1,5 @@
+from abc import abstractmethod
 from .graph_vector import GraphVector, GraphModule
-from abc import ABC, abstractmethod
 
 class GraphCochain(GraphVector):
     """

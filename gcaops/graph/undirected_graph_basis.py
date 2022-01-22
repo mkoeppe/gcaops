@@ -1,8 +1,8 @@
-from graph.undirected_graph import UndirectedGraph
-from graph.graph_basis import GraphBasis
-from graph.graph_cache import undirected_graph_cache
-from util.misc import keydefaultdict
 from functools import partial
+from gcaops.util.misc import keydefaultdict
+from .undirected_graph import UndirectedGraph
+from .graph_basis import GraphBasis
+from .graph_cache import undirected_graph_cache
 
 class UndirectedGraphBasis(GraphBasis):
     """

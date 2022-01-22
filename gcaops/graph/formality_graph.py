@@ -1,7 +1,7 @@
 from collections.abc import MutableSequence
-from util.permutation import selection_sort
 from math import factorial
 from itertools import product
+from gcaops.util.permutation import selection_sort
 
 class FormalityGraph:
     """

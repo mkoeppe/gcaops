@@ -1,9 +1,9 @@
-from util.undirected_graph_sage import undirected_graph_from_encoding, undirected_graph_to_encoding
-from util.directed_graph_sage import directed_graph_from_encoding, directed_graph_to_encoding
-from util.formality_graph_sage import formality_graph_from_encoding, formality_graph_to_encoding
 from abc import ABC, abstractmethod
 import sqlite3
 from math import ceil
+from gcaops.util.undirected_graph_sage import undirected_graph_from_encoding, undirected_graph_to_encoding
+from gcaops.util.directed_graph_sage import directed_graph_from_encoding, directed_graph_to_encoding
+from gcaops.util.formality_graph_sage import formality_graph_from_encoding, formality_graph_to_encoding
 
 class GraphFileView(ABC):
     def __init__(self, filename, num_vertices, num_edges):

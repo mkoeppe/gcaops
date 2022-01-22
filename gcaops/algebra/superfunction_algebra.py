@@ -1,15 +1,15 @@
 from collections.abc import Iterable, MutableMapping
 from itertools import combinations
 from functools import reduce, partial
-from util.permutation import selection_sort
-from util.misc import keydefaultdict
+from gcaops.util.permutation import selection_sort
+from gcaops.util.misc import keydefaultdict
+from gcaops.graph.graph_vector import GraphVector
+from gcaops.graph.undirected_graph_vector import UndirectedGraphVector
+from gcaops.graph.directed_graph_vector import DirectedGraphVector
 from .superfunction_algebra_operation import SuperfunctionAlgebraSchoutenBracket
 from .superfunction_algebra_operation import SuperfunctionAlgebraUndirectedGraphOperation, SuperfunctionAlgebraSymmetricUndirectedGraphOperation
 from .superfunction_algebra_operation import SuperfunctionAlgebraDirectedGraphOperation, SuperfunctionAlgebraSymmetricDirectedGraphOperation
 from .tensor_product import TensorProduct
-from graph.graph_vector import GraphVector
-from graph.undirected_graph_vector import UndirectedGraphVector
-from graph.directed_graph_vector import DirectedGraphVector
 
 def zero_vector(superfunction_algebra, degree):
     zero_value = superfunction_algebra.base_ring().zero()

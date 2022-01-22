@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from copy import copy
 from .graph_vector import GraphVector, GraphModule
 from .graph_vector_dict import GraphVector_dict, GraphModule_dict
 from .graph_vector_vector import GraphVector_vector, GraphModule_vector
@@ -64,7 +63,7 @@ class FormalityGraphVector(GraphVector):
         if self.nground() is None:
             return self.parent().zero()
         from itertools import permutations
-        from util.permutation import selection_sort
+        from gcaops.util.permutation import selection_sort
         result = self.parent().zero()
         for sigma in permutations(range(self.nground())):
             sign = selection_sort(list(sigma))

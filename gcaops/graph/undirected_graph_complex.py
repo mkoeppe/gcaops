@@ -1,10 +1,9 @@
+from functools import partial
+from abc import abstractmethod
+from gcaops.util.misc import keydefaultdict
 from .graph_complex import GraphCochain, GraphComplex
 from .undirected_graph_vector import UndirectedGraphVector, UndirectedGraphModule, UndirectedGraphVector_dict, UndirectedGraphModule_dict, UndirectedGraphVector_vector, UndirectedGraphModule_vector
 from .undirected_graph_basis import UndirectedGraphComplexBasis
-from util.misc import keydefaultdict
-from functools import partial
-from itertools import product
-from abc import abstractmethod
 
 class UndirectedGraphCochain(GraphCochain, UndirectedGraphVector):
     """

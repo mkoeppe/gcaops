@@ -1,6 +1,6 @@
 from collections.abc import MutableSequence
-from util.permutation import selection_sort
 from itertools import product
+from gcaops.util.permutation import selection_sort
 
 class UndirectedGraph:
     """

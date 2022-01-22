@@ -1,5 +1,5 @@
 from collections.abc import MutableSequence
-from util.permutation import selection_sort
+from gcaops.util.permutation import selection_sort
 from .undirected_graph import UndirectedGraph
 
 class DirectedGraph:

@@ -1,7 +1,7 @@
+from functools import partial
+from gcaops.util.misc import keydefaultdict
 from .graph_vector import GraphVector, GraphModule
 from .graph_basis import GraphBasis
-from util.misc import keydefaultdict
-from functools import partial
 
 def zero_vector(graph_module, grading):
     return graph_module._vector_constructor(graph_module.base_ring(), graph_module.basis().cardinality(*grading))

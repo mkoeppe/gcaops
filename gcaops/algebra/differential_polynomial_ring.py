@@ -1,3 +1,4 @@
+from itertools import product
 from sage.rings.polynomial.polynomial_ring_constructor import PolynomialRing
 from sage.modules.free_module_element import vector
 from sage.rings.integer_ring import ZZ
@@ -5,8 +6,7 @@ from sage.combinat.integer_vector import IntegerVectors
 from sage.misc.misc_c import prod
 from sage.symbolic.expression import is_Expression
 from sage.calculus.var import var, function
-from itertools import product
-from util.jet_variables import SubstituteJetVariables, SubstituteTotalDerivatives
+from gcaops.util.jet_variables import SubstituteJetVariables, SubstituteTotalDerivatives
 
 class DifferentialPolynomial:
     def __init__(self, parent, polynomial):
