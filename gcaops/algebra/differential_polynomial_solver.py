@@ -64,6 +64,7 @@ def solve_homogeneous_diffpoly(target, source, unknowns):
             for w in ansatz_weights[v]:
                 ansatz_monomials[v].update(R.homogeneous_monomials(d, w, max_differential_orders=R.max_differential_orders()))
 
+    verbose('ansatz #monomials: ' + str({d : len(m) for d,m in ansatz_monomials.items()}), level=1)
     verbose('ansatz monomials: {}'.format(ansatz_monomials), level=2)
 
     # update target monomials by substituting ansatz for fibre variables (and total derivatives)
@@ -87,6 +88,7 @@ def solve_homogeneous_diffpoly(target, source, unknowns):
 
     target_basis = list(target_monomials)
 
+    verbose('len(target_basis) == {}'.format(len(target_basis)), level=1)
     verbose('target basis: {}'.format(target_basis), level=2)
 
     M = matrix(R.base_ring(), len(target_basis), 0)
@@ -111,6 +113,7 @@ def solve_homogeneous_diffpoly(target, source, unknowns):
             V = vector(R.base_ring(), [f.monomial_coefficient(b) for b in target_basis])
             M = M.augment(V)
 
+    verbose('len(ansatz_basis) == {}'.format(len(ansatz_basis)), level=1)
     verbose('ansatz basis: {}'.format(ansatz_basis), level=2)
 
     target_vector = vector(R.base_ring(), [target.monomial_coefficient(b) for b in target_basis])
