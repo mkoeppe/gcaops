@@ -1,3 +1,6 @@
+r"""
+Directed graph vector
+"""
 from abc import abstractmethod
 from copy import copy
 from .graph_vector import GraphVector, GraphModule

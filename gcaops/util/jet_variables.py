@@ -1,3 +1,6 @@
+r"""
+Jet variables
+"""
 from sage.symbolic.expression_conversions import ExpressionTreeWalker
 from sage.symbolic.ring import SR
 

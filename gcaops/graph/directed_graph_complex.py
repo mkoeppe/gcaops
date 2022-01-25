@@ -1,3 +1,6 @@
+r"""
+Directed graph complex
+"""
 from functools import partial
 from abc import abstractmethod
 from gcaops.util.misc import keydefaultdict

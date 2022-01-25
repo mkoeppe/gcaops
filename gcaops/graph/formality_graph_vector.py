@@ -1,3 +1,6 @@
+r"""
+Formality graph vector
+"""
 from abc import abstractmethod
 from .graph_vector import GraphVector, GraphModule
 from .graph_vector_dict import GraphVector_dict, GraphModule_dict

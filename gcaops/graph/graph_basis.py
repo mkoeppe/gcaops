@@ -1,3 +1,6 @@
+r"""
+Graph basis
+"""
 from abc import ABC, abstractmethod
 
 class GraphBasis(ABC):

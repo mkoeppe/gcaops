@@ -1,3 +1,6 @@
+r"""
+Undirected graph operad
+"""
 from .undirected_graph_vector import UndirectedGraphVector_dict, UndirectedGraphModule_dict
 from .undirected_graph_basis import UndirectedGraphOperadBasis
 

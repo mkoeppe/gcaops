@@ -1,3 +1,6 @@
+r"""
+Polydifferential operator
+"""
 from collections.abc import Iterable, MutableMapping
 from itertools import product, combinations, permutations
 from functools import reduce, partial

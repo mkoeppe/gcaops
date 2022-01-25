@@ -1,3 +1,6 @@
+r"""
+Directed graph
+"""
 from collections.abc import MutableSequence
 from gcaops.util.permutation import selection_sort
 from .undirected_graph import UndirectedGraph

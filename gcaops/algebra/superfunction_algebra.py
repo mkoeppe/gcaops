@@ -1,3 +1,6 @@
+r"""
+Superfunction algebra
+"""
 from collections.abc import Iterable, MutableMapping
 from itertools import combinations
 from functools import reduce, partial

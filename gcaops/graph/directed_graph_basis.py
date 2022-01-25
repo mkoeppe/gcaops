@@ -1,3 +1,6 @@
+r"""
+Directed graph basis
+"""
 from functools import partial
 from gcaops.util.misc import keydefaultdict
 from .directed_graph import DirectedGraph

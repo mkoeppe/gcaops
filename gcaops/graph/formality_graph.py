@@ -1,3 +1,6 @@
+r"""
+Formality graph
+"""
 from collections.abc import MutableSequence
 from math import factorial
 from itertools import product

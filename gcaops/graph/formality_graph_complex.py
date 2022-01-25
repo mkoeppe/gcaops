@@ -1,3 +1,6 @@
+r"""
+Formality graph complex
+"""
 from functools import partial
 from gcaops.util.misc import keydefaultdict
 from .graph_complex import GraphCochain, GraphComplex

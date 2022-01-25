@@ -1,3 +1,6 @@
+r"""
+Differential polynomial ring
+"""
 from itertools import product
 from sage.rings.polynomial.polynomial_ring_constructor import PolynomialRing
 from sage.modules.free_module_element import vector

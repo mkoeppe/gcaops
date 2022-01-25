@@ -1,3 +1,6 @@
+r"""
+Graph file view
+"""
 from abc import ABC, abstractmethod
 import sqlite3
 from math import ceil

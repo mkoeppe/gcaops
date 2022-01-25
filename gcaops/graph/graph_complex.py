@@ -1,3 +1,6 @@
+r"""
+Graph complex
+"""
 from abc import abstractmethod
 from .graph_vector import GraphVector, GraphModule
 

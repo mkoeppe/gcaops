@@ -1,3 +1,6 @@
+r"""
+Formality graph basis
+"""
 from functools import partial
 from gcaops.util.misc import keydefaultdict
 from .formality_graph import FormalityGraph

@@ -1,3 +1,6 @@
+r"""
+Directed graph operad
+"""
 from .directed_graph_vector import DirectedGraphVector_dict, DirectedGraphModule_dict
 from .directed_graph_basis import DirectedGraphOperadBasis
 

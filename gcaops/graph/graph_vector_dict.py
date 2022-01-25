@@ -1,3 +1,6 @@
+r"""
+Graph vector (dictionary backend)
+"""
 from collections import defaultdict
 from functools import partial
 from .graph_vector import GraphVector, GraphModule

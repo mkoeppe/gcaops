@@ -1,3 +1,6 @@
+r"""
+Undirected graph basis
+"""
 from functools import partial
 from gcaops.util.misc import keydefaultdict
 from .undirected_graph import UndirectedGraph

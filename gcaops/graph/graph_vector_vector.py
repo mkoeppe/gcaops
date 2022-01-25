@@ -1,3 +1,6 @@
+r"""
+Graph vector (vector backend)
+"""
 from functools import partial
 from gcaops.util.misc import keydefaultdict
 from .graph_vector import GraphVector, GraphModule

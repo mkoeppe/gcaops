@@ -1,3 +1,6 @@
+r"""
+Undirected graph vector
+"""
 from .graph_vector import GraphVector, GraphModule
 from .graph_vector_dict import GraphVector_dict, GraphModule_dict
 from .graph_vector_vector import GraphVector_vector, GraphModule_vector

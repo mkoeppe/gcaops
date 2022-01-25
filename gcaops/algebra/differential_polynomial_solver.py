@@ -1,3 +1,6 @@
+r"""
+Homogeneous differential polynomial equation solver
+"""
 from collections import defaultdict
 from sage.matrix.constructor import matrix
 from sage.modules.free_module_element import vector

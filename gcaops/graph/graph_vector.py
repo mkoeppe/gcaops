@@ -1,3 +1,6 @@
+r"""
+Graph vector
+"""
 from abc import ABC, abstractmethod
 
 class GraphVector(ABC):

@@ -1,3 +1,6 @@
+r"""
+Tensor product
+"""
 from collections.abc import MutableSequence
 from itertools import permutations
 from math import factorial

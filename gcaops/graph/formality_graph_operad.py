@@ -1,3 +1,6 @@
+r"""
+Formality graph operad
+"""
 from .formality_graph_vector import FormalityGraphVector_dict, FormalityGraphModule_dict
 from .formality_graph_basis import FormalityGraphOperadBasis
 
