@@ -127,7 +127,7 @@ class PolyDifferentialOperator:
         """
         Return the homogeneous part of this polydifferential operator of arity ``arity``.
 
-        NOTE::
+        .. NOTE::
 
             Returns a polydifferential operator whose homogeneous component of arity ``arity`` is a *reference* to the respective component of this polydifferential operator.
         """
@@ -245,7 +245,7 @@ class PolyDifferentialOperator:
         """
         Return this polydifferential operator multiplied by ``other``.
 
-        NOTE::
+        .. NOTE::
 
             This is the pre-Lie product, a sum (with signs) of insertions of ``other`` into this polydifferential operator.
             For unary operators, it is simply composition.
@@ -261,7 +261,7 @@ class PolyDifferentialOperator:
         """
         Return ``other`` multiplied by this polydifferential operator.
 
-        NOTE::
+        .. NOTE::
 
             This is only defined for elements of the base ring.
         """
@@ -300,7 +300,7 @@ class PolyDifferentialOperator:
         """
         Return ``True`` if this polydifferential operator equals ``other`` and ``False`` otherwise.
 
-        NOTE::
+        .. NOTE::
 
             This takes the difference and calls ``is_zero()`` on it.
             For comparison with zero it is faster to call ``is_zero()`` directly.

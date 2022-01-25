@@ -84,7 +84,7 @@ class UndirectedGraph:
         """
         An iterator producing the graphs which are obtained by inserting ``other`` into the vertex ``position`` of this graph.
 
-        NOTE::
+        .. NOTE::
 
             The convention used is that the edges which originate from ``other`` are last in the edge ordering of each produced graph.
         """
@@ -106,7 +106,7 @@ class UndirectedGraph:
         """
         An iterator producing the graphs which are obtained in the vertex-expanding differential of this graph.
 
-        NOTE::
+        .. NOTE::
 
             The convention used is that the new edge is last in the edge ordering of each produced graph.
         """

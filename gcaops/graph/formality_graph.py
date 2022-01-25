@@ -188,7 +188,7 @@ class FormalityGraph:
         """
         An iterator producing the graphs which are obtained by inserting ``other`` into the vertex ``position`` of this graph.
 
-        NOTE::
+        .. NOTE::
 
             The convention used is that the edges which originate from ``other`` are last in the edge ordering of each produced graph.
         """
@@ -243,7 +243,7 @@ class FormalityGraph:
         """
         An iterator producing the terms (sign, graph) in the Hochschild differential of this graph.
 
-        NOTE::
+        .. NOTE::
 
             The convention used is that the graphical Hochschild differential is the Gerstenhaber bracket [mu, -] with the graph mu consisting of two ground vertices.
         """

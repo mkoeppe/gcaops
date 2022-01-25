@@ -141,7 +141,7 @@ class Superfunction:
         """
         Return the homogeneous part of this superfunction of total degree ``degree`` in the odd coordinates.
 
-        NOTE::
+        .. NOTE::
 
             Returns a Superfunction whose homogeneous component of degree ``degree`` is a *reference* to the respective component of this superfunction.
         """
@@ -250,7 +250,7 @@ class Superfunction:
         """
         Return ``other`` multiplied by this superfunction.
 
-        NOTE::
+        .. NOTE::
 
             This assumes that ``other`` commutes with this superfunction.
             It is justified because this function only gets called when ``other`` is even.
@@ -283,7 +283,7 @@ class Superfunction:
         """
         Return ``True`` if this superfunction equals ``other`` and ``False`` otherwise.
 
-        NOTE::
+        .. NOTE::
 
             This takes the difference and calls ``is_zero()`` on it.
             For comparison with zero it is faster to call ``is_zero()`` directly.
