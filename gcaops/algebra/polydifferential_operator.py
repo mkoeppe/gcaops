@@ -209,7 +209,7 @@ class PolyDifferentialOperator:
 
     def insertion(self, position, other):
         """
-        Return the insertion of ``other`` into the ``position``th argument of this polydifferential operator.
+        Return the insertion of ``other`` into the ``position``-th argument of this polydifferential operator.
         """
         coefficients = defaultdict(dict)
         for arity1 in self._coefficients:
@@ -505,7 +505,7 @@ class PolyDifferentialOperatorAlgebra:
 
     def coordinate(self, i):
         """
-        Return the ``i``th even coordinate in the base ring of this polydifferential operator algebra.
+        Return the ``i``-th even coordinate in the base ring of this polydifferential operator algebra.
         """
         return self._coordinates[i]
 
@@ -531,7 +531,7 @@ class PolyDifferentialOperatorAlgebra:
 
     def gen(self, i):
         """
-        Return the ``i``th derivative of this polydifferential operator algebra.
+        Return the ``i``-th derivative of this polydifferential operator algebra.
         """
         return self._gens[i]
 

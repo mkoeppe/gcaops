@@ -126,7 +126,7 @@ class TensorProduct:
 
     def factor(self, index):
         """
-        Return the ``index``th factor of this tensor product.
+        Return the ``index``-th factor of this tensor product.
         """
         return self._factors[index]
 

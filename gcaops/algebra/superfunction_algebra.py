@@ -17,7 +17,7 @@ def zero_vector(superfunction_algebra, degree):
 
 class Superfunction:
     """
-    Superfunction on a coordinate chart of a Z_2-graded space.
+    Superfunction on a coordinate chart of a `Z_2`-graded space.
 
     A polynomial in the odd coordinates, with coefficients in the base ring (of even degree 0 functions).
     """
@@ -371,7 +371,7 @@ def call_method(method_name, x):
 
 class SuperfunctionAlgebra:
     """
-    Supercommutative algebra of superfunctions on a coordinate chart of a Z_2-graded space.
+    Supercommutative algebra of superfunctions on a coordinate chart of a `Z_2`-graded space.
 
     Consisting of polynomials in the odd (degree 1) coordinates, with coefficients in the base ring (of even degree 0 functions).
     It is a free module over the base ring with an ordered basis consisting of sorted monomials in the odd coordinates.
@@ -497,7 +497,7 @@ class SuperfunctionAlgebra:
 
     def even_coordinate(self, i):
         """
-        Return the ``i``th even coordinate in the base ring of this superfunction algebra.
+        Return the ``i``-th even coordinate in the base ring of this superfunction algebra.
         """
         return self._even_coordinates[i]
 
@@ -523,7 +523,7 @@ class SuperfunctionAlgebra:
 
     def gen(self, i):
         """
-        Return the ``i``th odd coordinate of this superfunction algebra.
+        Return the ``i``-th odd coordinate of this superfunction algebra.
         """
         return self._gens[i]
 
@@ -566,7 +566,7 @@ class SuperfunctionAlgebra:
 
     def _mul_on_basis(self, degree1, k1, degree2, k2):
         """
-        Return the index and the sign of the monomial that results from multiplying the ``k1``th monomial of degree ``degree1`` by the ``k2``th monomial of degree ``degree2``.
+        Return the index and the sign of the monomial that results from multiplying the ``k1``-th monomial of degree ``degree1`` by the ``k2``-th monomial of degree ``degree2``.
         """
         if degree1 + degree2 > self.__ngens:
             return None, 1
@@ -584,7 +584,7 @@ class SuperfunctionAlgebra:
 
     def _derivative_on_basis(self, degree, i, j):
         """
-        Return the index and the sign of the derivative of the ``i``th monomial of degree ``degree`` in the basis, with respect to the ``j``th odd coordinate.
+        Return the index and the sign of the derivative of the ``i``-th monomial of degree ``degree`` in the basis, with respect to the ``j``-th odd coordinate.
         """
         monomial = self._basis[degree][i]
         if not j in monomial:
@@ -611,7 +611,7 @@ class SuperfunctionAlgebra:
 
     def tensor_power(self, n):
         """
-        Return the ``n``th tensor power of this superfunction algebra.
+        Return the ``n``-th tensor power of this superfunction algebra.
         """
         return self._tensor_powers[n]
 
