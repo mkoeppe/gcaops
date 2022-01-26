@@ -35,7 +35,7 @@ class FormalityGraphComplexBasis(FormalityGraphBasis):
 
         INPUT:
 
-        - ``graph`` -- a FormalityGraph
+        - ``graph`` -- a :class:`~gcaops.graph.formality_graph.FormalityGraph`
 
         OUTPUT:
 
@@ -51,7 +51,7 @@ class FormalityGraphComplexBasis(FormalityGraphBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of a FormalityGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -59,7 +59,7 @@ class FormalityGraphComplexBasis(FormalityGraphBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a FormalityGraph and a sign which is always +1.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and a sign which is always +1.
         """
         gv, av, e, index = key 
         try:
@@ -112,7 +112,7 @@ class FormalityGraphComplexBasis_lazy(FormalityGraphComplexBasis):
 
         INPUT:
 
-        - ``graph`` -- a FormalityGraph
+        - ``graph`` -- a :class:`~gcaops.graph.formality_graph.FormalityGraph`
 
         OUTPUT:
 
@@ -126,7 +126,7 @@ class FormalityGraphComplexBasis_lazy(FormalityGraphComplexBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of a FormalityGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -134,7 +134,7 @@ class FormalityGraphComplexBasis_lazy(FormalityGraphComplexBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a FormalityGraph and a sign which is always +1.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and a sign which is always +1.
         """
         gv, av, e = key[:3]
         graph = FormalityGraph(gv, av, list(key[3:]))
@@ -161,7 +161,7 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
 
         INPUT:
 
-        - ``graph`` -- a FormalityGraph
+        - ``graph`` -- a :class:`~gcaops.graph.formality_graph.FormalityGraph`
 
         OUTPUT:
 
@@ -177,7 +177,7 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of a FormalityGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -185,7 +185,7 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a FormalityGraph and a sign.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and a sign.
         """
         gv, av, e, index = key[:4]
         undo_canonicalize = key[4:]
@@ -248,7 +248,7 @@ class KontsevichGraphBasis(GraphBasis):
 
         INPUT:
 
-        - ``graph`` -- a FormalityGraph
+        - ``graph`` -- a :class:`~gcaops.graph.formality_graph.FormalityGraph`
 
         OUTPUT:
 
@@ -264,7 +264,7 @@ class KontsevichGraphBasis(GraphBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of a FormalityGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -272,7 +272,7 @@ class KontsevichGraphBasis(GraphBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a FormalityGraph and a sign which is always +1.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a :class:`~gcaops.graph.formality_graph.FormalityGraph` and a sign which is always +1.
         """
         gv, av, index = key
         try:

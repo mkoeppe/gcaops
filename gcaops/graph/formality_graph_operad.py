@@ -6,7 +6,7 @@ from .formality_graph_basis import FormalityGraphOperadBasis
 
 class FormalityGraphOperation_dict(FormalityGraphVector_dict):
     """
-    Element of a FormalityGraphOperad (stored as a dictionary).
+    Element of a :class:`FormalityGraphOperad_dict` (stored as a dictionary).
     """
     def __init__(self, parent, vector):
         """

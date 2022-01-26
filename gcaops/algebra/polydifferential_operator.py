@@ -26,7 +26,7 @@ class PolyDifferentialOperator:
 
         INPUT:
 
-        - ``parent`` - a PolyDifferentialOperatorAlgebra (which has an ordered basis of monomials in the odd coordinates)
+        - ``parent`` - a :class:`PolyDifferentialOperatorAlgebra` (which has an ordered basis of monomials in the odd coordinates)
 
         - ``coefficients`` - a dictionary, mapping the arity ``m`` to a dictionary that maps ``m``-tuples of multi-indices to elements in the base ring of ``parent``
         """
@@ -97,7 +97,7 @@ class PolyDifferentialOperator:
 
     def parent(self):
         """
-        Return the parent PolyDifferentialOperatorAlgebra that this polydifferential operator belongs to.
+        Return the parent :class:`PolyDifferentialOperatorAlgebra` that this polydifferential operator belongs to.
         """
         return self._parent
 

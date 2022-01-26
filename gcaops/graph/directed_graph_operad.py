@@ -6,7 +6,7 @@ from .directed_graph_basis import DirectedGraphOperadBasis
 
 class DirectedGraphOperation_dict(DirectedGraphVector_dict):
     """
-    Element of a DirectedGraphOperad (stored as a dictionary).
+    Element of a :class:`DirectedGraphOperad_dict` (stored as a dictionary).
     """
     def __init__(self, parent, vector):
         """

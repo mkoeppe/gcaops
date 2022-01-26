@@ -38,7 +38,7 @@ class DirectedGraphComplexBasis(DirectedGraphBasis):
 
         INPUT:
 
-        - ``graph`` -- a DirectedGraph
+        - ``graph`` -- a :class:`~gcaops.graph.directed_graph.DirectedGraph`
 
         OUTPUT:
 
@@ -54,7 +54,7 @@ class DirectedGraphComplexBasis(DirectedGraphBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of a DirectedGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of a :class:`~gcaops.graph.directed_graph.DirectedGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -62,7 +62,7 @@ class DirectedGraphComplexBasis(DirectedGraphBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a DirectedGraph and a sign which is always +1.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a :class:`~gcaops.graph.directed_graph.DirectedGraph` and a sign which is always +1.
         """
         v, e, index = key 
         try:
@@ -136,7 +136,7 @@ class DirectedGraphOperadBasis(DirectedGraphBasis):
 
         INPUT:
 
-        - ``graph`` -- a DirectedGraph
+        - ``graph`` -- a :class:`~gcaops.graph.directed_graph.DirectedGraph`
 
         OUTPUT:
 
@@ -152,7 +152,7 @@ class DirectedGraphOperadBasis(DirectedGraphBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of a DirectedGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of a :class:`~gcaops.graph.directed_graph.DirectedGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -160,7 +160,7 @@ class DirectedGraphOperadBasis(DirectedGraphBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a DirectedGraph and a sign.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of a :class:`~gcaops.graph.directed_graph.DirectedGraph` and a sign.
         """
         v, e, index = key[:3]
         undo_canonicalize = key[3:]

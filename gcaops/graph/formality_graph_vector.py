@@ -135,7 +135,7 @@ class FormalityGraphVector_dict(FormalityGraphVector, GraphVector_dict):
 
         INPUT:
 
-        - ``parent`` -- a FormalityGraphModule
+        - ``parent`` -- a :class:`FormalityGraphModule`
 
         - ``vector`` -- a dictionary, representing a sparse vector of coefficients with respect to the basis of ``parent``
 
@@ -221,7 +221,7 @@ class FormalityGraphModule_dict(FormalityGraphModule, GraphModule_dict):
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
 
-        - ``graph_basis`` -- a FormalityGraphBasis
+        - ``graph_basis`` -- a :class:`~gcaops.graph.formality_graph_basis.FormalityGraphBasis`
         """
         if not isinstance(graph_basis, FormalityGraphBasis):
             raise ValueError('graph_basis must be a FormalityGraphBasis')
@@ -238,7 +238,7 @@ class FormalityGraphVector_vector(FormalityGraphVector, GraphVector_vector):
 
         INPUT:
 
-        - ``parent`` -- a FormalityGraphModule
+        - ``parent`` -- a :class:`FormalityGraphModule`
 
         - ``vectors`` -- a dictionary, mapping tri-gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
 
@@ -321,7 +321,7 @@ class FormalityGraphModule_vector(FormalityGraphModule, GraphModule_vector):
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
 
-        - ``graph_basis`` -- a FormalityGraphBasis
+        - ``graph_basis`` -- a :class:`~gcaops.graph.formality_graph_basis.FormalityGraphBasis`
 
         - ``vector_constructor`` -- constructor of (sparse) vectors
 

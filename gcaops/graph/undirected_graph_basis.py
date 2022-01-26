@@ -37,7 +37,7 @@ class UndirectedGraphComplexBasis(UndirectedGraphBasis):
 
         INPUT:
 
-        - ``graph`` -- an UndirectedGraph
+        - ``graph`` -- an :class:`~gcaops.graph.undirected_graph.UndirectedGraph`
 
         OUTPUT:
 
@@ -53,7 +53,7 @@ class UndirectedGraphComplexBasis(UndirectedGraphBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of an UndirectedGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of an :class:`~gcaops.graph.undirected_graph.UndirectedGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -61,7 +61,7 @@ class UndirectedGraphComplexBasis(UndirectedGraphBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of an UndirectedGraph and a sign which is always +1.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of an :class:`~gcaops.graph.undirected_graph.UndirectedGraph` and a sign which is always +1.
         """
         v, e, index = key 
         try:
@@ -120,7 +120,7 @@ class UndirectedGraphOperadBasis(UndirectedGraphBasis):
 
         INPUT:
 
-        - ``graph`` -- an UndirectedGraph
+        - ``graph`` -- an :class:`~gcaops.graph.undirected_graph.UndirectedGraph`
 
         OUTPUT:
 
@@ -136,7 +136,7 @@ class UndirectedGraphOperadBasis(UndirectedGraphBasis):
 
     def key_to_graph(self, key):
         """
-        Return a tuple consisting of an UndirectedGraph and the sign factor such that the sign times the graph equals the graph identified by the key.
+        Return a tuple consisting of an :class:`~gcaops.graph.undirected_graph.UndirectedGraph` and the sign factor such that the sign times the graph equals the graph identified by the key.
 
         INPUT:
 
@@ -144,7 +144,7 @@ class UndirectedGraphOperadBasis(UndirectedGraphBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of an UndirectedGraph and a sign.
+        Either ``(None, 1)`` if the input ``key`` is not in the basis, or a tuple consisting of an :class:`~gcaops.graph.undirected_graph.UndirectedGraph` and a sign.
         """
         v, e, index = key[:3]
         undo_canonicalize = key[3:]

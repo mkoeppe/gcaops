@@ -6,7 +6,7 @@ from .graph_vector import GraphVector, GraphModule
 
 class GraphCochain(GraphVector):
     """
-    Cochain of a GraphComplex.
+    Cochain of a :class:`GraphComplex`.
     """
     @abstractmethod
     def bracket(self, other):

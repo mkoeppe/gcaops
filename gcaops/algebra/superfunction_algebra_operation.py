@@ -9,7 +9,7 @@ from .tensor_product import TensorProduct
 
 class SuperfunctionAlgebraOperation(ABC):
     """
-    A homogeneous n-ary multi-linear operation acting on a SuperfunctionAlgebra.
+    A homogeneous n-ary multi-linear operation acting on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`.
     """
     def __init__(self, domain, codomain):
         """
@@ -53,7 +53,7 @@ class SuperfunctionAlgebraOperation(ABC):
 
 class SuperfunctionAlgebraSymmetricOperation(SuperfunctionAlgebraOperation):
     """
-    A homogeneous symmetric n-ary multi-linear operation acting on a SuperfunctionAlgebra.
+    A homogeneous symmetric n-ary multi-linear operation acting on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`.
     """
     def __repr__(self):
         """
@@ -70,7 +70,7 @@ class SuperfunctionAlgebraSymmetricOperation(SuperfunctionAlgebraOperation):
 
 class SuperfunctionAlgebraSymmetricBracketOperation(SuperfunctionAlgebraSymmetricOperation):
     """
-    A homogeneous symmetric n-ary multi-linear operation acting on a SuperfunctionAlgebra, given by the Nijenhuis-Richardson bracket of two graded symmetric operations.
+    A homogeneous symmetric n-ary multi-linear operation acting on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`, given by the Nijenhuis-Richardson bracket of two graded symmetric operations.
     """
     def __init__(self, *args):
         """
@@ -124,7 +124,7 @@ class SuperfunctionAlgebraSymmetricBracketOperation(SuperfunctionAlgebraSymmetri
 
 class SuperfunctionAlgebraSchoutenBracket(SuperfunctionAlgebraSymmetricOperation):
     """
-    Schouten bracket on a SuperfunctionAlgebra.
+    Schouten bracket on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`.
     """
     def __init__(self, domain, codomain):
         """
@@ -163,7 +163,7 @@ class SuperfunctionAlgebraSchoutenBracket(SuperfunctionAlgebraSymmetricOperation
 
 class SuperfunctionAlgebraUndirectedGraphOperation(SuperfunctionAlgebraOperation):
     """
-    A homogeneous n-ary multi-linear operation acting on a SuperfunctionAlgebra, defined by a UndirectedGraphVector.
+    A homogeneous n-ary multi-linear operation acting on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`, defined by a :class:`~gcaops.graph.undirected_graph_vector.UndirectedGraphVector`.
     """
     def __init__(self, domain, codomain, graph_vector):
         """
@@ -244,7 +244,7 @@ class SuperfunctionAlgebraUndirectedGraphOperation(SuperfunctionAlgebraOperation
 
 class SuperfunctionAlgebraSymmetricUndirectedGraphOperation(SuperfunctionAlgebraUndirectedGraphOperation, SuperfunctionAlgebraSymmetricOperation):
     """
-    A homogeneous n-ary multi-linear symmetric operation acting on a SuperfunctionAlgebra, defined by a UndirectedGraphVector.
+    A homogeneous n-ary multi-linear symmetric operation acting on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`, defined by a :class:`~gcaops.graph.undirected_graph_vector.UndirectedGraphVector`.
     """
     def __call__(self, *args):
         """
@@ -264,7 +264,7 @@ class SuperfunctionAlgebraSymmetricUndirectedGraphOperation(SuperfunctionAlgebra
 
 class SuperfunctionAlgebraDirectedGraphOperation(SuperfunctionAlgebraOperation):
     """
-    A homogeneous n-ary multi-linear operation on a SuperfunctionAlgebra, defined by a DirectedGraphVector.
+    A homogeneous n-ary multi-linear operation on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`, defined by a :class:`~gcaops.graph.directed_graph_vector.DirectedGraphVector`.
     """
     def __init__(self, domain, codomain, graph_vector):
         """
@@ -336,7 +336,7 @@ class SuperfunctionAlgebraDirectedGraphOperation(SuperfunctionAlgebraOperation):
 
 class SuperfunctionAlgebraSymmetricDirectedGraphOperation(SuperfunctionAlgebraDirectedGraphOperation, SuperfunctionAlgebraSymmetricOperation):
     """
-    A homogeneous symmetric n-ary multi-linear operation acting on a SuperfunctionAlgebra, defined by a DirectedGraphVector.
+    A homogeneous symmetric n-ary multi-linear operation acting on a :class:`~gcaops.algebra.superfunction_algebra.SuperfunctionAlgebra`, defined by a :class:`~gcaops.graph.directed_graph_vector.DirectedGraphVector`.
     """
     def __call__(self, *args):
         """

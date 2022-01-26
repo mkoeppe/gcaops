@@ -11,7 +11,7 @@ from .undirected_graph_complex import UndirectedGraphCochain, UndirectedGraphCoc
 
 class DirectedGraphCochain(GraphCochain, DirectedGraphVector):
     """
-    Cochain of a DirectedGraphComplex.
+    Cochain of a :class:`DirectedGraphComplex_`.
     """
     bracket = UndirectedGraphCochain.bracket
 
@@ -45,7 +45,7 @@ class DirectedGraphComplex_(GraphComplex, DirectedGraphModule):
 
 class DirectedGraphCochain_dict(DirectedGraphCochain, DirectedGraphVector_dict):
     """
-    Cochain of a DirectedGraphComplex (stored as a dictionary).
+    Cochain of a :class:`DirectedGraphComplex_dict` (stored as a dictionary).
     """
     def __init__(self, parent, vector):
         """
@@ -83,7 +83,7 @@ class DirectedGraphComplex_dict(DirectedGraphComplex_, DirectedGraphModule_dict)
 
 class DirectedGraphCochain_vector(DirectedGraphCochain, DirectedGraphVector_vector):
     """
-    Cochain of a DirectedGraphComplex (stored as a dictionary of vectors).
+    Cochain of a :class:`DirectedGraphComplex_vector` (stored as a dictionary of vectors).
     """
     def __init__(self, parent, vector):
         """

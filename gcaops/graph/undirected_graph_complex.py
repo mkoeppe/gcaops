@@ -10,7 +10,7 @@ from .undirected_graph_basis import UndirectedGraphComplexBasis
 
 class UndirectedGraphCochain(GraphCochain, UndirectedGraphVector):
     """
-    Cochain of an UndirectedGraphComplex.
+    Cochain of an :class:`UndirectedGraphComplex_`.
     """
     def bracket(self, other):
         """
@@ -34,7 +34,7 @@ class UndirectedGraphComplex_(GraphComplex, UndirectedGraphModule):
 
 class UndirectedGraphCochain_dict(UndirectedGraphCochain, UndirectedGraphVector_dict):
     """
-    Cochain of an UndirectedGraphComplex (stored as a dictionary).
+    Cochain of an :class:`UndirectedGraphComplex_dict` (stored as a dictionary).
     """
     def __init__(self, parent, vector):
         """
@@ -94,7 +94,7 @@ class UndirectedGraphComplex_dict(UndirectedGraphComplex_, UndirectedGraphModule
 
 class UndirectedGraphCochain_vector(UndirectedGraphCochain, UndirectedGraphVector_vector):
     """
-    Cochain of an UndirectedGraphComplex (stored as a dictionary of vectors).
+    Cochain of an :class:`UndirectedGraphComplex_vector` (stored as a dictionary of vectors).
     """
     def __init__(self, parent, vector):
         """
@@ -160,8 +160,6 @@ class UndirectedGraphComplex_vector(UndirectedGraphComplex_, UndirectedGraphModu
         INPUT:
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
-
-        - ``graph_basis`` -- a GraphBasis
 
         - ``vector_constructor`` -- constructor of (sparse) vectors
 

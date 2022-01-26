@@ -28,7 +28,7 @@ class UndirectedGraphVector_dict(UndirectedGraphVector, GraphVector_dict):
 
         INPUT:
 
-        - ``parent`` -- an UndirectedGraphModule
+        - ``parent`` -- an :class:`UndirectedGraphModule`
 
         - ``vector`` -- a dictionary, representing a sparse vector of coefficients with respect to the basis of ``parent``
         """
@@ -99,7 +99,7 @@ class UndirectedGraphModule_dict(UndirectedGraphModule, GraphModule_dict):
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
 
-        - ``graph_basis`` -- an UndirectedGraphBasis
+        - ``graph_basis`` -- an :class:`~gcaops.graph.undirected_graph_basis.UndirectedGraphBasis`
         """
         if not isinstance(graph_basis, UndirectedGraphBasis):
             raise ValueError('graph_basis must be an UndirectedGraphBasis')
@@ -116,7 +116,7 @@ class UndirectedGraphVector_vector(UndirectedGraphVector, GraphVector_vector):
 
         INPUT:
 
-        - ``parent`` -- an UndirectedGraphModule
+        - ``parent`` -- an :class:`UndirectedGraphModule`
 
         - ``vectors`` -- a dictionary, mapping bi-gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
         """
@@ -182,7 +182,7 @@ class UndirectedGraphModule_vector(UndirectedGraphModule, GraphModule_vector):
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
 
-        - ``graph_basis`` -- an UndirectedGraphBasis
+        - ``graph_basis`` -- an :class:`~gcaops.graph.undirected_graph_basis.UndirectedGraphBasis`
 
         - ``vector_constructor`` -- constructor of (sparse) vectors
 

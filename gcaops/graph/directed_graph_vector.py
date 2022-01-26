@@ -57,7 +57,7 @@ class DirectedGraphVector_dict(DirectedGraphVector, GraphVector_dict):
 
         INPUT:
 
-        - ``parent`` -- a DirectedGraphModule
+        - ``parent`` -- a :class:`DirectedGraphModule`
 
         - ``vector`` -- a dictionary, representing a sparse vector of coefficients with respect to the basis of ``parent``
         """
@@ -98,7 +98,7 @@ class DirectedGraphModule_dict(DirectedGraphModule, GraphModule_dict):
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
 
-        - ``graph_basis`` -- a DirectedGraphBasis
+        - ``graph_basis`` -- a :class:`~gcaops.graph.directed_graph_basis.DirectedGraphBasis`
         """
         if not isinstance(graph_basis, DirectedGraphBasis):
             raise ValueError('graph_basis must be a DirectedGraphBasis')
@@ -115,7 +115,7 @@ class DirectedGraphVector_vector(DirectedGraphVector, GraphVector_vector):
 
         INPUT:
 
-        - ``parent`` -- a DirectedGraphModule
+        - ``parent`` -- a :class:`DirectedGraphModule`
 
         - ``vectors`` -- a dictionary, mapping bi-gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
         """
@@ -154,7 +154,7 @@ class DirectedGraphModule_vector(DirectedGraphModule, GraphModule_vector):
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
 
-        - ``graph_basis`` -- a DirectedGraphBasis
+        - ``graph_basis`` -- a :class:`~gcaops.graph.directed_graph_basis.DirectedGraphBasis`
 
         - ``vector_constructor`` -- constructor of (sparse) vectors
 

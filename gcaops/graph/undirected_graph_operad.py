@@ -6,7 +6,7 @@ from .undirected_graph_basis import UndirectedGraphOperadBasis
 
 class UndirectedGraphOperation_dict(UndirectedGraphVector_dict):
     """
-    Element of an UndirectedGraphOperad (stored as a dictionary).
+    Element of an :class:`UndirectedGraphOperad_dict` (stored as a dictionary).
     """
     def __init__(self, parent, vector):
         """

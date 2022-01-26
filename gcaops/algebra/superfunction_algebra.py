@@ -30,7 +30,7 @@ class Superfunction:
 
         INPUT:
 
-        - ``parent`` - a SuperfunctionAlgebra (which has an ordered basis of monomials in the odd coordinates)
+        - ``parent`` - a :class:`SuperfunctionAlgebra` (which has an ordered basis of monomials in the odd coordinates)
 
         - ``monomial_coefficients`` - a dictionary, taking a natural number ``d`` to a list of coefficients of the monomials of degree ``d`` in the ordered basis of ``parent``
         """
@@ -102,7 +102,7 @@ class Superfunction:
 
     def parent(self):
         """
-        Return the parent SuperfunctionAlgebra that this superfunction belongs to.
+        Return the parent :class:`SuperfunctionAlgebra` that this superfunction belongs to.
         """
         return self._parent
 
@@ -146,7 +146,7 @@ class Superfunction:
 
         .. NOTE::
 
-            Returns a Superfunction whose homogeneous component of degree ``degree`` is a *reference* to the respective component of this superfunction.
+            Returns a :class:`Superfunction` whose homogeneous component of degree ``degree`` is a *reference* to the respective component of this superfunction.
         """
         return self.__class__(self._parent, { degree : self._monomial_coefficients[degree] })
 
@@ -451,7 +451,7 @@ class SuperfunctionAlgebra:
 
         ASSUMPTIONS:
 
-        If ``arg`` is a ``PolyDifferentialOperator``, it is assumed that its coefficients are skew-symmetric.
+        If ``arg`` is a :class:`~gcaops.algebra.polydifferential_operator.PolyDifferentialOperator`, it is assumed that its coefficients are skew-symmetric.
         """
         if arg in self._base_ring:
             return self.element_class(self, { 0 : [arg]})

@@ -9,7 +9,7 @@ from .formality_graph_basis import FormalityGraphComplexBasis, FormalityGraphCom
 
 class FormalityGraphCochain(GraphCochain, FormalityGraphVector):
     """
-    Cochain of a FormalityGraphComplex.
+    Cochain of a :class:`FormalityGraphComplex_`.
     """
     def gerstenhaber_bracket(self, other):
         """
@@ -47,7 +47,7 @@ class FormalityGraphComplex_(GraphComplex, FormalityGraphModule):
 
 class FormalityGraphCochain_dict(FormalityGraphCochain, FormalityGraphVector_dict):
     """
-    Cochain of a FormalityGraphComplex (stored as a dictionary).
+    Cochain of a :class:`FormalityGraphComplex_dict` (stored as a dictionary).
     """
     def __init__(self, parent, vector):
         """
@@ -97,7 +97,7 @@ class FormalityGraphComplex_dict(FormalityGraphComplex_, FormalityGraphModule_di
 
 class FormalityGraphCochain_vector(FormalityGraphCochain, FormalityGraphVector_vector):
     """
-    Cochain of a FormalityGraphComplex (stored as a dictionary of vectors).
+    Cochain of a :class:`FormalityGraphComplex_vector` (stored as a dictionary of vectors).
     """
     def __init__(self, parent, vector):
         """

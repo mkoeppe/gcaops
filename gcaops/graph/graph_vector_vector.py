@@ -19,7 +19,7 @@ class GraphVector_vector(GraphVector):
 
         INPUT:
 
-        - ``parent`` -- a GraphModule
+        - ``parent`` -- a :class:`~gcaops.graph.graph_vector.GraphModule`
 
         - ``vectors`` -- a dictionary, mapping gradings to (sparse) vectors of coefficients with respect to the basis of ``parent``
         """
@@ -50,7 +50,7 @@ class GraphVector_vector(GraphVector):
 
     def parent(self):
         """
-        Return the parent GraphModule that this graph vector belongs to.
+        Return the parent :class:`~gcaops.graph.graph_vector.GraphModule` that this graph vector belongs to.
         """
         return self._parent
 
@@ -197,7 +197,7 @@ class GraphModule_vector(GraphModule):
 
         - ``base_ring`` -- a ring, to be used as the ring of coefficients
 
-        - ``graph_basis`` -- a GraphBasis
+        - ``graph_basis`` -- a :class:`~gcaops.graph.graph_basis.GraphBasis`
 
         - ``vector_constructor`` -- constructor of (sparse) vectors
 
