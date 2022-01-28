@@ -33,7 +33,7 @@ def nauty_generate_formality(num_ground_vertices, num_aerial_vertices, num_undir
         yield DiGraph(digraph6_string[1:])
 
 def formality_graph_generate(num_ground_vertices, num_aerial_vertices, num_edges,
-        connected=None, max_out_degree=None, num_verts_of_max_out_degree=None, loops=None, prime=None,
+        connected=None, max_out_degree=None, num_verts_of_max_out_degree=None, sorted_out_degrees=None, loops=None, prime=None,
         has_odd_automorphism=None, positive_differential_order=None, mod_ground_permutations=False):
     if loops is None or loops:
         max_loop_order = num_edges // 2 # NOTE: can have at most this many loops, while still attaining num_edges
@@ -45,6 +45,8 @@ def formality_graph_generate(num_ground_vertices, num_aerial_vertices, num_edges
         for h in nauty_generate_formality(num_ground_vertices, num_aerial_vertices, num_edges - loop_order, num_edges,
                                           connected=connected, max_out_degree=max_out_degree,
                                           num_verts_of_max_out_degree=num_verts_of_max_out_degree, loops=loops):
+            if sorted_out_degrees is not None and tuple(sorted(h.out_degree_sequence())) != sorted_out_degrees:
+                continue
             # Choose sinks
             possible_sinks = [v for v in h if h.out_degree(v) == 0]
             # TODO: instead of all combinations, mod out by automorphisms

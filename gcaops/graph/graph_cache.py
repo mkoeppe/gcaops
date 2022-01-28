@@ -28,7 +28,7 @@ def options_to_filename(vertices, edges, directed=False, connected=False, biconn
     return filename
 
 def formality_options_to_filename(num_ground_vertices, num_aerial_vertices, num_edges, connected=None,
-                                  max_out_degree=None, num_verts_of_max_out_degree=None, loops=None, prime=None,
+                                  max_out_degree=None, num_verts_of_max_out_degree=None, sorted_out_degrees=None, loops=None, prime=None,
                                   has_odd_automorphism=None, positive_differential_order=None, mod_ground_permutations=False):
     filename = 'f_{}_{}_{}'.format(num_ground_vertices, num_aerial_vertices, num_edges)
     if connected is not None:
@@ -37,6 +37,8 @@ def formality_options_to_filename(num_ground_vertices, num_aerial_vertices, num_
         filename += '_D{}'.format(max_out_degree)
     if num_verts_of_max_out_degree is not None:
         filename += '_M{}'.format(num_verts_of_max_out_degree)
+    if sorted_out_degrees is not None:
+        filename += '_sod_{}'.format('_'.join([str(d) for d in sorted_out_degrees]))
     if loops is not None:
         filename += '_loops' if loops else '_noloops'
     if prime is not None:
@@ -185,7 +187,7 @@ class DirectedGraphCache(GraphCache):
                     yield (row[1], row[2])
 
 class FormalityGraphCache(GraphCache):
-    cache_keys = ['connected', 'max_out_degree', 'num_verts_of_max_out_degree', 'loops', 'prime', 'has_odd_automorphism', 'positive_differential_order', 'mod_ground_permutations']
+    cache_keys = ['connected', 'max_out_degree', 'num_verts_of_max_out_degree', 'sorted_out_degrees', 'loops', 'prime', 'has_odd_automorphism', 'positive_differential_order', 'mod_ground_permutations']
     file_view = FormalityGraphFileView
 
     def canonicalize_graph(self, graph):
@@ -199,9 +201,9 @@ class FormalityGraphCache(GraphCache):
         for g in formality_graph_generate(num_ground_vertices, num_aerial_vertices, num_edges, **options):
             result.append(g)
 
-    def graphs(self, tri_grading, connected=None, max_out_degree=None, num_verts_of_max_out_degree=None, loops=None, prime=None,
+    def graphs(self, tri_grading, connected=None, max_out_degree=None, num_verts_of_max_out_degree=None, sorted_out_degrees=None, loops=None, prime=None,
                has_odd_automorphism=None, positive_differential_order=None, mod_ground_permutations=False):
-        options = {'connected': connected, 'max_out_degree' : max_out_degree, 'num_verts_of_max_out_degree' : num_verts_of_max_out_degree,
+        options = {'connected': connected, 'max_out_degree' : max_out_degree, 'num_verts_of_max_out_degree' : num_verts_of_max_out_degree, 'sorted_out_degrees' : sorted_out_degrees,
                    'loops': loops, 'prime': prime, 'has_odd_automorphism': has_odd_automorphism, 'positive_differential_order': positive_differential_order,
                    'mod_ground_permutations' : mod_ground_permutations}
         num_ground_vertices, num_aerial_vertices, num_edges = tri_grading
