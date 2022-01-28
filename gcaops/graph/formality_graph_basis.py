@@ -220,27 +220,10 @@ class FormalityGraphOperadBasis(FormalityGraphBasis):
         """
         return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'has_odd_automorphism' : False}
 
-def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
-    num_ground_vertices, num_aerial_vertices = key
-    return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
-            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
-
-class KontsevichGraphBasis(GraphBasis):
-    """
-    Basis consisting of representatives of isomorphism classes of Kontsevich graphs (built of wedges) with no automorphisms that induce an odd permutation on edges.
-    """
+class QuantizationGraphBasis(GraphBasis):
     graph_class = FormalityGraph
+    graph_name = 'Formality graph'
     grading_size = 2
-
-    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False):
-        """
-        Initialize this basis.
-        """
-        self._positive_differential_order = positive_differential_order
-        self._connected = connected
-        self._loops = loops
-        self._mod_ground_permutations = False
-        self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
 
     def graph_to_key(self, graph):
         """
@@ -297,7 +280,7 @@ class KontsevichGraphBasis(GraphBasis):
             filters_str = ' ({})'.format(', '.join(filters))
         else:
             filters_str = ''
-        return 'Basis consisting of representatives of isomorphism classes of Kontsevich graphs{} with no automorphisms that induce an odd permutation on edges'.format(filters_str)
+        return 'Basis consisting of representatives of isomorphism classes of {}s{} with no automorphisms that induce an odd permutation on edges'.format(self.graph_name, filters_str)
 
     def graph_properties(self):
         """
@@ -316,3 +299,46 @@ class KontsevichGraphBasis(GraphBasis):
         Return the number of graphs in this basis with the given ``num_ground_vertices`` and ``num_aerial_vertices``.
         """
         return len(self._graphs[num_ground_vertices, num_aerial_vertices])
+
+def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
+    num_ground_vertices, num_aerial_vertices = key
+    return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
+
+class KontsevichGraphBasis(QuantizationGraphBasis):
+    """
+    Basis consisting of representatives of isomorphism classes of Kontsevich graphs (built of wedges) with no automorphisms that induce an odd permutation on edges.
+    """
+    graph_name = 'Kontsevich graph'
+
+    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False):
+        """
+        Initialize this basis.
+        """
+        self._positive_differential_order = positive_differential_order
+        self._connected = connected
+        self._loops = loops
+        self._mod_ground_permutations = False
+        self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
+
+def leibniz_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
+    num_ground_vertices, num_aerial_vertices = key
+    sorted_out_degrees = tuple([0]*num_ground_vertices + [2]*(num_aerial_vertices - 1) + [3])
+    return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*(num_aerial_vertices-1) + 3),
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False, max_out_degree=3, num_verts_of_max_out_degree=1, sorted_out_degrees=sorted_out_degrees)
+
+class LeibnizGraphBasis(QuantizationGraphBasis):
+    """
+    Basis consisting of representatives of isomorphism classes of Leibniz graphs (built of one tripod wedges) with no automorphisms that induce an odd permutation on edges.
+    """
+    graph_name = 'Leibniz graph'
+
+    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False):
+        """
+        Initialize this basis.
+        """
+        self._positive_differential_order = positive_differential_order
+        self._connected = connected
+        self._loops = loops
+        self._mod_ground_permutations = False
+        self._graphs = keydefaultdict(partial(leibniz_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
