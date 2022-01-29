@@ -98,6 +98,23 @@ class FormalityGraphModule(GraphModule):
     """
     Module spanned by formality graphs.
     """
+    def __call__(self, arg):
+        """
+        Return the result of converting ``arg`` into an element of this module.
+        """
+        from .directed_graph import DirectedGraph
+        from .directed_graph_vector import DirectedGraphVector
+        if isinstance(arg, DirectedGraphVector):
+            result = self([(c, FormalityGraph(0, len(g), g.edges())) for (c,g) in arg])
+            result.set_aerial(True)
+            return result
+        elif isinstance(arg, DirectedGraph):
+            result = self(FormalityGraph(0, len(arg), arg.edges()))
+            result.set_aerial(True)
+            return result
+        else:
+            return super().__call__(arg)
+
     def element_from_kgs_encoding(self, kgs_encoding, hbar):
         """
         Return the linear combination of Kontsevich graphs specified by an encoding, as an element of this module.
