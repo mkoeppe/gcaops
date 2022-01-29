@@ -300,6 +300,61 @@ class QuantizationGraphBasis(GraphBasis):
         """
         return len(self._graphs[num_ground_vertices, num_aerial_vertices])
 
+    def cyclic_weight_relations(self, num_ground_vertices, num_aerial_vertices):
+        """
+        ASSUMPTION:
+
+        Assumes the list of graphs in the basis at the given bi-grading is enough to make each relation well-defined.
+        """
+        num_vertices = num_ground_vertices + num_aerial_vertices
+        cyclic = [num_ground_vertices - 1] + list(range(num_ground_vertices - 1)) + list(range(num_ground_vertices, num_vertices))
+        formality_graphs = self.graphs(num_ground_vertices, num_aerial_vertices)
+        num_edges = 2*num_aerial_vertices - 2 + num_ground_vertices
+        from sage.rings.rational_field import QQ
+        from sage.matrix.constructor import matrix
+        from sage.combinat.subset import Subsets
+        C = matrix(QQ, len(formality_graphs), len(formality_graphs), sparse=True)
+        for i in range(len(formality_graphs)):
+            g = formality_graphs[i]
+            pre_lhs = g.relabeled(cyclic)
+            lhs_key, lhs_coeff = self.graph_to_key(pre_lhs)
+            assert lhs_key is not None
+            lhs_normal = self.key_to_graph(lhs_key)
+            assert lhs_normal[1] == 1
+            lhs_idx = formality_graphs.index(lhs_normal[0])
+            lhs_coeff *= (-1 if num_ground_vertices % 2 == 0 else 1)
+            C[i,lhs_idx] = lhs_coeff
+            redirect_to = 0
+            for E in Subsets(range(num_edges)):
+                edges = list(g.edges())
+                skip = False
+                # the edges specified by E should be pointing at a target different from redirect_to
+                for e in E:
+                    if edges[e][1] == redirect_to:
+                        skip = True
+                        break
+                    edges[e] = (edges[e][0], redirect_to)
+                if skip:
+                    continue
+                # double edges:
+                if len(set(edges)) != len(edges):
+                    continue
+                h = FormalityGraph(num_ground_vertices, num_aerial_vertices, edges)
+                # not positive differential order (weight vanishes):
+                if 0 in h.in_degrees()[:num_ground_vertices]:
+                    continue
+                h_key, h_coeff = self.graph_to_key(h)
+                # not in basis:
+                if h_key is None:
+                    continue # NOTE: Here we assume the list of graphs in the basis is enough to make the relation well-defined
+                # normal form:
+                h_normal = self.key_to_graph(h_key)
+                h_idx = formality_graphs.index(h_normal[0])
+                # sign according to number of edges incident to redirect_to:
+                h_coeff *= -1 if h_normal[0].in_degrees()[redirect_to] % 2 == 1 else 1
+                C[i, h_idx] += h_coeff
+        return C
+
 def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
