@@ -310,9 +310,17 @@ class QuantizationGraphBasis(GraphBasis):
         cyclic = [num_ground_vertices - 1] + list(range(num_ground_vertices - 1)) + list(range(num_ground_vertices, num_vertices))
         formality_graphs = self.graphs(num_ground_vertices, num_aerial_vertices)
         num_edges = 2*num_aerial_vertices - 2 + num_ground_vertices
+        from itertools import combinations
+        def redirect_subsets_of_edges(edges, redirect_to):
+            good_indices = [k for k in range(len(edges)) if edges[k][1] != redirect_to]
+            for num_redirects in range(len(good_indices)+1):
+                for indices in combinations(good_indices, num_redirects):
+                    new_edges = list(edges)
+                    for idx in indices:
+                        new_edges[idx] = (new_edges[idx][0], redirect_to)
+                    yield new_edges
         from sage.rings.rational_field import QQ
         from sage.matrix.constructor import matrix
-        from sage.combinat.subset import Subsets
         C = matrix(QQ, len(formality_graphs), len(formality_graphs), sparse=True)
         for i in range(len(formality_graphs)):
             g = formality_graphs[i]
@@ -325,17 +333,7 @@ class QuantizationGraphBasis(GraphBasis):
             lhs_coeff *= (-1 if num_ground_vertices % 2 == 0 else 1)
             C[i,lhs_idx] = lhs_coeff
             redirect_to = 0
-            for E in Subsets(range(num_edges)):
-                edges = list(g.edges())
-                skip = False
-                # the edges specified by E should be pointing at a target different from redirect_to
-                for e in E:
-                    if edges[e][1] == redirect_to:
-                        skip = True
-                        break
-                    edges[e] = (edges[e][0], redirect_to)
-                if skip:
-                    continue
+            for edges in redirect_subsets_of_edges(g.edges(), redirect_to):
                 # double edges:
                 if len(set(edges)) != len(edges):
                     continue
