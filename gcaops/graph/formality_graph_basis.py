@@ -356,7 +356,7 @@ class QuantizationGraphBasis(GraphBasis):
 def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
-            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=has_odd_automorphism, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
 
 class KontsevichGraphBasis(QuantizationGraphBasis):
     """
@@ -378,7 +378,7 @@ def leibniz_graphs(key, positive_differential_order=None, connected=None, loops=
     num_ground_vertices, num_aerial_vertices = key
     sorted_out_degrees = tuple([0]*num_ground_vertices + [2]*(num_aerial_vertices - 1) + [3])
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*(num_aerial_vertices-1) + 3),
-            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False, max_out_degree=3, num_verts_of_max_out_degree=1, sorted_out_degrees=sorted_out_degrees)
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=has_odd_automorphism, max_out_degree=3, num_verts_of_max_out_degree=1, sorted_out_degrees=sorted_out_degrees)
 
 class LeibnizGraphBasis(QuantizationGraphBasis):
     """
