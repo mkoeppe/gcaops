@@ -103,7 +103,8 @@ class UndirectedGraph:
             for k in range(len(incident)):
                 a, b = incident[k]
                 user_edges[a][b] = position + endpoints[k]
-            yield __class__(len(self) + len(other) - 1, [tuple(e) for e in user_edges] + victim_edges)
+            # NOTE: we use self.__class__ to allow DirectedGraph to copy this method verbatim:
+            yield self.__class__(len(self) + len(other) - 1, [tuple(e) for e in user_edges] + victim_edges)
 
     def _expanding_differential_graphs(self):
         """
@@ -130,7 +131,8 @@ class UndirectedGraph:
                 for k in range(len(incident)):
                     a, b = incident[k]
                     user_edges[a][b] = position + endpoints[k]
-                yield __class__(len(self) + 1, [tuple(e) for e in user_edges] + stick_edges)
+                # NOTE: we use self.__class__ to allow DirectedGraph to copy this method verbatim:
+                yield self.__class__(len(self) + 1, [tuple(e) for e in user_edges] + stick_edges)
 
     def _sage_(self):
         """
