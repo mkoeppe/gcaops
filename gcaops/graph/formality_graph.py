@@ -135,6 +135,12 @@ class FormalityGraph:
         """
         return self._edges
 
+    def edges_in_air(self):
+        """
+        Return the list of edges between aerial vertices of this graph.
+        """
+        return [(a, b) for (a, b) in self._edges if a >= self._num_ground_vertices and b >= self._num_ground_vertices]
+
     def canonicalize_edges(self):
         """
         Lexicographically order the edges of this graph and return the sign of that edge permutation.
