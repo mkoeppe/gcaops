@@ -281,6 +281,18 @@ class FormalityGraph:
                                                             self._num_aerial_vertices,
                                                             [tuple(e) for e in user_edges])
 
+    def edge_contraction_graph(self, edge):
+        """
+        Return the :class:`FormalityGraph` which is obtained by contracting the edge ``edge`` between aerial vertices in this graph.
+        """
+        if any(v < self._num_ground_vertices for v in edge):
+            raise ValueError("can only contract edges between aerial vertices")
+        new_label = min(edge)
+        removed_label = max(edge)
+        relabeling = [v for v in range(removed_label)] + [new_label] + [v - 1  for v in range(removed_label + 1, len(self))]
+        new_edges = [(relabeling[a],relabeling[b]) for (a,b) in self.edges() if (a,b) != edge]
+        return __class__(self._num_ground_vertices, self._num_aerial_vertices - 1, new_edges)
+
     def automorphism_group(self):
         """
         Return the automorphism group of this graph.
