@@ -94,6 +94,67 @@ class FormalityGraphVector(GraphVector):
                 terms.append((c,g))
         return self.parent()(terms)
 
+    def attach_to_ground(self, degrees):
+        """
+        Return the non-aerial graph vector that represents the polydifferential operator which results from evaluating this graph vector at multi-vectors of the given ``degrees``.
+
+        ASSUMPTIONS:
+
+        Assumes that this graph vector is aerial.
+        """
+        if not self.is_aerial():
+            raise ValueError('input graph vector must be aerial')
+        # TODO: check len(degrees)
+        total_degree = sum(degrees)
+        terms = []
+        from itertools import permutations
+        from collections import defaultdict
+        # Symmetrize over aerial vertices, but not too inefficiently:
+        permutation_multiplicity = defaultdict(int)
+        for degrees_permuted in permutations(degrees):
+            permutation_multiplicity[degrees_permuted] += 1
+        for degrees_permuted in permutation_multiplicity.keys():
+            for (c,g) in self:
+                c *= permutation_multiplicity[degrees_permuted]
+                # Calculate Koszul sign from graded edge operators
+                current_degrees = list(degrees_permuted)
+                koszul_sign = 1
+                for e in g.edges():
+                    koszul_sign *= 1 if sum(current_degrees[j] for j in range(e[0])) % 2 == 0 else -1
+                    c *= current_degrees[e[0]] # TODO: explain
+                    current_degrees[e[0]] -= 1
+                c *= koszul_sign
+                num_ground = total_degree - len(g.edges())
+                edges = [(num_ground + a, num_ground + b) for (a,b) in g.edges()]
+                # Add missing edges:
+                extra_edges = []
+                ground_vertex = 0
+                skip = False
+                for k in range(g.num_aerial_vertices()):
+                    num_missing = current_degrees[k]
+                    if num_missing < 0:
+                        skip = True
+                        break
+                    for _ in range(num_missing):
+                        extra_edges.append((num_ground + k, ground_vertex))
+                        ground_vertex += 1
+                if skip:
+                    continue
+                edges.extend(extra_edges) # NOTE: extra edges go last
+                # Edges to ground vertices are re-ordered, grouped by aerial vertex:
+                permuted_edges = []
+                for v in range(num_ground, num_ground + g.num_aerial_vertices()):
+                    for e in edges:
+                        if e[0] == v:
+                            permuted_edges.append(e)
+                h = FormalityGraph(num_ground, g.num_aerial_vertices(), permuted_edges)
+                # Some normalization:
+                from math import factorial
+                for d in h.out_degrees()[num_ground:]:
+                    c /= factorial(d)
+                terms.append((c, h))
+        return self.parent()(terms).ground_skew_symmetrization()
+
 class FormalityGraphModule(GraphModule):
     """
     Module spanned by formality graphs.
