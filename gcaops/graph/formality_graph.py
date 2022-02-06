@@ -309,8 +309,7 @@ class FormalityGraph:
         """
         Return the automorphism group of this graph.
         """
-        from sage.graphs.digraph import DiGraph
-        g = DiGraph([list(range(len(self))), self.edges()])
+        g = self._sage_()
         partition = [[k] for k in range(self._num_ground_vertices)] + [list(range(self._num_ground_vertices, len(self)))]
         return g.automorphism_group(partition=partition)
 
@@ -337,6 +336,14 @@ class FormalityGraph:
         m *= factorial(self._num_aerial_vertices) // len(self.automorphism_group())
         return m
 
+    def _sage_(self):
+        """
+        Return a Sage version of this graph.
+        """
+        from sage.graphs.digraph import DiGraph
+        num_vertices = self._num_ground_vertices + self._num_aerial_vertices
+        return DiGraph([list(range(num_vertices)), [(a,b,i) for (i,(a,b)) in enumerate(self.edges())]], multiedges=True, loops=True)
+
     def get_pos(self):
         """
         Return the dictionary of positions of vertices in this graph (used for plotting).
@@ -353,10 +360,9 @@ class FormalityGraph:
         """
         Return a plot of this graph.
         """
-        from sage.graphs.digraph import DiGraph
         from sage.graphs.graph_plot import GraphPlot
         num_vertices = self._num_ground_vertices + self._num_aerial_vertices
-        g = DiGraph([list(range(num_vertices)), [(a,b,i) for (i,(a,b)) in enumerate(self.edges())]], multiedges=True, loops=True)
+        g = self._sage_()
         ground_pos = { v : [1.0 + float(v), 0.0] for v in range(self._num_ground_vertices)}
         aerial_vertices = range(self._num_ground_vertices, num_vertices)
         vertex_positions = self.get_pos()
