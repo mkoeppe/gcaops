@@ -147,6 +147,12 @@ class FormalityGraph:
         """
         return selection_sort(self._edges)
 
+    def has_multiple_edges(self):
+        """
+        Return ``True`` if this graph contains multiple edges, and ``False`` otherwise.
+        """
+        return len(self._edges) != len(set(self._edges))
+
     def relabeled(self, relabeling):
         """
         Return a vertex relabeling of this graph.
