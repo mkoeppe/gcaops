@@ -153,6 +153,12 @@ class FormalityGraph:
         """
         return len(self._edges) != len(set(self._edges))
 
+    def has_loops(self):
+        """
+        Return ``True`` if this graph contains an edge which is a loop, and ``False`` otherwise.
+        """
+        return any(a == b for (a,b) in self._edges)
+
     def relabeled(self, relabeling):
         """
         Return a vertex relabeling of this graph.
