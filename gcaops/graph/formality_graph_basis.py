@@ -371,7 +371,7 @@ class KontsevichGraphBasis(QuantizationGraphBasis):
         self._positive_differential_order = positive_differential_order
         self._connected = connected
         self._loops = loops
-        self._mod_ground_permutations = False
+        self._mod_ground_permutations = mod_ground_permutations
         self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
 
 def leibniz_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
@@ -393,5 +393,5 @@ class LeibnizGraphBasis(QuantizationGraphBasis):
         self._positive_differential_order = positive_differential_order
         self._connected = connected
         self._loops = loops
-        self._mod_ground_permutations = False
+        self._mod_ground_permutations = mod_ground_permutations
         self._graphs = keydefaultdict(partial(leibniz_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
