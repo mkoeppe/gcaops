@@ -276,6 +276,8 @@ class QuantizationGraphBasis(GraphBasis):
             filters.append('{} loops'.format('with' if self._loops else 'without'))
         if self._mod_ground_permutations:
             filters.append('modulo permutations of ground vertices')
+        if self._max_aerial_in_degree:
+            filters.append('with aerial vertices of in-degree <= {}'.format(self._max_aerial_in_degree))
         if filters:
             filters_str = ' ({})'.format(', '.join(filters))
         else:
@@ -286,7 +288,7 @@ class QuantizationGraphBasis(GraphBasis):
         """
         Return a dictionary containing the properties of the graphs in this basis.
         """
-        return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'mod_ground_permutations' : self._mod_ground_permutations, 'has_odd_automorphism' : False}
+        return {'positive_differential_order' : self._positive_differential_order, 'connected' : self._connected, 'loops' : self._loops, 'mod_ground_permutations' : self._mod_ground_permutations, 'max_aerial_in_degree' : self._max_aerial_in_degree, 'has_odd_automorphism' : False}
 
     def graphs(self, num_ground_vertices, num_aerial_vertices):
         """
@@ -353,10 +355,10 @@ class QuantizationGraphBasis(GraphBasis):
                 C[i, h_idx] += h_coeff
         return C
 
-def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
+def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, max_aerial_in_degree=None, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
-            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=has_odd_automorphism, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices)
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=has_odd_automorphism, max_out_degree=2, num_verts_of_max_out_degree=num_aerial_vertices, max_aerial_in_degree=max_aerial_in_degree)
 
 class KontsevichGraphBasis(QuantizationGraphBasis):
     """
@@ -364,7 +366,7 @@ class KontsevichGraphBasis(QuantizationGraphBasis):
     """
     graph_name = 'Kontsevich graph'
 
-    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False):
+    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, max_aerial_in_degree=None):
         """
         Initialize this basis.
         """
@@ -372,13 +374,14 @@ class KontsevichGraphBasis(QuantizationGraphBasis):
         self._connected = connected
         self._loops = loops
         self._mod_ground_permutations = mod_ground_permutations
-        self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
+        self._max_aerial_in_degree = max_aerial_in_degree
+        self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, max_aerial_in_degree=max_aerial_in_degree, has_odd_automorphism=False))
 
-def leibniz_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, has_odd_automorphism=None):
+def leibniz_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, max_aerial_in_degree=None, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     sorted_out_degrees = tuple([0]*num_ground_vertices + [2]*(num_aerial_vertices - 1) + [3])
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*(num_aerial_vertices-1) + 3),
-            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=has_odd_automorphism, max_out_degree=3, num_verts_of_max_out_degree=1, sorted_out_degrees=sorted_out_degrees)
+            positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=has_odd_automorphism, max_out_degree=3, num_verts_of_max_out_degree=1, sorted_out_degrees=sorted_out_degrees, max_aerial_in_degree=max_aerial_in_degree)
 
 class LeibnizGraphBasis(QuantizationGraphBasis):
     """
@@ -386,7 +389,7 @@ class LeibnizGraphBasis(QuantizationGraphBasis):
     """
     graph_name = 'Leibniz graph'
 
-    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False):
+    def __init__(self, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, max_aerial_in_degree=None):
         """
         Initialize this basis.
         """
@@ -394,4 +397,5 @@ class LeibnizGraphBasis(QuantizationGraphBasis):
         self._connected = connected
         self._loops = loops
         self._mod_ground_permutations = mod_ground_permutations
-        self._graphs = keydefaultdict(partial(leibniz_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, has_odd_automorphism=False))
+        self._max_aerial_in_degree = max_aerial_in_degree
+        self._graphs = keydefaultdict(partial(leibniz_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, max_aerial_in_degree=max_aerial_in_degree, has_odd_automorphism=False))
