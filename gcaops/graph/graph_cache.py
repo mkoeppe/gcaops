@@ -57,23 +57,38 @@ def formality_options_to_filename(num_ground_vertices, num_aerial_vertices, num_
     return filename
 
 class GraphCache(ABC):
+    """
+    Graph cache
+    """
     file_view = None.__class__
     cache_keys = []
     cache = {}
 
     @abstractmethod
     def canonicalize_graph(self, graph):
+        """
+        Return a tuple consisting the normal form of the graph, followed by data relating the input graph to the normal form (e.g. a sign factor).
+        """
         pass
 
     @abstractmethod
     def graphs(self, grading, **options):
+        """
+        Return a view (e.g. a ``list`` or a :class:`~gcaops.graph.graph_file.GraphFileView`) of the graphs in the cache with the given ``options``.
+        """
         pass
 
 class UndirectedGraphCache(GraphCache):
+    """
+    Undirected graph cache
+    """
     cache_keys = ['connected', 'biconnected', 'min_degree', 'has_odd_automorphism']
     file_view = UndirectedGraphFileView
 
     def canonicalize_graph(self, graph):
+        """
+        Return a tuple consisting the normal form of the graph and the sign factor relating the input graph to the normal form.
+        """
         return undirected_graph_canonicalize(graph)
 
     def _add_graphs(self, result, bi_grading, **options):
@@ -86,6 +101,9 @@ class UndirectedGraphCache(GraphCache):
             result.append(g)
 
     def graphs(self, bi_grading, connected=False, biconnected=False, min_degree=0, has_odd_automorphism=True):
+        """
+        Return a view (a ``list`` or a :class:`~gcaops.graph.graph_file.GraphFileView`) of the graphs in the cache with the given options.
+        """
         options = {'directed': False, 'connected': connected, 'biconnected': biconnected, 'min_degree': min_degree, 'has_odd_automorphism': has_odd_automorphism}
         num_vertices, num_edges = bi_grading
         cache_key = bi_grading + tuple(options[k] for k in self.cache_keys)
@@ -105,14 +123,27 @@ class UndirectedGraphCache(GraphCache):
         return my_graphs
 
 class DirectedGraphCache(GraphCache):
+    """
+    Directed graph cache
+    """
     cache_keys = ['connected', 'biconnected', 'min_degree', 'loops', 'has_odd_automorphism']
     file_view = DirectedGraphFileView
 
     def __init__(self, undirected_graph_cache):
+        """
+        Initialize this directed graph cache.
+
+        INPUT:
+
+        - ``undirected_graph_cache`` -- an :class:`UndirectedGraphCache`
+        """
         self._undirected_graph_cache = undirected_graph_cache
         self._undirected_to_directed = {}
 
     def canonicalize_graph(self, graph):
+        """
+        Return a tuple consisting the normal form of the graph and the sign factor relating the input graph to the normal form.
+        """
         return directed_graph_canonicalize(graph)
 
     def _add_graphs(self, result, orientation_data, bi_grading, **options):
@@ -154,6 +185,9 @@ class DirectedGraphCache(GraphCache):
                     h_idx += 1
 
     def graphs(self, bi_grading, connected=False, biconnected=False, min_degree=0, loops=True, has_odd_automorphism=True):
+        """
+        Return a view (a ``list`` or a :class:`~gcaops.graph.graph_file.GraphFileView`) of the graphs in the cache with the given options.
+        """
         options = {'directed': True, 'connected': connected, 'biconnected': biconnected, 'min_degree': min_degree, 'loops': loops, 'has_odd_automorphism': has_odd_automorphism}
         num_vertices, num_edges = bi_grading
         cache_key = bi_grading + tuple(options[k] for k in self.cache_keys)
@@ -191,10 +225,16 @@ class DirectedGraphCache(GraphCache):
                     yield (row[1], row[2])
 
 class FormalityGraphCache(GraphCache):
+    """
+    Formality graph cache
+    """
     cache_keys = ['connected', 'max_out_degree', 'num_verts_of_max_out_degree', 'sorted_out_degrees', 'max_aerial_in_degree', 'loops', 'prime', 'has_odd_automorphism', 'positive_differential_order', 'mod_ground_permutations']
     file_view = FormalityGraphFileView
 
     def canonicalize_graph(self, graph):
+        """
+        Return a tuple consisting the normal form of the graph, an isomorphism from the normal form to the input graph, and the sign of the induced permutation on edges.
+        """
         return formality_graph_canonicalize(graph)
 
     def _add_graphs(self, result, tri_grading, **options):
@@ -207,6 +247,9 @@ class FormalityGraphCache(GraphCache):
 
     def graphs(self, tri_grading, connected=None, max_out_degree=None, num_verts_of_max_out_degree=None, sorted_out_degrees=None, max_aerial_in_degree=None,
                loops=None, prime=None, has_odd_automorphism=None, positive_differential_order=None, mod_ground_permutations=False):
+        """
+        Return a view (a ``list`` or a :class:`~gcaops.graph.graph_file.GraphFileView`) of the graphs in the cache with the given options.
+        """
         options = {'connected': connected, 'max_out_degree' : max_out_degree, 'num_verts_of_max_out_degree' : num_verts_of_max_out_degree, 'sorted_out_degrees' : sorted_out_degrees,
                    'max_aerial_in_degree' : max_aerial_in_degree,
                    'loops': loops, 'prime': prime, 'has_odd_automorphism': has_odd_automorphism, 'positive_differential_order': positive_differential_order,
