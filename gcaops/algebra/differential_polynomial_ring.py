@@ -12,6 +12,9 @@ from sage.calculus.var import var, function
 from gcaops.util.jet_variables import SubstituteJetVariables, SubstituteTotalDerivatives
 
 class DifferentialPolynomial:
+    """
+    Differential polynomial.
+    """
     def __init__(self, parent, polynomial):
         self._parent = parent
         if not polynomial in self._parent._polynomial_ring:
@@ -25,6 +28,9 @@ class DifferentialPolynomial:
         return self._polynomial._latex_()
 
     def parent(self):
+        """
+        Return the :class:`DifferentialPolynomialRing` that this differential polynomial belongs to.
+        """
         return self._parent
 
     def __eq__(self, other):
@@ -116,6 +122,9 @@ class DifferentialPolynomial:
         return __class__(self._parent, self._polynomial.derivative(x._polynomial))
 
     def partial_derivative(self, *x):
+        """
+        Return the partial derivative of this differential polynomial with respect to the variables ``x``.
+        """
         result = self.copy()
         for v in x:
             result = result._partial_derivative_once(v)
@@ -131,6 +140,9 @@ class DifferentialPolynomial:
         return __class__(self._parent, result)
 
     def total_derivative(self, *x):
+        """
+        Return the total derivative of this differential polynomial with respect to the base variables ``x``.
+        """
         result = self.copy()
         for v in x:
             result = result._total_derivative_once(v)
@@ -197,6 +209,9 @@ class DifferentialPolynomial:
         return self._parent.fibre_variable(fibre_idx), tuple(sum(([base_vars[i]]*subscript_idx[i] for i in range(len(subscript_idx))), []))
 
     def weights(self):
+        """
+        Return the vector of weights of this differential monomial.
+        """
         base_dim = self._parent.base_dim()
         w = [0 for i in range(base_dim)]
         mon = self.monomials()
@@ -214,6 +229,9 @@ class DifferentialPolynomial:
         return len(set(m.weights() for m in self.monomials())) == 1
 
     def fibre_degrees(self):
+        """
+        Return the vector of degrees (with respect to each fibre variable) of this differential monomial.
+        """
         mon = self.monomials()
         if len(mon) != 1:
             raise ValueError('fibre degrees are only defined for monomials')
@@ -237,9 +255,25 @@ class DifferentialPolynomial:
         return len(set(m.fibre_degrees() for m in self.monomials())) == 1
 
 class DifferentialPolynomialRing:
+    """
+    Differential polynomial ring.
+    """
     element_class = DifferentialPolynomial
 
     def __init__(self, base_ring, fibre_names, base_names, max_differential_orders):
+        """
+        Initialize this differential polynomial ring.
+
+        INPUT:
+
+        - ``base_ring`` -- a ring, the ring of coefficients
+
+        - ``fibre_names`` -- a list of strings, the names of the fibre variables
+
+        - ``base_names`` -- a list of strings, the names of the base variables
+
+        - ``max_differential_orders`` -- a list of natural numbers, the maximum differential order of each fibre variable
+        """
         self._fibre_names = tuple(fibre_names)
         self._base_names = tuple(base_names)
         self._max_differential_orders = tuple(max_differential_orders)
@@ -283,6 +317,9 @@ class DifferentialPolynomialRing:
         return self.element_class(self, self._polynomial_ring.gen(i))
 
     def base_variables(self):
+        """
+        Return the tuple of base variables of this differential polynomial ring.
+        """
         return self._first_ngens(len(self._base_names))
 
     def base_dim(self):
@@ -292,6 +329,9 @@ class DifferentialPolynomialRing:
         return self.element_class(self, self._polynomial_ring.gen(len(self._base_names) + i))
 
     def fibre_variables(self):
+        """
+        Return the tuple of fibre variables of this differential polynomial ring.
+        """
         base_dim = len(self._base_names)
         fibre_dim = len(self._fibre_names)
         return tuple(self.element_class(self, self._polynomial_ring.gen(base_dim + i)) for i in range(fibre_dim))
@@ -355,6 +395,9 @@ class DifferentialPolynomialRing:
         return self.element_class(self, self._polynomial_ring.one())
 
     def homogeneous_monomials(self, fibre_degrees, weights, max_differential_orders=None):
+        """
+        Return the list of differential monomials with the given degrees and weights.
+        """
         fibre_vars = self.fibre_variables()
         if not len(fibre_degrees) == len(fibre_vars):
             raise ValueError('length of fibre_degrees vector must match number of fibre variables')
