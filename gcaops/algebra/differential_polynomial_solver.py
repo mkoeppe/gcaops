@@ -10,6 +10,21 @@ from .differential_polynomial_ring import DifferentialPolynomial
 # TODO: system of equations, e.g. for H
 
 def solve_homogeneous_diffpoly(target, source, unknowns):
+    """
+    Return a solution of a homogeneous differential polynomial equation.
+
+    INPUT:
+
+    - ``target`` -- a homogeneous differential polynomial, the right-hand side of the equation
+
+    - ``source`` -- a homogeneous differential polynomial, the left-hand side of the equation
+
+    - ``unknowns`` -- a list of fibre variables, such that the total derivatives of those variables appear in ``source``
+
+    ALGORITHM:
+
+    Builds an ansatz based on the homogeneity, and solves the arising linear system.
+    """
     if not isinstance(target, DifferentialPolynomial):
         raise ValueError('target must be a differential polynomial')
     if not isinstance(source, DifferentialPolynomial):
