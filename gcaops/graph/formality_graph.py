@@ -233,7 +233,7 @@ class FormalityGraph:
                 g = __class__(self._num_ground_vertices,
                               self._num_aerial_vertices + len(other) - 1,
                               [tuple(e) for e in user_edges] + victim_edges)
-                if max_out_degree is not None and max(g.out_degrees()) > max_out_degree:
+                if max_out_degree is not None and any(d > max_out_degree for d in g.out_degrees()):
                     continue
                 yield g
         else: # insert into a ground vertex
@@ -256,7 +256,7 @@ class FormalityGraph:
                 g = __class__(self._num_ground_vertices + other.num_ground_vertices() - 1,
                               self._num_aerial_vertices + other.num_aerial_vertices(),
                               [tuple(e) for e in user_edges] + victim_edges)
-                if max_out_degree is not None and max(g.out_degrees()) > max_out_degree:
+                if max_out_degree is not None and any(d > max_out_degree for d in g.out_degrees()):
                     continue
                 yield g
 
