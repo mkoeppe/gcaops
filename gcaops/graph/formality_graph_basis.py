@@ -377,6 +377,46 @@ class KontsevichGraphBasis(QuantizationGraphBasis):
         self._max_aerial_in_degree = max_aerial_in_degree
         self._graphs = keydefaultdict(partial(kontsevich_graphs, positive_differential_order=positive_differential_order, connected=connected, loops=loops, mod_ground_permutations=mod_ground_permutations, max_aerial_in_degree=max_aerial_in_degree, has_odd_automorphism=False))
 
+    def flipping_weight_relations(self, num_ground_vertices, num_aerial_vertices):
+        """
+        Return a matrix in which each row represents a linear relation between the weights of the graphs in the basis at the given bi-grading.
+
+        The relations are those induced by a single orientation-reversing coordinate change on the upper half-plane, applied to each factor of the configuration space.
+
+        ASSUMPTION:
+
+        Assumes ``num_ground_vertices == 2``, and assumes that the weights are real-valued (e.g. defined using the harmonic propagators).
+        """
+        assert num_ground_vertices == 2
+        flip_sign = -1 if num_aerial_vertices % 2 == 1 else 1
+        formality_graphs = self.graphs(num_ground_vertices, num_aerial_vertices)
+        from sage.rings.rational_field import QQ
+        from sage.matrix.constructor import matrix
+        num_graphs = len(formality_graphs)
+        F = matrix(QQ, num_graphs, num_graphs, sparse=True)
+        seen = set()
+        eqn_idx = 0
+        for g_idx, g in enumerate(formality_graphs):
+            if g_idx in seen:
+                continue
+            g_flipped = g.ground_relabeled([1, 0])
+            rhs_key, rhs_coeff = self.graph_to_key(g_flipped)
+            assert rhs_key is not None
+            rhs_normal = self.key_to_graph(rhs_key)
+            assert rhs_normal[1] == 1
+            rhs_idx = formality_graphs.index(rhs_normal[0])
+            if rhs_idx in seen:
+                continue
+            rhs_coeff *= flip_sign
+            if rhs_idx == g_idx and rhs_coeff == 1:
+                continue
+            F[eqn_idx, g_idx] = 1
+            F[eqn_idx, rhs_idx] -= rhs_coeff
+            seen.add(g_idx)
+            seen.add(rhs_idx)
+            eqn_idx += 1
+        return F.delete_rows(range(eqn_idx, num_graphs), check=False)
+
 def leibniz_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, max_aerial_in_degree=None, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     sorted_out_degrees = tuple([0]*num_ground_vertices + [2]*(num_aerial_vertices - 1) + [3])
