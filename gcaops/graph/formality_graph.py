@@ -205,7 +205,7 @@ class FormalityGraph:
                 degrees[b] += 1
         return tuple(degrees)
 
-    def _insertion_graphs(self, position, other, max_out_degree=None, skip_attaching_to_ground=False):
+    def _insertion_graphs(self, position, other, max_out_degree=None, max_aerial_in_degree=None, skip_attaching_to_ground=False):
         """
         An iterator producing the graphs which are obtained by inserting ``other`` into the vertex ``position`` of this graph.
 
@@ -235,6 +235,9 @@ class FormalityGraph:
                               [tuple(e) for e in user_edges] + victim_edges)
                 if max_out_degree is not None and any(d > max_out_degree for d in g.out_degrees()):
                     continue
+                # TODO: the following check can partly be done earlier more efficiently
+                if max_aerial_in_degree is not None and any(d > max_aerial_in_degree for d in g.in_degrees()[g.num_ground_vertices():]):
+                    continue
                 yield g
         else: # insert into a ground vertex
             # relabel user
@@ -257,6 +260,9 @@ class FormalityGraph:
                               self._num_aerial_vertices + other.num_aerial_vertices(),
                               [tuple(e) for e in user_edges] + victim_edges)
                 if max_out_degree is not None and any(d > max_out_degree for d in g.out_degrees()):
+                    continue
+                # TODO: the following check can be done earlier more efficiently
+                if max_aerial_in_degree is not None and any(d > max_aerial_in_degree for d in g.in_degrees()[g.num_ground_vertices():]):
                     continue
                 yield g
 
