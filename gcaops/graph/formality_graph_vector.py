@@ -2,6 +2,7 @@ r"""
 Formality graph vector
 """
 from abc import abstractmethod
+from copy import copy
 from .graph_vector import GraphVector, GraphModule
 from .graph_vector_dict import GraphVector_dict, GraphModule_dict
 from .graph_vector_vector import GraphVector_vector, GraphModule_vector
@@ -36,6 +37,13 @@ class FormalityGraphVector(GraphVector):
     def set_aerial(self, is_aerial=True):
         """
         Set this graph vector to be aerial if ``is_aerial`` is True, respectively not aerial if ``is_aerial`` is False.
+        """
+        pass
+
+    @abstractmethod
+    def filter(self, max_aerial_in_degree=None):
+        """
+        Return the graph vector which is the summand of this graph vector containing exactly those graphs that pass the filter.
         """
         pass
 
@@ -287,6 +295,21 @@ class FormalityGraphVector_dict(FormalityGraphVector, GraphVector_dict):
         result.set_aerial(self.is_aerial())
         return result
 
+    def filter(self, max_aerial_in_degree=None):
+        """
+        Return the graph vector which is the summand of this graph vector containing exactly those graphs that pass the filter.
+        """
+        new_vector = {}
+        for key in self._vector:
+            c = self._vector[key]
+            if c.is_zero():
+                continue
+            g, sign = self._parent._graph_basis.key_to_graph(key)
+            if max_aerial_in_degree and any(d > max_aerial_in_degree for d in g.in_degrees()[g.num_ground_vertices():]):
+                continue
+            new_vector[key] = c
+        return self.__class__(self._parent, new_vector)
+
 class FormalityGraphModule_dict(FormalityGraphModule, GraphModule_dict):
     """
     Module spanned by formality graphs (with elements stored as dictionaries).
@@ -386,6 +409,19 @@ class FormalityGraphVector_vector(FormalityGraphVector, GraphVector_vector):
         result = UndirectedGraphVector_vector.insertion(self, position, other, **kwargs)
         result.set_aerial(self.is_aerial())
         return result
+
+    def filter(self, max_aerial_in_degree=None):
+        """
+        Return the graph vector which is the summand of this graph vector containing exactly those graphs that pass the filter.
+        """
+        v = {}
+        for (grading, vector) in self._vectors.items():
+            v[grading] = copy(vector)
+            for j in vector.nonzero_positions():
+                g, sign = self._parent._graph_basis.key_to_graph(grading + (j,))
+                if max_aerial_in_degree and any(d > max_aerial_in_degree for d in g.in_degrees()[g.num_ground_vertices():]):
+                    v[grading][j] = self._parent.base_ring().zero()
+        return self.__class__(self._parent, v)
 
 class FormalityGraphModule_vector(FormalityGraphModule, GraphModule_vector):
     """
