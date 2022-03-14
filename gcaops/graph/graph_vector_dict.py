@@ -248,7 +248,7 @@ class GraphModule_dict(GraphModule):
                 key, sign = self._graph_basis.graph_to_key(graph)
                 coeff *= sign
                 if key is not None:
-                    v._vector[key] += coeff
+                    v._vector[key] += self._base_ring(coeff)
             return v
         elif isinstance(arg, self.element_class) and arg.parent() is self:
             return arg
