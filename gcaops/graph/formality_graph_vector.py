@@ -307,7 +307,17 @@ class FormalityGraphVector_dict(FormalityGraphVector, GraphVector_dict):
         """
         if self.is_aerial() and not other.is_aerial():
             raise ValueError("can't insert non-aerial graph vector into aerial graph vector")
-        result = UndirectedGraphVector_dict.insertion(self, position, other, **kwargs)
+        max_num_aerial = kwargs.pop('max_num_aerial', None)
+        result = self._parent.zero()
+        for (num_ground1, num_aerial1, num_edges1) in self.gradings():
+            for (num_ground2, num_aerial2, num_edges2) in other.gradings():
+                if max_num_aerial is not None and position < num_ground1 and num_aerial1 + num_aerial2 > max_num_aerial:
+                    continue
+                if max_num_aerial is not None and position >= num_ground1 and num_aerial1 + num_aerial2 - 1 > max_num_aerial:
+                    continue
+                part1 = self.homogeneous_part(num_ground1, num_aerial1, num_edges1)
+                part2 = other.homogeneous_part(num_ground2, num_aerial2, num_edges2)
+                result += UndirectedGraphVector_dict.insertion(part1, position, part2, **kwargs)
         result.set_aerial(self.is_aerial())
         return result
 
@@ -422,7 +432,17 @@ class FormalityGraphVector_vector(FormalityGraphVector, GraphVector_vector):
         """
         if self.is_aerial() and not other.is_aerial():
             raise ValueError("can't insert non-aerial graph vector into aerial graph vector")
-        result = UndirectedGraphVector_vector.insertion(self, position, other, **kwargs)
+        max_num_aerial = kwargs.pop('max_num_aerial', None)
+        result = self._parent.zero()
+        for (num_ground1, num_aerial1, num_edges1) in self.gradings():
+            for (num_ground2, num_aerial2, num_edges2) in other.gradings():
+                if max_num_aerial is not None and position < num_ground1 and num_aerial1 + num_aerial2 > max_num_aerial:
+                    continue
+                if max_num_aerial is not None and position >= num_ground1 and num_aerial1 + num_aerial2 - 1 > max_num_aerial:
+                    continue
+                part1 = self.homogeneous_part(num_ground1, num_aerial1, num_edges1)
+                part2 = other.homogeneous_part(num_ground2, num_aerial2, num_edges2)
+                result += UndirectedGraphVector_vector.insertion(part1, position, part2, **kwargs)
         result.set_aerial(self.is_aerial())
         return result
 
