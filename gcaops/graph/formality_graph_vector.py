@@ -47,6 +47,22 @@ class FormalityGraphVector(GraphVector):
         """
         pass
 
+    def kgs_encoding(self):
+        """
+        Return an encoding of this graph vector for use in Buring's ``kontsevich_graph_series-cpp`` program.
+
+        ASSUMPTIONS:
+
+        Assumes all graphs in this graph vector are built of wedges (i.e. with each aerial vertex having out-degree two).
+        """
+        encoding = ''
+        for (num_ground, num_aerial, num_edges) in sorted(self.gradings()):
+            encoding += 'h^{}:\n'.format(num_aerial)
+            part = self.homogeneous_part(num_ground, num_aerial, num_edges)
+            for c, g in part:
+                encoding += "{}    {}\n".format(g.kgs_encoding(), c)
+        return encoding
+
     def ground_symmetrization(self):
         """
         Return the symmetrization of this graph vector with respect to the ground vertices.
@@ -184,7 +200,7 @@ class FormalityGraphModule(GraphModule):
         else:
             return super().__call__(arg)
 
-    def element_from_kgs_encoding(self, kgs_encoding, hbar):
+    def element_from_kgs_encoding(self, kgs_encoding, hbar=1):
         """
         Return the linear combination of Kontsevich graphs specified by an encoding, as an element of this module.
 
@@ -192,7 +208,7 @@ class FormalityGraphModule(GraphModule):
 
         - ``kgs_encoding`` -- a string, containing an encoding of a graph series expansion as used in Buring's ``kontsevich_graph_series-cpp`` program
 
-        - ``hbar`` -- an element of the base ring, to be used as the series expansion parameter
+        - ``hbar`` (default: ``1``) -- an element of the base ring, to be used as the graph series expansion parameter
         """
         from sage.misc.sage_eval import sage_eval
         terms = []
