@@ -62,31 +62,6 @@ class UndirectedGraphVector_dict(UndirectedGraphVector, GraphVector_dict):
             if not self._vector[key].is_zero():
                 return e
 
-    def insertion(self, position, other, **kwargs):
-        """
-        Return the insertion of ``other`` into this graph vector at the vertex ``position``.
-        """
-        # TODO: cache when self and other are in normal form. when not, use symmetric group action + operad axioms to deduce result.
-        terms = []
-        for user_key in self._vector:
-            user_coeff = self._vector[user_key]
-            if user_coeff.is_zero():
-                continue
-            for victim_key in other._vector:
-                victim_coeff = other._vector[victim_key]
-                if victim_coeff.is_zero():
-                    continue
-                product_coeff = user_coeff * victim_coeff
-                if product_coeff.is_zero():
-                    continue
-                user, user_sign = self._parent._graph_basis.key_to_graph(user_key)
-                user_coeff *= user_sign
-                victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
-                victim_coeff *= victim_sign
-                for g in user._insertion_graphs(position, victim, **kwargs):
-                    terms.append([product_coeff, g])
-        return self._parent(terms)
-
 class UndirectedGraphModule_dict(UndirectedGraphModule, GraphModule_dict):
     """
     Module spanned by undirected graphs (with elements stored as dictionaries).
@@ -147,28 +122,6 @@ class UndirectedGraphVector_vector(UndirectedGraphVector, GraphVector_vector):
         for bi_grading in self._vectors:
             if not self._vectors[bi_grading].is_zero():
                 return bi_grading[1]
-
-    def insertion(self, position, other, **kwargs):
-        """
-        Return the insertion of ``other`` into this graph vector at the vertex ``position``.
-        """
-        terms = []
-        for (user_bigrading, user_vector) in self._vectors.items():
-            for (user_idx, user_coeff) in user_vector.items():
-                user_key = user_bigrading + (user_idx,)
-                user, user_sign = self._parent._graph_basis.key_to_graph(user_key)
-                user_coeff *= user_sign
-                for (victim_bigrading, victim_vector) in other._vectors.items():
-                    for (victim_idx, victim_coeff) in victim_vector.items():
-                        victim_key = victim_bigrading + (victim_idx,)
-                        victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
-                        victim_coeff *= victim_sign
-                        product_coeff = user_coeff * victim_coeff
-                        if product_coeff.is_zero():
-                            continue
-                        for g in user._insertion_graphs(position, victim, **kwargs):
-                            terms.append([product_coeff, g])
-        return self._parent(terms)
 
 class UndirectedGraphModule_vector(UndirectedGraphModule, GraphModule_vector):
     """

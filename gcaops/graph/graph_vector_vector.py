@@ -185,6 +185,28 @@ class GraphVector_vector(GraphVector):
         """
         return self._vectors[grading]
 
+    def insertion(self, position, other, **kwargs):
+        """
+        Return the insertion of ``other`` into this graph vector at the vertex ``position``.
+        """
+        terms = []
+        for (user_grading, user_vector) in self._vectors.items():
+            for (user_idx, user_coeff) in user_vector.items():
+                user_key = user_grading + (user_idx,)
+                user, user_sign = self._parent._graph_basis.key_to_graph(user_key)
+                user_coeff *= user_sign
+                for (victim_grading, victim_vector) in other._vectors.items():
+                    for (victim_idx, victim_coeff) in victim_vector.items():
+                        victim_key = victim_grading + (victim_idx,)
+                        victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
+                        victim_coeff *= victim_sign
+                        product_coeff = user_coeff * victim_coeff
+                        if product_coeff.is_zero():
+                            continue
+                        for g in user._insertion_graphs(position, victim, **kwargs):
+                            terms.append([product_coeff, g])
+        return self._parent(terms)
+
 class GraphModule_vector(GraphModule):
     """
     Module spanned by graphs (with elements stored as dictionaries of vectors).

@@ -10,7 +10,7 @@ from .directed_graph_basis import DirectedGraphBasis
 # for conversion:
 from .undirected_graph import UndirectedGraph
 from .undirected_graph_vector import UndirectedGraphVector
-# for nvertices, nedges, insertion:
+# for nvertices, nedges:
 from .undirected_graph_vector import UndirectedGraphVector_dict, UndirectedGraphVector_vector
 
 class DirectedGraphVector(GraphVector):
@@ -84,8 +84,6 @@ class DirectedGraphVector_dict(DirectedGraphVector, GraphVector_dict):
 
     nedges = UndirectedGraphVector_dict.nedges
 
-    insertion = UndirectedGraphVector_dict.insertion
-
 class DirectedGraphModule_dict(DirectedGraphModule, GraphModule_dict):
     """
     Module spanned by directed graphs (with elements stored as dictionaries).
@@ -139,8 +137,6 @@ class DirectedGraphVector_vector(DirectedGraphVector, GraphVector_vector):
     nvertices = UndirectedGraphVector_vector.nvertices
 
     nedges = UndirectedGraphVector_vector.nedges
-
-    insertion = UndirectedGraphVector_vector.insertion
 
 class DirectedGraphModule_vector(DirectedGraphModule, GraphModule_vector):
     """

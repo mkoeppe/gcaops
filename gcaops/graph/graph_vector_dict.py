@@ -187,6 +187,31 @@ class GraphVector_dict(GraphVector):
             new_vector[k] = new_v
         return self.__class__(new_parent, new_vector)
 
+    def insertion(self, position, other, **kwargs):
+        """
+        Return the insertion of ``other`` into this graph vector at the vertex ``position``.
+        """
+        # TODO: cache when self and other are in normal form. when not, use symmetric group action + operad axioms to deduce result.
+        terms = []
+        for user_key in self._vector:
+            user_coeff = self._vector[user_key]
+            if user_coeff.is_zero():
+                continue
+            for victim_key in other._vector:
+                victim_coeff = other._vector[victim_key]
+                if victim_coeff.is_zero():
+                    continue
+                product_coeff = user_coeff * victim_coeff
+                if product_coeff.is_zero():
+                    continue
+                user, user_sign = self._parent._graph_basis.key_to_graph(user_key)
+                user_coeff *= user_sign
+                victim, victim_sign = other._parent._graph_basis.key_to_graph(victim_key)
+                victim_coeff *= victim_sign
+                for g in user._insertion_graphs(position, victim, **kwargs):
+                    terms.append([product_coeff, g])
+        return self._parent(terms)
+
 class GraphModule_dict(GraphModule):
     """
     Module spanned by graphs (with elements stored as dictionaries).

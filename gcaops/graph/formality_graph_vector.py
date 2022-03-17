@@ -8,8 +8,6 @@ from .graph_vector_dict import GraphVector_dict, GraphModule_dict
 from .graph_vector_vector import GraphVector_vector, GraphModule_vector
 from .formality_graph import FormalityGraph
 from .formality_graph_basis import FormalityGraphBasis
-# for insertion:
-from .undirected_graph_vector import UndirectedGraphVector_dict, UndirectedGraphVector_vector
 
 class FormalityGraphVector(GraphVector):
     """
@@ -117,6 +115,26 @@ class FormalityGraphVector(GraphVector):
             if g.differential_orders() == diff_order:
                 terms.append((c,g))
         return self.parent()(terms)
+
+    def insertion(self, position, other, **kwargs):
+        """
+        Return the insertion of ``other`` into this graph vector at the vertex ``position``.
+        """
+        if self.is_aerial() and not other.is_aerial():
+            raise ValueError("can't insert non-aerial graph vector into aerial graph vector")
+        max_num_aerial = kwargs.pop('max_num_aerial', None)
+        result = self._parent.zero()
+        for (num_ground1, num_aerial1, num_edges1) in self.gradings():
+            for (num_ground2, num_aerial2, num_edges2) in other.gradings():
+                if max_num_aerial is not None and position < num_ground1 and num_aerial1 + num_aerial2 > max_num_aerial:
+                    continue
+                if max_num_aerial is not None and position >= num_ground1 and num_aerial1 + num_aerial2 - 1 > max_num_aerial:
+                    continue
+                part1 = self.homogeneous_part(num_ground1, num_aerial1, num_edges1)
+                part2 = other.homogeneous_part(num_ground2, num_aerial2, num_edges2)
+                result += super(FormalityGraphVector, part1).insertion(position, part2, **kwargs)
+        result.set_aerial(self.is_aerial())
+        return result
 
     def attach_to_ground(self, degrees):
         """
@@ -301,26 +319,6 @@ class FormalityGraphVector_dict(FormalityGraphVector, GraphVector_dict):
             raise ValueError("graph vector containing graphs with more than zero ground vertices can't be aerial")
         self._is_aerial = is_aerial
 
-    def insertion(self, position, other, **kwargs):
-        """
-        Return the insertion of ``other`` into this graph vector at the vertex ``position``.
-        """
-        if self.is_aerial() and not other.is_aerial():
-            raise ValueError("can't insert non-aerial graph vector into aerial graph vector")
-        max_num_aerial = kwargs.pop('max_num_aerial', None)
-        result = self._parent.zero()
-        for (num_ground1, num_aerial1, num_edges1) in self.gradings():
-            for (num_ground2, num_aerial2, num_edges2) in other.gradings():
-                if max_num_aerial is not None and position < num_ground1 and num_aerial1 + num_aerial2 > max_num_aerial:
-                    continue
-                if max_num_aerial is not None and position >= num_ground1 and num_aerial1 + num_aerial2 - 1 > max_num_aerial:
-                    continue
-                part1 = self.homogeneous_part(num_ground1, num_aerial1, num_edges1)
-                part2 = other.homogeneous_part(num_ground2, num_aerial2, num_edges2)
-                result += UndirectedGraphVector_dict.insertion(part1, position, part2, **kwargs)
-        result.set_aerial(self.is_aerial())
-        return result
-
     def filter(self, max_aerial_in_degree=None):
         """
         Return the graph vector which is the summand of this graph vector containing exactly those graphs that pass the filter.
@@ -425,26 +423,6 @@ class FormalityGraphVector_vector(FormalityGraphVector, GraphVector_vector):
         if is_aerial and not self.nground() in [0, None]:
             raise ValueError("graph vector containing graphs with more than zero ground vertices can't be aerial")
         self._is_aerial = is_aerial
-
-    def insertion(self, position, other, **kwargs):
-        """
-        Return the insertion of ``other`` into this graph vector at the vertex ``position``.
-        """
-        if self.is_aerial() and not other.is_aerial():
-            raise ValueError("can't insert non-aerial graph vector into aerial graph vector")
-        max_num_aerial = kwargs.pop('max_num_aerial', None)
-        result = self._parent.zero()
-        for (num_ground1, num_aerial1, num_edges1) in self.gradings():
-            for (num_ground2, num_aerial2, num_edges2) in other.gradings():
-                if max_num_aerial is not None and position < num_ground1 and num_aerial1 + num_aerial2 > max_num_aerial:
-                    continue
-                if max_num_aerial is not None and position >= num_ground1 and num_aerial1 + num_aerial2 - 1 > max_num_aerial:
-                    continue
-                part1 = self.homogeneous_part(num_ground1, num_aerial1, num_edges1)
-                part2 = other.homogeneous_part(num_ground2, num_aerial2, num_edges2)
-                result += UndirectedGraphVector_vector.insertion(part1, position, part2, **kwargs)
-        result.set_aerial(self.is_aerial())
-        return result
 
     def filter(self, max_aerial_in_degree=None):
         """
