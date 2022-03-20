@@ -448,3 +448,12 @@ class FormalityGraph:
         for (a,b) in self._edges:
             targets[a - self._num_ground_vertices].append(relabeling[b])
         return '[{}]'.format(','.join('[{}]'.format(','.join(t)) for t in targets))
+
+    def aerial_product(self, other):
+        """
+        Return the product of this graph with the ``other`` graph (i.e. the disjoint union followed by the identification of the ground vertices).
+        """
+        other_num_ground = other.num_ground_vertices()
+        prod_edges = self._edges + [(a + self._num_aerial_vertices if a >= other_num_ground else a,
+                                     b + self._num_aerial_vertices if b >= other_num_ground else b) for (a, b) in other.edges()]
+        return __class__(self._num_ground_vertices, self._num_aerial_vertices + other.num_aerial_vertices(), prod_edges)
