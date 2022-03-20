@@ -355,6 +355,24 @@ class QuantizationGraphBasis(GraphBasis):
                 C[i, h_idx] += h_coeff
         return C
 
+    def eye_on_ground_weight_relations(self, num_ground_vertices, num_aerial_vertices):
+        """
+        Return a matrix in which each row represents a linear relation between the weights of the graphs in the basis at the given bi-grading.
+
+        The relations are the vanishing of the weights of the following graphs: those containing a 2-cycle between two aerial vertices which are connected to the same ground vertex.
+        """
+        formality_graphs = self.graphs(num_ground_vertices, num_aerial_vertices)
+        num_graphs = len(formality_graphs)
+        from sage.rings.rational_field import QQ
+        from sage.matrix.constructor import matrix
+        L = matrix(QQ, num_graphs, num_graphs, sparse=True)
+        eqn_idx = 0
+        for g_idx, g in enumerate(formality_graphs):
+            if g.has_eye_on_ground():
+                L[eqn_idx, g_idx] = 1
+                eqn_idx += 1
+        return L.delete_rows(range(eqn_idx, num_graphs), check=False)
+
 def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, max_aerial_in_degree=None, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
