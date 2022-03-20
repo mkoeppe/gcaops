@@ -3,7 +3,7 @@ Formality graph
 """
 from collections.abc import MutableSequence
 from math import factorial
-from itertools import product
+from itertools import product, combinations
 from gcaops.util.permutation import selection_sort
 
 class FormalityGraph:
@@ -158,6 +158,17 @@ class FormalityGraph:
         Return ``True`` if this graph contains an edge which is a loop, and ``False`` otherwise.
         """
         return any(a == b for (a,b) in self._edges)
+
+    def has_eye_on_ground(self):
+        """
+        Return ``True`` if this graph contains a 2-cycle between two aerial vertices which are connected to the same ground vertex, and ``False`` otherwise.
+        """
+        for p in range(self._num_ground_vertices):
+            neighbors_in = [a for (a, b) in self._edges if b == p]
+            for v, w in combinations(neighbors_in, 2):
+                if (v, w) in self._edges and (w, v) in self._edges:
+                    return True
+        return False
 
     def relabeled(self, relabeling):
         """
