@@ -116,7 +116,7 @@ class FormalityGraphComplexBasis_lazy(FormalityGraphComplexBasis):
 
         OUTPUT:
 
-        Either ``(None, 1)`` if the input ``graph`` is not in the span of the basis, or a tuple consisting of a key and a sign, where a key is a tuple consisting of the number of ground vertices, the number of aerial vertices, the number of edges, and the index of the graph in the list.
+        Either ``(None, 1)`` if the input ``graph`` is not in the span of the basis, or a tuple consisting of a key and a sign, where a key is a tuple containing the number of ground vertices, the number of aerial vertices, and the number of edges, followed by all the edges in the graph.
         """
         if graph.has_odd_automorphism():
             return None, 1
