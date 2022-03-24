@@ -58,7 +58,7 @@ class FormalityGraphVector(GraphVector):
             encoding += 'h^{}:\n'.format(num_aerial)
             part = self.homogeneous_part(num_ground, num_aerial, num_edges)
             for c, g in part:
-                encoding += "{}    {}\n".format(g.kgs_encoding(), c)
+                encoding += "{}    {}\n".format(g.kgs_encoding(), str(c).replace(' ', ''))
         return encoding
 
     def ground_symmetrization(self):
