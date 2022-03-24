@@ -329,9 +329,7 @@ class QuantizationGraphBasis(GraphBasis):
             pre_lhs = g.relabeled(cyclic)
             lhs_key, lhs_coeff = self.graph_to_key(pre_lhs)
             assert lhs_key is not None
-            lhs_normal = self.key_to_graph(lhs_key)
-            assert lhs_normal[1] == 1
-            lhs_idx = formality_graphs.index(lhs_normal[0])
+            lhs_idx = lhs_key[self.grading_size]
             lhs_coeff *= (-1 if num_ground_vertices % 2 == 0 else 1)
             C[i,lhs_idx] = lhs_coeff
             redirect_to = 0
@@ -349,7 +347,7 @@ class QuantizationGraphBasis(GraphBasis):
                     continue # NOTE: Here we assume the list of graphs in the basis is enough to make the relation well-defined
                 # normal form:
                 h_normal = self.key_to_graph(h_key)
-                h_idx = formality_graphs.index(h_normal[0])
+                h_idx = h_key[self.grading_size]
                 # sign according to number of edges incident to redirect_to:
                 h_coeff *= -1 if h_normal[0].in_degrees()[redirect_to] % 2 == 1 else 1
                 C[i, h_idx] += h_coeff
