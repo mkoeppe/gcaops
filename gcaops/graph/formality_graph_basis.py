@@ -371,6 +371,24 @@ class QuantizationGraphBasis(GraphBasis):
                 eqn_idx += 1
         return L.delete_rows(range(eqn_idx, num_graphs), check=False)
 
+    def multiplication_table(self, num_ground_vertices, num_aerial_vertices1, num_aerial_vertices2):
+        """
+        Returns a generator representing the bi-linear map of multiplication (i.e. disjoint union of graphs followed by identification of ground vertices) with respect to this basis, restricted to the given gradings.
+
+        The generator produces quadruples ``(g_idx, h_idx, plusminus_gh_idx, plusminus)`` such that the product of the graphs identified by ``g_idx`` and ``h_idx`` equals ``plusminus`` times the graph identified by ``plusminus_gh_idx``.
+
+        ASSUMPTIONS:
+
+        Assumes that the basis is such that the product of graphs in the basis is also in the span of the basis.
+        """
+        for g_idx, g in enumerate(self.graphs(num_ground_vertices, num_aerial_vertices1)):
+            for h_idx, h in enumerate(self.graphs(num_ground_vertices, num_aerial_vertices2)):
+                gh = g.aerial_product(h)
+                gh_key, gh_coeff = self.graph_to_key(gh)
+                assert gh_key is not None
+                gh_idx = gh_key[self.grading_size]
+                yield (g_idx, h_idx, gh_idx, gh_coeff)
+
 def kontsevich_graphs(key, positive_differential_order=None, connected=None, loops=None, mod_ground_permutations=False, max_aerial_in_degree=None, has_odd_automorphism=None):
     num_ground_vertices, num_aerial_vertices = key
     return formality_graph_cache.graphs((num_ground_vertices, num_aerial_vertices, 2*num_aerial_vertices),
