@@ -1,11 +1,10 @@
 import subprocess
 import os
 import sage.all # make SageMath work when called from Python
+from sage.env import SAGE_NAUTY_BINS_PREFIX
 from sage.graphs.graph import Graph
 from gcaops.graph.undirected_graph import UndirectedGraph
 from .permutation import selection_sort
-
-NAUTY_PREFIX = '' # e.g. '/home/rburing/src/nauty27r1/'
 
 def nauty_generate_undirected(num_vertices, num_edges, connected=None, biconnected=None, min_degree=0):
     args = [str(num_vertices), "{}:{}".format(num_edges, num_edges)]
@@ -16,8 +15,8 @@ def nauty_generate_undirected(num_vertices, num_edges, connected=None, biconnect
     if min_degree != 0:
         args.append("-d{}".format(min_degree))
     FNULL = open(os.devnull, 'w')
-    geng = subprocess.Popen((NAUTY_PREFIX + 'geng', *args), stdout=subprocess.PIPE, stderr=FNULL)
-    showg = subprocess.Popen((NAUTY_PREFIX + 'showg', '-e', '-l0'), stdin=geng.stdout, stderr=FNULL, stdout=subprocess.PIPE)
+    geng = subprocess.Popen((SAGE_NAUTY_BINS_PREFIX + 'geng', *args), stdout=subprocess.PIPE, stderr=FNULL)
+    showg = subprocess.Popen((SAGE_NAUTY_BINS_PREFIX + 'showg', '-e', '-l0'), stdin=geng.stdout, stderr=FNULL, stdout=subprocess.PIPE)
     line_count = -1
     for line in showg.stdout:
         if line_count % 4 == 2:

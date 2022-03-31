@@ -2,11 +2,10 @@ import itertools
 import subprocess
 import os
 import sage.all # make SageMath work when called from Python
+from sage.env import SAGE_NAUTY_BINS_PREFIX
 from sage.graphs.digraph import DiGraph
 from gcaops.graph.formality_graph import FormalityGraph
 from .permutation import selection_sort
-
-NAUTY_PREFIX = '' # e.g. '/home/rburing/src/nauty27r1/'
 
 def nauty_generate_formality(num_ground_vertices, num_aerial_vertices, num_undirected_edges, num_directed_edges,
         connected=None, max_out_degree=None, num_verts_of_max_out_degree=None, loops=None):
@@ -25,9 +24,9 @@ def nauty_generate_formality(num_ground_vertices, num_aerial_vertices, num_undir
     if num_verts_of_max_out_degree:
         pickg_args.append('-M{}'.format(num_verts_of_max_out_degree))
     FNULL = open(os.devnull, 'w')
-    geng = subprocess.Popen((NAUTY_PREFIX + 'geng', *geng_args), stdout=subprocess.PIPE, stderr=FNULL)
-    directg = subprocess.Popen((NAUTY_PREFIX + 'directg', *directg_args), stdin=geng.stdout, stdout=subprocess.PIPE, stderr=FNULL)
-    pickg = subprocess.Popen((NAUTY_PREFIX + 'pickg', *pickg_args), stdin=directg.stdout, stdout=subprocess.PIPE, stderr=FNULL)
+    geng = subprocess.Popen((SAGE_NAUTY_BINS_PREFIX + 'geng', *geng_args), stdout=subprocess.PIPE, stderr=FNULL)
+    directg = subprocess.Popen((SAGE_NAUTY_BINS_PREFIX + 'directg', *directg_args), stdin=geng.stdout, stdout=subprocess.PIPE, stderr=FNULL)
+    pickg = subprocess.Popen((SAGE_NAUTY_BINS_PREFIX + 'pickg', *pickg_args), stdin=directg.stdout, stdout=subprocess.PIPE, stderr=FNULL)
     for line in pickg.stdout:
         digraph6_string = line.decode('ascii').rstrip()
         yield DiGraph(digraph6_string[1:])

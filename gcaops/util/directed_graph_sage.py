@@ -1,13 +1,12 @@
 import subprocess
 import os
 import sage.all # make SageMath work when called from Python
+from sage.env import SAGE_NAUTY_BINS_PREFIX
 from sage.graphs.digraph import DiGraph
 from sage.graphs.graph import Graph
 from gcaops.graph.directed_graph import DirectedGraph
 from .undirected_graph_sage import undirected_graph_to_encoding
 from .permutation import selection_sort
-
-NAUTY_PREFIX = '' # e.g. '/home/rburing/src/nauty27r1/'
 
 # TODO: use a single directg process for multiple inputs
 
@@ -17,7 +16,7 @@ def nauty_generate_directed_from_undirected(undirected_graph, num_directed_edges
     if not loops:
         directg_args.append('-o')
     FNULL = open(os.devnull, 'w')
-    directg = subprocess.Popen((NAUTY_PREFIX + 'directg', *directg_args), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=FNULL, encoding='ascii')
+    directg = subprocess.Popen((SAGE_NAUTY_BINS_PREFIX + 'directg', *directg_args), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=FNULL, encoding='ascii')
     outs, errs = directg.communicate(undirected_graph_to_encoding(undirected_graph) + '\n')
     for line in outs.split('\n'):
         graph_encoding = line.rstrip()
