@@ -45,7 +45,7 @@ def gradients_of_linear_coordinates(basis, form=trace_form):
 def identity(x):
     return x
 
-def r_matrix_poisson_bivector(basis, polynomial_degree, R_matrix=identity, form=trace_form):
+def r_matrix_poisson_bivector(basis, polynomial_degree, R_matrix=identity, form=trace_form, check=True):
     """
     Return the polynomial Poisson bi-vector field associated with a matrix Lie algebra, an R-matrix, and a non-degenerate symmetric bi-linear form.
 
@@ -55,12 +55,15 @@ def r_matrix_poisson_bivector(basis, polynomial_degree, R_matrix=identity, form=
 
     - ``polynomial_degree`` -- a natural number, one of ``[1, 2, 3]``, for a linear, quadratic, or cubic Poisson bi-vector respectively
 
-    - ``R_matrix`` (default: ``lambda X: X``) -- an R-matrix
+    - ``R_matrix`` (default: ``lambda X: X``) -- an R-matrix, a linear map from the matrix Lie algebra to itself such that ``lambda X,Y: (R_matrix(X).commutator(Y) + X.commutator(R_matrix(Y)))/2`` is a Lie bracket
 
-    - ``form`` (default: ``lambda X,Y: (X*Y).trace()``) -- a non-degenerate symmetric bi-linear associative form on the matrix Lie algebra
+    - ``form`` (default: ``lambda X,Y: (X*Y).trace()``) -- a non-degenerate symmetric bi-linear form on the matrix Lie algebra
+
+    - ``check`` (default: ``True``) -- a boolean, if ``True`` then some of the required properties of the inputs are checked
 
     ASSUMPTIONS:
 
+    If ``polynomial_degree`` is ``2`` or ``3``, then it is assumed that ``form`` is "associative" in the sense that ``form(X*Y, Z) == form(X, Y*Z)`` for all ``X``, ``Y``, ``Z`` in the Lie algebra, and it is assumed that ``R_matrix`` is a solution of the modified Yang--Baxter equation.
     If ``polynomial_degree == 2``, then it is assumed that the skew part of ``R_matrix`` also satisfies the modified Yang--Baxter equation with the same constant as ``R_matrix``.
 
     EXAMPLES::
@@ -91,6 +94,28 @@ def r_matrix_poisson_bivector(basis, polynomial_degree, R_matrix=identity, form=
     S = SuperfunctionAlgebra(X_ring)
     xi = S.odd_coordinates()
     R = R_matrix
+    if check:
+        XYZ_ring = PolynomialRing(base_ring, names=['x{}'.format(i) for i in range(dimension)] + \
+                ['y{}'.format(i) for i in range(dimension)] + \
+                ['z{}'.format(i) for i in range(dimension)], sparse=True)
+        x2 = XYZ_ring.gens()[:dimension]
+        y2 = XYZ_ring.gens()[dimension:2*dimension]
+        z2 = XYZ_ring.gens()[2*dimension:]
+        X2 = sum(x2[k]*basis[k] for k in range(dimension))
+        Y2 = sum(y2[k]*basis[k] for k in range(dimension))
+        Z2 = sum(z2[k]*basis[k] for k in range(dimension))
+        if R(X2) - sum(x2[i]*R(basis[i].change_ring(XYZ_ring)) for i in range(dimension)) != 0:
+            raise ValueError('R_matrix must be a linear operator')
+        if form(X2, Y2) - form(Y2, X2) != 0:
+            raise ValueError('form must be symmetric')
+        if form(X2 + Y2, Z2) - form(X2, Z2) - form(Y2, Z2) != 0 or form(X2, Y2 + Z2) - form(X2, Y2) - form (X2, Z2) != 0:
+            raise ValueError('form must be bi-linear')
+        if form(X2*Y2, Z2) != form(X2, Y2*Z2):
+            raise ValueError('form must be associative')
+        # TODO: check R is an R-matrix
+        # TODO: if polynomial_degree in [2,3], check modified Yang-Baxter equation for R
+        # TODO: if polynomial_degree == 2, check modified Yang-Baxter equation for skew part of R with the same constant as for R
+        # TODO: check form is non-degenerate on Lie algebra
     if polynomial_degree == 1:
         return sum(form(X, R(grads[i]).commutator(grads[j]) + grads[i].commutator(R(grads[j])))*xi[i]*xi[j] for i, j in combinations(range(dimension), 2)) / 2
     elif polynomial_degree == 2:
