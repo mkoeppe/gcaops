@@ -2,3 +2,4 @@ from .differential_polynomial_ring import DifferentialPolynomialRing, TD
 from .differential_polynomial_solver import solve_homogeneous_diffpoly
 from .polydifferential_operator import PolyDifferentialOperatorAlgebra
 from .superfunction_algebra import SuperfunctionAlgebra
+from .r_matrix_poisson import r_matrix_poisson_bivector
