@@ -11,14 +11,20 @@ This package is designed to be used in [SageMath](https://www.sagemath.org/) ver
     $ sage -pip install --upgrade /path/to/gcaops-master/
     ```
     This completes the installation.
-3. It is optional but highly recommended to configure a default directory where lists of graphs can be stored.
+3. It is optional but highly recommended to configure a default directory where data (such as lists of graphs) can be stored, so it doesn't have to be re-computed each time.
 
-    This can be done by adding e.g. the following lines to SageMath's [startup script](https://doc.sagemath.org/html/en/reference/repl/startup.html#the-init-sage-script) `init.sage`:
+    This can be done by setting the environment variable `GCAOPS_DATA_DIR` to the path you desire, before starting SageMath.
+    A convenient way to achieve this is by adding a line such as the following to SageMath's [shell script](https://doc.sagemath.org/html/en/reference/repl/startup.html#the-sagerc-shell-script) `sagerc`:
     ```
-    from gcaops.graph import graph_cache
-    graph_cache.GRAPH_CACHE_DIR = '/home/sage/Documents/gcaops_graphs/'
+    export GCAOPS_DATA_DIR='/home/sage/Documents/gcaops_data/'
     ```
-    Be warned that this directory can grow large. If no directory is configured, then graphs are only stored in memory.
+    Be warned that this directory can grow large. If no directory is configured, then graphs are only stored in memory (which may be limiting).
+4. It is optional but convenient to enable the importing of all names from the `gcaops` package (e.g. `UndirectedGraphComplex`) into the global namespace of every SageMath session, so that the functionality can be used immediately.
+
+    This can be done by adding the following line to SageMath's [startup script](https://doc.sagemath.org/html/en/reference/repl/startup.html#the-init-sage-script) `init.sage`:
+    ```
+    from gcaops.all import *
+    ```
 
 ## Usage in SageMath
 
