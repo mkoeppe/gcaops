@@ -8,7 +8,7 @@ from gcaops.util.directed_graph_sage import directed_graph_canonicalize, directe
 from gcaops.util.formality_graph_sage import formality_graph_canonicalize, formality_graph_generate
 from .graph_file import UndirectedGraphFileView, DirectedGraphFileView, UndirectedToDirectedGraphFileView, FormalityGraphFileView
 
-GRAPH_CACHE_DIR = None # e.g. '/home/rburing/src/gcaops/.graph_cache'
+GCAOPS_DATA_DIR = os.environ.get('GCAOPS_DATA_DIR')
 
 # TODO: Reuse graphs to save memory.
 
@@ -109,15 +109,15 @@ class UndirectedGraphCache(GraphCache):
         cache_key = bi_grading + tuple(options[k] for k in self.cache_keys)
         if cache_key in self.cache:
             return self.cache[cache_key]
-        if GRAPH_CACHE_DIR is not None:
-            if not os.path.isdir(GRAPH_CACHE_DIR):
-                os.makedirs(GRAPH_CACHE_DIR)
-            filename = os.path.join(GRAPH_CACHE_DIR, options_to_filename(num_vertices, num_edges, **options))
+        if GCAOPS_DATA_DIR is not None:
+            if not os.path.isdir(GCAOPS_DATA_DIR):
+                os.makedirs(GCAOPS_DATA_DIR)
+            filename = os.path.join(GCAOPS_DATA_DIR, options_to_filename(num_vertices, num_edges, **options))
             my_graphs = self.file_view(filename, num_vertices, num_edges)
         else:
             my_graphs = list()
         self._add_graphs(my_graphs, bi_grading, **options)
-        if GRAPH_CACHE_DIR is not None:
+        if GCAOPS_DATA_DIR is not None:
             my_graphs.commit()
         self.cache[cache_key] = my_graphs
         return my_graphs
@@ -193,19 +193,19 @@ class DirectedGraphCache(GraphCache):
         cache_key = bi_grading + tuple(options[k] for k in self.cache_keys)
         if cache_key in self.cache:
             return self.cache[cache_key]
-        if GRAPH_CACHE_DIR is not None:
-            if not os.path.isdir(GRAPH_CACHE_DIR):
-                os.makedirs(GRAPH_CACHE_DIR)
+        if GCAOPS_DATA_DIR is not None:
+            if not os.path.isdir(GCAOPS_DATA_DIR):
+                os.makedirs(GCAOPS_DATA_DIR)
             basename = options_to_filename(num_vertices, num_edges, **options)
-            filename = os.path.join(GRAPH_CACHE_DIR, basename)
-            orientation_filename = os.path.join(GRAPH_CACHE_DIR, 'u_to_' + basename)
+            filename = os.path.join(GCAOPS_DATA_DIR, basename)
+            orientation_filename = os.path.join(GCAOPS_DATA_DIR, 'u_to_' + basename)
             orientation_data = UndirectedToDirectedGraphFileView(orientation_filename)
             my_graphs = self.file_view(filename, num_vertices, num_edges)
         else:
             orientation_data = list()
             my_graphs = list()
         self._add_graphs(my_graphs, orientation_data, bi_grading, **options)
-        if GRAPH_CACHE_DIR is not None:
+        if GCAOPS_DATA_DIR is not None:
             my_graphs.commit()
             orientation_data.commit()
         self.cache[cache_key] = my_graphs
@@ -217,7 +217,7 @@ class DirectedGraphCache(GraphCache):
         num_vertices, num_edges = bi_grading
         self.graphs(bi_grading, **options) # NOTE: this makes sure the required orientation data has been generated/loaded
         orientation_data = self._undirected_to_directed[cache_key]
-        if GRAPH_CACHE_DIR is not None:
+        if GCAOPS_DATA_DIR is not None:
             yield from orientation_data.undirected_to_directed_coeffs(undirected_graph_idx)
         else:
             for row in orientation_data:
@@ -258,15 +258,15 @@ class FormalityGraphCache(GraphCache):
         cache_key = tri_grading + tuple(options[k] for k in self.cache_keys)
         if cache_key in self.cache:
             return self.cache[cache_key]
-        if GRAPH_CACHE_DIR is not None:
-            if not os.path.isdir(GRAPH_CACHE_DIR):
-                os.makedirs(GRAPH_CACHE_DIR)
-            filename = os.path.join(GRAPH_CACHE_DIR, formality_options_to_filename(num_ground_vertices, num_aerial_vertices, num_edges, **options))
+        if GCAOPS_DATA_DIR is not None:
+            if not os.path.isdir(GCAOPS_DATA_DIR):
+                os.makedirs(GCAOPS_DATA_DIR)
+            filename = os.path.join(GCAOPS_DATA_DIR, formality_options_to_filename(num_ground_vertices, num_aerial_vertices, num_edges, **options))
             my_graphs = self.file_view(filename, num_ground_vertices, num_aerial_vertices, num_edges)
         else:
             my_graphs = list()
         self._add_graphs(my_graphs, tri_grading, **options)
-        if GRAPH_CACHE_DIR is not None:
+        if GCAOPS_DATA_DIR is not None:
             my_graphs.commit()
         self.cache[cache_key] = my_graphs
         return my_graphs
