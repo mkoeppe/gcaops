@@ -11,19 +11,19 @@ class FormalityGraphCochain(GraphCochain, FormalityGraphVector):
     """
     Cochain of a :class:`FormalityGraphComplex_`.
     """
-    def gerstenhaber_bracket(self, other):
+    def gerstenhaber_bracket(self, other, **kwargs):
         """
         Return the graph Gerstenhaber bracket of this graph cochain with ``other``.
         """
-        return sum((sum((-1 if i % 2 == 1 and (w-1) % 2 == 1 else 1)*self.homogeneous_part(m,n,e).insertion(i, other.homogeneous_part(w,y,f)) \
+        return sum((sum((-1 if i % 2 == 1 and (w-1) % 2 == 1 else 1)*self.homogeneous_part(m,n,e).insertion(i, other.homogeneous_part(w,y,f), **kwargs) \
                     for i in range(m)) for (m,n,e) in self.gradings() for (w,y,f) in other.gradings()), self._parent.zero()) + \
                sum(((1 if (m-1) % 2 == 1 and (w-1) % 2 == 1 else -1) * \
-                    sum((-1 if i % 2 == 1 and (w-1) % 2 == 1 else 1)*other.homogeneous_part(m,n,e).insertion(i, self.homogeneous_part(w,y,f)) \
+                    sum((-1 if i % 2 == 1 and (w-1) % 2 == 1 else 1)*other.homogeneous_part(m,n,e).insertion(i, self.homogeneous_part(w,y,f), **kwargs) \
                         for i in range(m)) for (m,n,e) in other.gradings() for (w,y,f) in self.gradings()), self._parent.zero())
 
     bracket = gerstenhaber_bracket
 
-    def schouten_bracket(self, other):
+    def schouten_bracket(self, other, **kwargs):
         """
         Return the graph analogue of the Schouten bracket (or Schouten-Nijenhuis bracket) of this graph cochain with ``other``.
 
@@ -33,10 +33,11 @@ class FormalityGraphCochain(GraphCochain, FormalityGraphVector):
         """
         # TODO: divide by product of factorials?
         # TODO: flip sign?
+        kwargs['skip_attaching_to_ground'] = True
         result = sum((1 if k % 2 == 0 else -1) * (1 if k*self.nground() % 2 == 0 else -1) * \
-                     other.insertion(k, self, skip_attaching_to_ground=True) for k in range(other.nground())) \
+                     other.insertion(k, self, **kwargs) for k in range(other.nground())) \
                 + sum((-1 if (self.nground() - 1 - k) % 2 == 0 else 1) * (1 if (self.nground() - 1 - k)*other.nground() % 2 == 0 else -1) * \
-                      self.insertion(k, other, skip_attaching_to_ground=True) for k in range(self.nground()))
+                      self.insertion(k, other, **kwargs) for k in range(self.nground()))
         return result.ground_skew_symmetrization()
 
 class FormalityGraphComplex_(GraphComplex, FormalityGraphModule):
