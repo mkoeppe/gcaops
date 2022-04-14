@@ -192,36 +192,35 @@ class SuperfunctionAlgebraUndirectedGraphOperation(SuperfunctionAlgebraOperation
 
         Assumes that each factor in each term of ``arg`` is homogeneous.
         """
+        result = self._codomain.zero()
+        edges = graph.edges()
+        num_edges = len(edges)
         evens = self._codomain.even_coordinates()
         odds = self._codomain.odd_coordinates()
-        terms = arg.terms()
-        for e in graph.edges():
-            new_terms = []
-            for i in range(len(terms)):
-                term0 = terms[i]
-                if any(f.is_zero() for f in term0):
-                    continue
-                for k in range(self._codomain.ngens()):
-                    left_odd_derivative = term0[e[1]].derivative(odds[k])
-                    if not left_odd_derivative.is_zero():
-                        left_even_derivative = term0[e[0]].derivative(evens[k])
-                        if not left_even_derivative.is_zero():
-                            left_term = [f.copy() for f in term0]
-                            left_sign = 1 if sum(term0[j].degree() for j in range(e[1])) % 2 == 0 else -1
-                            left_term[e[1]] = left_sign * left_odd_derivative
-                            left_term[e[0]] = left_even_derivative
-                            new_terms.append(left_term)
-                    right_odd_derivative = term0[e[0]].derivative(odds[k])
-                    if not right_odd_derivative.is_zero():
-                        right_even_derivative = term0[e[1]].derivative(evens[k])
-                        if not right_even_derivative.is_zero():
-                            right_term = [f.copy() for f in term0]
-                            right_sign = 1 if sum(term0[j].degree() for j in range(e[0])) % 2 == 0 else -1
-                            right_term[e[0]] = right_sign * right_odd_derivative
-                            right_term[e[1]] = right_even_derivative
-                            new_terms.append(right_term)
-            terms = new_terms
-        return sum((reduce(operator.mul, term) for term in terms), self._codomain.zero())
+        dim = len(evens)
+        term_data = [([], 1, term) for term in arg.terms()]
+        while not len(term_data) == 0:
+            indices, sign, term = term_data.pop()
+            new_edge_idx = len(indices)
+            if new_edge_idx == num_edges:
+                result += sign*reduce(operator.mul, term)
+                continue
+            new_edge_1 = edges[new_edge_idx]
+            new_edge_2 = (new_edge_1[1], new_edge_1[0])
+            for new_edge in (new_edge_1, new_edge_2):
+                for k in range(dim):
+                    odd_derivative = term[new_edge[0]].derivative(odds[k])
+                    if odd_derivative.is_zero():
+                        continue
+                    even_derivative = term[new_edge[1]].derivative(evens[k])
+                    if even_derivative.is_zero():
+                        continue
+                    new_term = [f for f in term]
+                    new_sign = 1 if sum(new_term[j].degree() for j in range(new_edge[0])) % 2 == 0 else -1
+                    new_term[new_edge[0]] = odd_derivative
+                    new_term[new_edge[1]] = even_derivative
+                    term_data.append((indices + [k], sign * new_sign, new_term))
+        return result
 
     def __call__(self, *args):
         """
@@ -293,27 +292,33 @@ class SuperfunctionAlgebraDirectedGraphOperation(SuperfunctionAlgebraOperation):
 
         Assumes that each factor in each term of ``arg`` is homogeneous.
         """
+        result = self._codomain.zero()
+        edges = graph.edges()
+        num_edges = len(edges)
         evens = self._codomain.even_coordinates()
         odds = self._codomain.odd_coordinates()
-        terms = arg.terms()
-        for e in graph.edges():
-            new_terms = []
-            for i in range(len(terms)):
-                term0 = terms[i]
-                if any(f.is_zero() for f in term0):
+        dim = len(evens)
+        term_data = [([], 1, term) for term in arg.terms()]
+        while not len(term_data) == 0:
+            indices, sign, term = term_data.pop()
+            new_edge_idx = len(indices)
+            if new_edge_idx == num_edges:
+                result += sign*reduce(operator.mul, term)
+                continue
+            new_edge = edges[new_edge_idx]
+            for k in range(dim):
+                odd_derivative = term[new_edge[0]].derivative(odds[k])
+                if odd_derivative.is_zero():
                     continue
-                for k in range(self._codomain.ngens()):
-                    right_odd_derivative = term0[e[0]].derivative(odds[k])
-                    if not right_odd_derivative.is_zero():
-                        right_even_derivative = term0[e[1]].derivative(evens[k])
-                        if not right_even_derivative.is_zero():
-                            right_term = [f.copy() for f in term0]
-                            right_sign = 1 if sum(term0[j].degree() for j in range(e[0])) % 2 == 0 else -1
-                            right_term[e[0]] = right_sign * right_odd_derivative
-                            right_term[e[1]] = right_even_derivative
-                            new_terms.append(right_term)
-            terms = new_terms
-        return sum((reduce(operator.mul, term) for term in terms), self._codomain.zero())
+                even_derivative = term[new_edge[1]].derivative(evens[k])
+                if even_derivative.is_zero():
+                    continue
+                new_term = [f for f in term]
+                new_sign = 1 if sum(new_term[j].degree() for j in range(new_edge[0])) % 2 == 0 else -1
+                new_term[new_edge[0]] = odd_derivative
+                new_term[new_edge[1]] = even_derivative
+                term_data.append((indices + [k], sign * new_sign, new_term))
+        return result
 
     def __call__(self, *args):
         """
