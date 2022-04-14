@@ -6,9 +6,6 @@ from collections.abc import Iterable, MutableMapping
 from functools import reduce, partial
 from gcaops.util.misc import keydefaultdict
 from gcaops.util.permutation import selection_sort
-from gcaops.graph.graph_vector import GraphVector
-from gcaops.graph.undirected_graph_vector import UndirectedGraphVector
-from gcaops.graph.directed_graph_vector import DirectedGraphVector
 from .superfunction_algebra_operation import SuperfunctionAlgebraSchoutenBracket
 from .superfunction_algebra_operation import SuperfunctionAlgebraUndirectedGraphOperation, SuperfunctionAlgebraSymmetricUndirectedGraphOperation
 from .superfunction_algebra_operation import SuperfunctionAlgebraDirectedGraphOperation, SuperfunctionAlgebraSymmetricDirectedGraphOperation
@@ -656,30 +653,25 @@ class SuperfunctionAlgebra:
         """
         Return the operation (on this superfunction algebra) defined by ``graph_vector``.
 
+        If the input is a graph cochain in a graph complex, then the operation that pre-symmetrizes the arguments is returned.
+
         ASSUMPTION:
 
         Assumes each graph in ``graph_vector`` has the same number of vertices.
         """
-        arity = graph_vector.nvertices()
+        from gcaops.graph.graph_vector import GraphVector
         if not isinstance(graph_vector, GraphVector):
             raise ValueError("graph_vector must be a GraphVector")
+        arity = graph_vector.nvertices()
+        from gcaops.graph.undirected_graph_complex import UndirectedGraphCochain
+        if isinstance(graph_vector, UndirectedGraphCochain):
+            return SuperfunctionAlgebraSymmetricUndirectedGraphOperation(self.tensor_power(arity), self, graph_vector)
+        from gcaops.graph.directed_graph_complex import DirectedGraphCochain
+        if isinstance(graph_vector, DirectedGraphCochain):
+            return SuperfunctionAlgebraSymmetricDirectedGraphOperation(self.tensor_power(arity), self, graph_vector)
+        from gcaops.graph.undirected_graph_vector import UndirectedGraphVector
         if isinstance(graph_vector, UndirectedGraphVector):
             return SuperfunctionAlgebraUndirectedGraphOperation(self.tensor_power(arity), self, graph_vector)
-        elif isinstance(graph_vector, DirectedGraphVector):
+        from gcaops.graph.directed_graph_vector import DirectedGraphVector
+        if isinstance(graph_vector, DirectedGraphVector):
             return SuperfunctionAlgebraDirectedGraphOperation(self.tensor_power(arity), self, graph_vector)
-
-    def symmetric_graph_operation(self, graph_vector):
-        """
-        Return the graded symmetric operation (on this superfunction algebra) defined by ``graph_vector``.
-
-        ASSUMPTION:
-
-        Assumes each graph in ``graph_vector`` has the same number of vertices.
-        """
-        arity = graph_vector.nvertices()
-        if not isinstance(graph_vector, GraphVector):
-            raise ValueError("graph_vector must be a GraphVector")
-        if isinstance(graph_vector, UndirectedGraphVector):
-            return SuperfunctionAlgebraSymmetricUndirectedGraphOperation(self.tensor_power(arity), self, graph_vector)
-        elif isinstance(graph_vector, DirectedGraphVector):
-            return SuperfunctionAlgebraSymmetricDirectedGraphOperation(self.tensor_power(arity), self, graph_vector)
