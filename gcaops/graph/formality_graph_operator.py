@@ -44,32 +44,39 @@ class FormalityGraphOperator:
         """
         Return the evaluation of ``graph`` at ``arg``.
         """
+        result = self._codomain.zero()
+        edges = graph.edges()
+        num_edges = len(edges)
+        num_ground = graph.num_ground_vertices()
+        num_vertices = len(graph)
         evens = self._domain.even_coordinates()
         odds = self._domain.odd_coordinates()
         derivatives = self._codomain.derivatives()
-        terms = [[self._codomain.identity_operator() for _ in range(graph.num_ground_vertices())] + term for term in arg.terms()]
-        for e in graph.edges():
-            new_terms = []
-            for k in range(len(terms)):
-                term0 = terms[k]
-                if any(f.is_zero() for f in term0):
+        dim = len(evens)
+        term_data = [([], 1, [self._codomain.identity_operator() for _ in range(graph.num_ground_vertices())] + term) for term in arg.terms()]
+        while not len(term_data) == 0:
+            indices, sign, term = term_data.pop()
+            new_edge_idx = len(indices)
+            if new_edge_idx == num_edges:
+                result += reduce(operator.mul, [term[k][tuple()] for k in range(num_ground, num_vertices)], self._domain.base_ring().one()) * self._codomain.tensor_product(*term[:num_ground])
+                continue
+            new_edge = edges[new_edge_idx]
+            for k in range(dim):
+                odd_derivative = term[new_edge[0]].derivative(odds[k])
+                if odd_derivative.is_zero():
                     continue
-                for k in range(self._domain.ngens()):
-                    odd_derivative = term0[e[0]].derivative(odds[k])
-                    if not odd_derivative.is_zero():
-                        if e[1] < graph.num_ground_vertices():
-                            even_derivative = derivatives[k] * term0[e[1]]
-                        else:
-                            even_derivative = term0[e[1]].derivative(evens[k])
-                        if not even_derivative.is_zero():
-                            term = [f.copy() for f in term0]
-                            sign = 1 if sum(term0[j].degree() for j in range(graph.num_ground_vertices(), e[0])) % 2 == 0 else -1
-                            term[e[0]] = sign * odd_derivative
-                            term[e[1]] = even_derivative
-                            new_terms.append(term)
-            terms = new_terms
-        return sum((reduce(operator.mul, [term[k][tuple()] for k in range(graph.num_ground_vertices(),len(graph))], self._domain.base_ring().one()) * \
-                    self._codomain.tensor_product(*term[:graph.num_ground_vertices()]) for term in terms), self._codomain.zero())
+                if new_edge[1] < num_ground:
+                    even_derivative = derivatives[k] * term[new_edge[1]]
+                else:
+                    even_derivative = term[new_edge[1]].derivative(evens[k])
+                if even_derivative.is_zero():
+                    continue
+                new_term = [f for f in term]
+                new_sign = 1 if sum(new_term[j].degree() for j in range(num_ground, new_edge[0])) % 2 == 0 else -1
+                new_term[new_edge[0]] = odd_derivative
+                new_term[new_edge[1]] = even_derivative
+                term_data.append((indices + [k], sign * new_sign, new_term))
+        return result
 
     def __call__(self, *args):
         """
