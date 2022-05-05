@@ -8,3 +8,4 @@ from .formality_graph_operad import FormalityGraphOperad
 from .undirected_graph import UndirectedGraph
 from .undirected_graph_complex import UndirectedGraphComplex
 from .undirected_graph_operad import UndirectedGraphOperad
+from .leibniz_graph_expansion import leibniz_graph_sum_to_kontsevich_graph_sum, kontsevich_graph_sum_to_leibniz_graph_sum
