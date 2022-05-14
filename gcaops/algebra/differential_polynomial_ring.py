@@ -7,9 +7,6 @@ from sage.modules.free_module_element import vector
 from sage.rings.integer_ring import ZZ
 from sage.combinat.integer_vector import IntegerVectors
 from sage.misc.misc_c import prod
-from sage.symbolic.expression import is_Expression
-from sage.calculus.var import var, function
-from gcaops.util.jet_variables import SubstituteJetVariables, SubstituteTotalDerivatives
 
 class DifferentialPolynomial:
     """
@@ -293,8 +290,10 @@ class DifferentialPolynomialRing:
         self._idx_to_var = {idx : self._polynomial_ring(idx_to_name[idx]) for idx in idx_to_name}
         self._var_to_idx = {jet : idx for (idx,jet) in self._idx_to_var.items()}
         # for conversion:
+        from sage.calculus.var import var, function
         base_vars = [var(b) for b in self._base_names]
         symbolic_functions = [function(f)(*base_vars) for f in self._fibre_names]
+        from gcaops.util.jet_variables import SubstituteJetVariables, SubstituteTotalDerivatives
         self._subs_jet_vars = SubstituteJetVariables(symbolic_functions)
         self._subs_tot_ders = SubstituteTotalDerivatives(symbolic_functions)
 
@@ -384,6 +383,7 @@ class DifferentialPolynomialRing:
             return arg
         elif isinstance(arg, self.element_class):
             return self.element_class(self, self._polynomial_ring(arg._polynomial))
+        from sage.symbolic.expression import is_Expression
         if is_Expression(arg):
             arg = self._subs_jet_vars(arg)
         return self.element_class(self, self._polynomial_ring(arg))
