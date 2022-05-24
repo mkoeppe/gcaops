@@ -32,7 +32,7 @@ def leibniz_graph_sum_to_kontsevich_graph_sum(leibniz_graph_sum, **kwds):
     return result
 
 
-def _kontsevich_graph_sum_to_leibniz_graphs(kontsevich_graph_sum, leibniz_graphs=[]):
+def _kontsevich_graph_sum_to_leibniz_graphs(kontsevich_graph_sum, leibniz_graphs=None):
     """
     Return the number of new found Leibniz graphs obtained by contracting a single edge between aerial vertices (in all possible ways) in each of the Kontsevich graphs in the input.
 
@@ -42,7 +42,7 @@ def _kontsevich_graph_sum_to_leibniz_graphs(kontsevich_graph_sum, leibniz_graphs
 
     - ``kontsevich_graph_sum`` -- element of a :class:`~gcaops.graph.formality_graph_complex.FormalityGraphComplex_` which is a sum of Kontsevich graphs (built of wedges)
 
-    - ``leibniz_graphs`` (default: ``[]``) -- a list of Leibniz graphs, to which the new found Leibniz graphs will be added
+    - ``leibniz_graphs`` (default: ``None``) -- a list of Leibniz graphs to which the new found Leibniz graphs are added, or ``None``, in which case they are added to an internal temporary list
 
     EXAMPLES::
 
@@ -55,6 +55,8 @@ def _kontsevich_graph_sum_to_leibniz_graphs(kontsevich_graph_sum, leibniz_graphs
         sage: _kontsevich_graph_sum_to_leibniz_graphs(wedge)
         0
     """
+    if leibniz_graphs is None:
+        leibniz_graphs = []
     FGC = kontsevich_graph_sum.parent()
     FGB = FGC.basis()
     count = 0
