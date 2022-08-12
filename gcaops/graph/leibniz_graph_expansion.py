@@ -76,7 +76,7 @@ def _kontsevich_graph_sum_to_leibniz_graphs(kontsevich_graph_sum, leibniz_graphs
     return count
 
 
-def kontsevich_graph_sum_to_leibniz_graph_sum(kontsevich_graph_sum, max_iterations=None, coefficient_to_vector=None, vector_to_coefficient=None, max_aerial_in_degree=None, exact=True, verbose=False):
+def kontsevich_graph_sum_to_leibniz_graph_sum(kontsevich_graph_sum, max_iterations=None, coefficient_to_vector=None, vector_to_coefficient=None, max_aerial_in_degree=None, exact=True, force_saturation=False, verbose=False):
     """
     Return a sum of Leiniz graphs such that its expansion equals the sum of Kontsevich graphs in the input, or None if this is not possible.
 
@@ -94,6 +94,8 @@ def kontsevich_graph_sum_to_leibniz_graph_sum(kontsevich_graph_sum, max_iteratio
 
     - ``exact`` (default: True) -- a boolean, if True then only an exact solution (or None) will be returned; otherwise an approximate solution to the linear system may be returned
 
+    - ``force_saturation`` (default: False) -- a boolean, if True then the iterative algorithm continues iterating until no new Leibniz graphs are found
+
     - ``verbose`` (default: False) -- a boolean, if True then verbose output about the number of Kontsevich graphs and Leibniz graphs (at each step of the algorithm) is printed
 
     EXAMPLES::
@@ -107,9 +109,10 @@ def kontsevich_graph_sum_to_leibniz_graph_sum(kontsevich_graph_sum, max_iteratio
         True
     """
     FGC = kontsevich_graph_sum.parent()
+    from sage.modules.free_module_element import vector
+    from sage.matrix.constructor import matrix
 
     if coefficient_to_vector is None:
-        from sage.modules.free_module_element import vector
         coefficient_to_vector = lambda x: vector(FGC.base_ring(), [x], sparse=True)
     if vector_to_coefficient is None:
         vector_to_coefficient = lambda v: v[0]
@@ -124,53 +127,63 @@ def kontsevich_graph_sum_to_leibniz_graph_sum(kontsevich_graph_sum, max_iteratio
         kontsevich_graphs.append(g)
         for (c_idx, c_coeff) in coefficient_to_vector(c).items():
             rhs_coeffs[g_idx*vector_len + c_idx] = c_coeff
-
     if verbose:
         print('{}K'.format(len(kontsevich_graphs)), end='', flush=True)
 
-    Lgraphs = []
-    new_leibniz = _kontsevich_graph_sum_to_leibniz_graphs(kontsevich_graph_sum, Lgraphs)
+    leibniz_graphs = []
+    new_leibniz = _kontsevich_graph_sum_to_leibniz_graphs(kontsevich_graph_sum, leibniz_graphs)
     leibniz_sol = None
-    Lgraphs_expansion_coeffs = {}
+    leibniz_graphs_expansion_coeffs = {}
     leibniz_columns = 0
     iteration = 1
-    while leibniz_sol is None and new_leibniz != 0 and (max_iterations is None or iteration <= max_iterations):
-        if verbose:
-            print(' -> +{}L'.format(new_leibniz), end='', flush=True)
-        new_kontsevich = 0
-        for i, L in enumerate(Lgraphs[-new_leibniz:]):
-            leibniz_expanded_term = leibniz_graph_sum_to_kontsevich_graph_sum(FGC(L), max_aerial_in_degree=max_aerial_in_degree) # TODO: avoid/optimize conversion
-            # Expand b*L for each b in the basis
-            for c,g in leibniz_expanded_term:
-                if g in kontsevich_graphs:
-                    idx = kontsevich_graphs.index(g)
-                else:
-                    idx = len(kontsevich_graphs)
-                    kontsevich_graphs.append(g)
-                    new_kontsevich += 1
-                for k in range(vector_len):
-                    Lgraphs_expansion_coeffs[(vector_len*idx + k, vector_len*(leibniz_columns + i) + k)] = c
-        if verbose:
-            print(' -> +{}K'.format(new_kontsevich), end='', flush=True)
-        from sage.matrix.constructor import matrix
-        leibniz_expanded_mat = matrix(base_ring, vector_len*len(kontsevich_graphs), vector_len*len(Lgraphs), Lgraphs_expansion_coeffs, sparse=True)
-        try:
-            from sage.modules.free_module_element import vector
-            rhs_vec = vector(base_ring, vector_len*len(kontsevich_graphs), rhs_coeffs, sparse=True)
-            leibniz_sol = leibniz_expanded_mat.solve_right(rhs_vec)
-            if not base_ring.is_exact() and exact:
-                if not leibniz_expanded_mat * leibniz_sol == rhs_vec:
-                    leibniz_sol = None
-                    raise ValueError
+    while True:
+        if max_iterations is not None and iteration > max_iterations:
             break
-        except ValueError:
-            pass
+        # Expand new Leibniz graphs to old and possibly new Kontsevich graphs
+        new_kontsevich = 0
+        if new_leibniz != 0:
+            if verbose:
+                print(' -> +{}L'.format(new_leibniz), end='', flush=True)
+            for i, L in enumerate(leibniz_graphs[-new_leibniz:]):
+                leibniz_expanded_term = leibniz_graph_sum_to_kontsevich_graph_sum(FGC(L), max_aerial_in_degree=max_aerial_in_degree) # TODO: avoid/optimize conversion
+                # Expand b*L for each b in the basis
+                for c,g in leibniz_expanded_term:
+                    if g in kontsevich_graphs:
+                        idx = kontsevich_graphs.index(g)
+                    else:
+                        idx = len(kontsevich_graphs)
+                        kontsevich_graphs.append(g)
+                        new_kontsevich += 1
+                    for k in range(vector_len):
+                        leibniz_graphs_expansion_coeffs[(vector_len*idx + k, vector_len*(leibniz_columns + i) + k)] = c
+            leibniz_columns += new_leibniz
+            if verbose:
+                print(' -> +{}K'.format(new_kontsevich), end='', flush=True)
+        # Maybe try solving
+        if not force_saturation or (force_saturation and new_kontsevich == 0):
+            leibniz_expanded_mat = matrix(base_ring, vector_len*len(kontsevich_graphs), vector_len*len(leibniz_graphs), leibniz_graphs_expansion_coeffs, sparse=True)
+            try:
+                rhs_vec = vector(base_ring, vector_len*len(kontsevich_graphs), rhs_coeffs, sparse=True)
+                leibniz_sol = leibniz_expanded_mat.solve_right(rhs_vec)
+                if not base_ring.is_exact() and exact:
+                    if not leibniz_expanded_mat*leibniz_sol == rhs_vec:
+                        leibniz_sol = None
+                        raise ValueError
+                if not force_saturation:
+                    break
+            except ValueError:
+                pass
+            if force_saturation or (not force_saturation and new_kontsevich == 0):
+                break
+        # Find new Leibniz graphs from new Kontsevich graphs
+        if new_kontsevich != 0:
+            new_leibniz = _kontsevich_graph_sum_to_leibniz_graphs(FGC([(1, g) for g in kontsevich_graphs[-new_kontsevich:]]), leibniz_graphs) # TODO: avoid/optimize conversion
+        else:
+            new_leibniz = 0
         iteration += 1
-        leibniz_columns += new_leibniz
-        new_leibniz = _kontsevich_graph_sum_to_leibniz_graphs(FGC([(1, g) for g in kontsevich_graphs[-new_kontsevich:]]), Lgraphs) # TODO: avoid/optimize conversion
     if verbose:
         print(flush=True)
     if leibniz_sol is None:
         return None
-    L_indices = set(k // vector_len for k in leibniz_sol.nonzero_positions())
-    return FGC([(vector_to_coefficient(leibniz_sol[vector_len*idx:vector_len*(idx+1)]), Lgraphs[idx]) for idx in L_indices])
+    leibniz_graphs_indices = set(k // vector_len for k in leibniz_sol.nonzero_positions())
+    return FGC([(vector_to_coefficient(leibniz_sol[vector_len*idx:vector_len*(idx+1)]), leibniz_graphs[idx]) for idx in leibniz_graphs_indices])
