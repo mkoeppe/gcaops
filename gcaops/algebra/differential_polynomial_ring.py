@@ -385,8 +385,8 @@ class DifferentialPolynomialRing:
             return arg
         elif isinstance(arg, self.element_class):
             return self.element_class(self, self._polynomial_ring(arg._polynomial))
-        from sage.symbolic.expression import is_Expression
-        if is_Expression(arg):
+        from sage.structure.element import Expression
+        if isinstance(arg, Expression):
             arg = self._subs_jet_vars(arg)
         return self.element_class(self, self._polynomial_ring(arg))
 
