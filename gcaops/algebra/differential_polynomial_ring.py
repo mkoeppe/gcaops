@@ -130,9 +130,11 @@ class DifferentialPolynomial:
     pdiff = partial_derivative
 
     def _total_derivative_once(self, x):
-        result = self._polynomial.derivative(x._polynomial)
+        result = self._polynomial.derivative(x._polynomial) # partial derivative
+        all_fibre_vars = self._parent._polynomial_ring.gens()[self._parent.base_dim():]
         for v in self._polynomial.variables():
-            # TODO: check fibre variable
+            if not v in all_fibre_vars:
+                continue
             result += self._polynomial.derivative(v) * self._parent._diff_single_var(v, x._polynomial)
         return __class__(self._parent, result)
 
