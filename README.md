@@ -1,7 +1,7 @@
 # `gcaops`: Graph Complex Action on Poisson Structures
 
 Python package implementing the action of Kontsevich's graph complex(es) on Poisson structures.
-This package is designed to be used in [SageMath](https://www.sagemath.org/) version 9.2 or later.
+This package is designed to be used in [SageMath](https://www.sagemath.org/) version 9.5 or later.
 
 ## Installation in SageMath
 
@@ -37,4 +37,4 @@ sage: GC.cohomology_basis(4,6)
 [1*UndirectedGraph(4, [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)])]
 ```
 
-Extensive examples of the use of this software are contained in the author's PhD thesis (coming soon&trade;).
+Extensive examples of the use of this software are contained in the author's PhD dissertation: [*The action of Kontsevich's graph complex on Poisson structures and star products: an implementation*](https://doi.org/10.25358/openscience-9274).
