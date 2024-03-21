@@ -14,7 +14,7 @@ class DifferentialPolynomial:
     """
     def __init__(self, parent, polynomial):
         self._parent = parent
-        if not polynomial in self._parent._polynomial_ring:
+        if not polynomial.parent() is self._parent._polynomial_ring:
             raise ValueError('polynomial must be in polynomial ring of the parent')
         self._polynomial = polynomial
 
@@ -31,10 +31,10 @@ class DifferentialPolynomial:
         return self._parent
 
     def __eq__(self, other):
-        if other == 0:
-            return self._polynomial.is_zero()
-        elif isinstance(other, __class__):
+        if isinstance(other, __class__):
             return self.parent() == other.parent() and self._polynomial == other._polynomial
+        elif other == 0:
+            return self._polynomial.is_zero()
         else:
             return NotImplemented
 
