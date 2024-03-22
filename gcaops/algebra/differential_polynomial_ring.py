@@ -9,6 +9,7 @@ from sage.combinat.integer_vector import IntegerVectors
 from sage.misc.misc_c import prod
 from sage.structure.parent import Parent
 from sage.structure.element import RingElement
+from sage.structure.unique_representation import UniqueRepresentation
 
 class DifferentialPolynomial(RingElement):
     """
@@ -197,7 +198,7 @@ class DifferentialPolynomial(RingElement):
     def is_fibre_degree_homogeneous(self):
         return len(set(m.fibre_degrees() for m in self.monomials())) == 1
 
-class DifferentialPolynomialRing(Parent):
+class DifferentialPolynomialRing(UniqueRepresentation, Parent):
     """
     Differential polynomial ring.
     """
@@ -211,15 +212,15 @@ class DifferentialPolynomialRing(Parent):
 
         - ``base_ring`` -- a ring, the ring of coefficients
 
-        - ``fibre_names`` -- a list of strings, the names of the fibre variables
+        - ``fibre_names`` -- a tuple of strings, the names of the fibre variables
 
-        - ``base_names`` -- a list of strings, the names of the base variables
+        - ``base_names`` -- a tuple of strings, the names of the base variables
 
-        - ``max_differential_orders`` -- a list of natural numbers, the maximum differential order of each fibre variable
+        - ``max_differential_orders`` -- a tuple of natural numbers, the maximum differential order of each fibre variable
         """
-        self._fibre_names = tuple(fibre_names)
-        self._base_names = tuple(base_names)
-        self._max_differential_orders = tuple(max_differential_orders)
+        self._fibre_names = fibre_names
+        self._base_names = base_names
+        self._max_differential_orders = max_differential_orders
         base_dim = len(self._base_names)
         fibre_dim = len(self._fibre_names)
         jet_names = []
@@ -245,6 +246,13 @@ class DifferentialPolynomialRing(Parent):
         from gcaops.util.jet_variables import SubstituteJetVariables, SubstituteTotalDerivatives
         self._subs_jet_vars = SubstituteJetVariables(symbolic_functions)
         self._subs_tot_ders = SubstituteTotalDerivatives(symbolic_functions)
+
+    @staticmethod
+    def __classcall__(cls, base_ring, fibre_names, base_names, max_differential_orders):
+        fibre_names = tuple(fibre_names)
+        base_names = tuple(base_names)
+        max_differential_orders = tuple(max_differential_orders)
+        return super().__classcall__(cls, base_ring, fibre_names, base_names, max_differential_orders)
 
     def _repr_(self):
         return 'Differential Polynomial Ring in {} over {}'.format(', '.join(map(repr, self._polynomial_ring.gens())), self._polynomial_ring.base_ring())
