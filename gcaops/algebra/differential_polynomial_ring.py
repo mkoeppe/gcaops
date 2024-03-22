@@ -7,145 +7,89 @@ from sage.modules.free_module_element import vector
 from sage.rings.integer_ring import ZZ
 from sage.combinat.integer_vector import IntegerVectors
 from sage.misc.misc_c import prod
+from sage.structure.parent import Parent
+from sage.structure.element import RingElement
 
-class DifferentialPolynomial:
+class DifferentialPolynomial(RingElement):
     """
     Differential polynomial.
     """
     def __init__(self, parent, polynomial):
+        RingElement.__init__(self, parent)
         self._parent = parent
-        if not polynomial.parent() is self._parent._polynomial_ring:
-            raise ValueError('polynomial must be in polynomial ring of the parent')
         self._polynomial = polynomial
 
-    def __repr__(self):
+    def _repr_(self):
         return repr(self._polynomial)
 
     def _latex_(self):
         return self._polynomial._latex_()
 
-    def parent(self):
-        """
-        Return the :class:`DifferentialPolynomialRing` that this differential polynomial belongs to.
-        """
-        return self._parent
-
-    def __eq__(self, other):
-        if isinstance(other, __class__):
-            return self.parent() == other.parent() and self._polynomial == other._polynomial
-        elif other == 0:
-            return self._polynomial.is_zero()
-        else:
-            return NotImplemented
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def _richcmp_(self, other, op):
+        from sage.structure.richcmp import richcmp
+        return richcmp(self._polynomial, other._polynomial, op)
 
     def __hash__(self):
         return hash((self._parent, self._polynomial))
 
-    def copy(self):
-        return __class__(self._parent, self._polynomial)
-
-    __pos__ = copy
-
-    def __neg__(self):
+    def _neg_(self):
         return __class__(self._parent, -self._polynomial)
 
-    def __add__(self, other):
-        if isinstance(other, __class__):
-            return __class__(self._parent, self._polynomial + other._polynomial)
-        elif other in self._parent.base_ring():
-            return __class__(self._parent, self._polynomial + other)
-        else:
-            return NotImplemented
+    def _add_(self, other):
+        return __class__(self._parent, self._polynomial + other._polynomial)
 
-    def __radd__(self, other):
-        return self + other
+    def _sub_(self, other):
+        return __class__(self._parent, self._polynomial - other._polynomial)
 
-    def __sub__(self, other):
-        if isinstance(other, __class__):
-            return __class__(self._parent, self._polynomial - other._polynomial)
-        elif other in self._parent.base_ring():
-            return __class__(self._parent, self._polynomial - other)
-        else:
-            return NotImplemented
+    def _mul_(self, other):
+        return __class__(self._parent, self._polynomial * other._polynomial)
 
-    def __rsub__(self, other):
-        return -(self - other)
+    def _lmul_(self, other):
+        return __class__(self._parent, self._polynomial * other)
 
-    def __mul__(self, other):
-        if isinstance(other, __class__):
-            return __class__(self._parent, self._polynomial * other._polynomial)
-        elif other in self._parent.base_ring():
-            return __class__(self._parent, self._polynomial * other)
-        else:
-            return NotImplemented
+    def _rmul_(self, other):
+        return __class__(self._parent, self._polynomial * other)
 
-    def __rmul__(self, other):
-        return self * other
-
-    def __pow__(self, other):
+    def _pow_(self, other):
         return __class__(self._parent, self._polynomial**other)
 
-    def __truediv__(self, other):
-        if isinstance(other, __class__):
-            return __class__(self._parent, self._parent._polynomial_ring(self._polynomial / other._polynomial))
-        elif other in self._parent.base_ring():
-            return __class__(self._parent, self._parent._polynomial_ring(self._polynomial / other))
-        else:
-            return NotImplemented
+    def _div_(self, other):
+        return __class__(self._parent, self._parent._polynomial_ring(self._polynomial / other._polynomial))
 
-    def __floordiv__(self, other):
-        if isinstance(other, __class__):
-            return __class__(self._parent, self._polynomial // other._polynomial)
-        elif other in self._parent.base_ring():
-            return __class__(self._parent, self._polynomial // other)
-        else:
-            return NotImplemented
+    def _floordiv_(self, other):
+        return __class__(self._parent, self._polynomial // other._polynomial)
 
-    def __mod__(self, other):
-        if isinstance(other, __class__):
-            return __class__(self._parent, self._polynomial % other._polynomial)
-        elif other in self._parent.base_ring():
-            return __class__(self._parent, self._polynomial % other)
-        else:
-            return NotImplemented
+    def _mod_(self, other):
+        return __class__(self._parent, self._polynomial % other._polynomial)
 
-    def is_zero(self):
-        return self._polynomial.is_zero()
-
-    def _partial_derivative_once(self, x):
-        return __class__(self._parent, self._polynomial.derivative(x._polynomial))
+    def __bool__(self):
+        return bool(self._polynomial)
 
     def partial_derivative(self, *x):
         """
         Return the partial derivative of this differential polynomial with respect to the variables ``x``.
         """
-        result = self.copy()
+        result = self._polynomial
         for v in x:
-            result = result._partial_derivative_once(v)
-        return result
+            result = result.derivative(v._polynomial)
+        return __class__(self._parent, result)
 
     pdiff = partial_derivative
-
-    def _total_derivative_once(self, x):
-        result = self._polynomial.derivative(x._polynomial) # partial derivative
-        all_fibre_vars = self._parent._polynomial_ring.gens()[self._parent.base_dim():]
-        for v in self._polynomial.variables():
-            if not v in all_fibre_vars:
-                continue
-            result += self._polynomial.derivative(v) * self._parent._diff_single_var(v, x._polynomial)
-        return __class__(self._parent, result)
 
     def total_derivative(self, *x):
         """
         Return the total derivative of this differential polynomial with respect to the base variables ``x``.
         """
-        result = self.copy()
+        all_fibre_vars = self._parent._polynomial_ring.gens()[self._parent.base_dim():]
+        result = self._polynomial
         for v in x:
-            result = result._total_derivative_once(v)
-        return result
+            prev_result = result
+            result = prev_result.derivative(v._polynomial) # Partial derivative.
+            for w in prev_result.variables():
+                if not w in all_fibre_vars:
+                    continue
+                result += prev_result.derivative(w) * self._parent._diff_single_var(w, v._polynomial)
+        return __class__(self._parent, result)
 
     derivative = total_derivative
     diff = total_derivative
@@ -253,11 +197,11 @@ class DifferentialPolynomial:
     def is_fibre_degree_homogeneous(self):
         return len(set(m.fibre_degrees() for m in self.monomials())) == 1
 
-class DifferentialPolynomialRing:
+class DifferentialPolynomialRing(Parent):
     """
     Differential polynomial ring.
     """
-    element_class = DifferentialPolynomial
+    Element = DifferentialPolynomial
 
     def __init__(self, base_ring, fibre_names, base_names, max_differential_orders):
         """
@@ -288,10 +232,13 @@ class DifferentialPolynomialRing:
                     v = '{}_{}'.format(u, ''.join(self._base_names[i]*multi_index[i] for i in range(base_dim)))
                     jet_names.append(v)
                     idx_to_name[(fibre_idx,) + tuple(multi_index)] = v
-        self._polynomial_ring = PolynomialRing(base_ring, base_names + fibre_names + tuple(jet_names))
+        names = base_names + fibre_names + tuple(jet_names)
+        self._polynomial_ring = PolynomialRing(base_ring, names)
         self._idx_to_var = {idx : self._polynomial_ring(idx_to_name[idx]) for idx in idx_to_name}
         self._var_to_idx = {jet : idx for (idx,jet) in self._idx_to_var.items()}
-        # for conversion:
+        Parent.__init__(self, base=base_ring, category=self._polynomial_ring.category(), names=names)
+        self._populate_coercion_lists_()
+        # For conversion:
         from sage.calculus.var import var, function
         base_vars = [var(b) for b in self._base_names]
         symbolic_functions = [function(f)(*base_vars) for f in self._fibre_names]
@@ -299,20 +246,36 @@ class DifferentialPolynomialRing:
         self._subs_jet_vars = SubstituteJetVariables(symbolic_functions)
         self._subs_tot_ders = SubstituteTotalDerivatives(symbolic_functions)
 
-    def __repr__(self):
+    def _repr_(self):
         return 'Differential Polynomial Ring in {} over {}'.format(', '.join(map(repr, self._polynomial_ring.gens())), self._polynomial_ring.base_ring())
+
+    def _element_constructor_(self, arg):
+        if isinstance(arg, self.element_class) and arg.parent() is self:
+            return arg
+        elif isinstance(arg, self.element_class):
+            return self.element_class(self, self._polynomial_ring(arg._polynomial))
+        from sage.structure.element import Expression
+        if isinstance(arg, Expression):
+            arg = self._subs_jet_vars(arg)
+        return self.element_class(self, self._polynomial_ring(arg))
+
+    def _coerce_map_from_(self, S):
+        if self._polynomial_ring.base_ring().has_coerce_map_from(S):
+            return True
+        if isinstance(S, __class__):
+            # TODO: Make this more general?
+            return self._fibre_names == S._fibre_names and self._base_names == S._base_names and \
+                    all(d1 <= d2 for (d1, d2) in zip(S._max_differential_orders, self._max_differential_orders))
+        return False
+
+    def _an_element_(self):
+        return self.element_class(self, self._polynomial_ring.an_element())
 
     def _latex_(self):
         return self._polynomial_ring._latex_()
 
-    def base_ring(self):
-        return self._polynomial_ring.base_ring()
-
-    def _first_ngens(self, n):
-        return tuple(self.element_class(self, self._polynomial_ring.gen(i)) for i in range(n))
-
     def gens(self):
-        return self._first_ngens(self._polynomial_ring.ngens())
+        return tuple(self.element_class(self, v) for v in self._polynomial_ring.gens())
 
     def gen(self, i):
         return self.element_class(self, self._polynomial_ring.gen(i))
@@ -372,29 +335,6 @@ class DifferentialPolynomialRing:
         iu_idx[1 + x_idx] -= 1
         iu_idx = tuple(iu_idx)
         return self._idx_to_var[iu_idx]
-
-    def __contains__(self, arg):
-        if isinstance(arg, self.element_class) and arg.parent() is self:
-            return True
-        if arg in self._polynomial_ring.base_ring():
-            return True
-        return False
-
-    def __call__(self, arg):
-        if isinstance(arg, self.element_class) and arg.parent() is self:
-            return arg
-        elif isinstance(arg, self.element_class):
-            return self.element_class(self, self._polynomial_ring(arg._polynomial))
-        from sage.structure.element import Expression
-        if isinstance(arg, Expression):
-            arg = self._subs_jet_vars(arg)
-        return self.element_class(self, self._polynomial_ring(arg))
-
-    def zero(self):
-        return self.element_class(self, self._polynomial_ring.zero())
-
-    def one(self):
-        return self.element_class(self, self._polynomial_ring.one())
 
     def homogeneous_monomials(self, fibre_degrees, weights, max_differential_orders=None):
         """
