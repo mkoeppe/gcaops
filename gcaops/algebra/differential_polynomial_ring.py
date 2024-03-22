@@ -17,6 +17,8 @@ class DifferentialPolynomial(RingElement):
     """
     def __init__(self, parent, polynomial):
         RingElement.__init__(self, parent)
+        if not polynomial.parent() is parent._polynomial_ring:
+            raise ValueError("polynomial must be in polynomial ring of the parent")
         self._parent = parent
         self._polynomial = polynomial
 
@@ -262,6 +264,8 @@ class DifferentialPolynomialRing(UniqueRepresentation, Parent):
             return arg
         elif isinstance(arg, self.element_class):
             return self.element_class(self, self._polynomial_ring(arg._polynomial))
+        elif arg in self._polynomial_ring.base_ring():
+            return self.element_class(self, self._polynomial_ring(arg))
         from sage.structure.element import Expression
         if isinstance(arg, Expression):
             arg = self._subs_jet_vars(arg)
