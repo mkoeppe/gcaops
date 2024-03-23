@@ -17,6 +17,8 @@ class DifferentialPolynomial(RingElement):
     """
     def __init__(self, parent, polynomial):
         RingElement.__init__(self, parent)
+        if not isinstance(parent, DifferentialPolynomialRing):
+            raise ValueError("parent must be a DifferentialPolynomialRing")
         if not polynomial.parent() is parent._polynomial_ring:
             raise ValueError("polynomial must be in polynomial ring of the parent")
         self._parent = parent
@@ -274,14 +276,16 @@ class DifferentialPolynomialRing(UniqueRepresentation, Parent):
     def _coerce_map_from_(self, S):
         if self._polynomial_ring.base_ring().has_coerce_map_from(S):
             return True
-        if isinstance(S, __class__):
-            # TODO: Make this more general?
-            return self._fibre_names == S._fibre_names and self._base_names == S._base_names and \
-                    all(d1 <= d2 for (d1, d2) in zip(S._max_differential_orders, self._max_differential_orders))
+        if isinstance(S, self.__class__):
+            # NOTE: This takes into account the names, the maximum differential orders, and the base ring.
+            return self._polynomial_ring.has_coerce_map_from(S._polynomial_ring)
         return False
 
     def _an_element_(self):
         return self.element_class(self, self._polynomial_ring.an_element())
+
+    def _pseudo_fraction_field(self):
+        return self
 
     def _latex_(self):
         return self._polynomial_ring._latex_()
