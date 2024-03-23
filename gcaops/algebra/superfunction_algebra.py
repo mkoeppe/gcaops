@@ -6,18 +6,22 @@ from collections.abc import Iterable, MutableMapping
 from functools import reduce, partial
 from gcaops.util.misc import keydefaultdict
 from gcaops.util.permutation import selection_sort
+from sage.structure.parent import Parent
+from sage.structure.element import AlgebraElement
+from sage.structure.richcmp import op_EQ, op_NE
+from sage.categories.algebras import Algebras
 from .superfunction_algebra_operation import SuperfunctionAlgebraSchoutenBracket
 from .superfunction_algebra_operation import SuperfunctionAlgebraUndirectedGraphOperation, SuperfunctionAlgebraSymmetricUndirectedGraphOperation
 from .superfunction_algebra_operation import SuperfunctionAlgebraDirectedGraphOperation, SuperfunctionAlgebraSymmetricDirectedGraphOperation
 from .tensor_product import TensorProduct
 
-class Superfunction:
+class Superfunction(AlgebraElement):
     """
     Superfunction on a coordinate chart of a `Z_2`-graded space.
 
     A polynomial in the odd coordinates, with coefficients in the base ring (of even degree 0 functions).
     """
-    def __init__(self, parent, monomial_coefficients):
+    def __init__(self, parent, monomial_coeffs):
         """
         Initialize this superfunction.
 
@@ -25,25 +29,26 @@ class Superfunction:
 
         - ``parent`` - a :class:`SuperfunctionAlgebra`
 
-        - ``monomial_coefficients`` - a dictionary, taking a natural number ``m`` less than ``2^parent.ngens()`` to the coefficient of the monomial in the odd coordinates represented by ``m``
+        - ``monomial_coeffs`` - a dictionary, taking a natural number ``m`` less than ``2^parent.ngens()`` to the coefficient of the monomial in the odd coordinates represented by ``m``
         """
+        AlgebraElement.__init__(self, parent)
         if not isinstance(parent, SuperfunctionAlgebra):
             raise TypeError('parent must be a SuperfunctionAlgebra')
         self._parent = parent
-        if not isinstance(monomial_coefficients, MutableMapping):
-            raise TypeError('monomial_coefficients must be a dictionary')
-        self._monomial_coefficients = defaultdict(self._parent.base_ring().zero)
-        for m in monomial_coefficients:
-            self._monomial_coefficients[m] = self._parent.base_ring()(monomial_coefficients[m]) # conversion
+        if not isinstance(monomial_coeffs, MutableMapping):
+            raise TypeError('monomial_coeffs must be a dictionary')
+        self._monomial_coeffs = defaultdict(self._parent.base_ring().zero)
+        for m in monomial_coeffs:
+            self._monomial_coeffs[m] = self._parent.base_ring()(monomial_coeffs[m]) # Conversion.
 
-    def __repr__(self):
+    def _repr_(self):
         """
         Return a string representation of this superfunction.
         """
         terms = []
         for degree in reversed(sorted(self.degrees())):
             for m in self._indices(degree):
-                coefficient = self._monomial_coefficients[m]
+                coefficient = self._monomial_coeffs[m]
                 c = repr(coefficient)
                 if c == '0':
                     continue
@@ -67,7 +72,7 @@ class Superfunction:
         terms = []
         for degree in reversed(sorted(self.degrees())):
             for m in self._indices(degree):
-                coefficient = self._monomial_coefficients[m]
+                coefficient = self._monomial_coeffs[m]
                 c = coefficient._latex_()
                 monomial = self._parent._repr_monomial(m).replace('*', '')
                 if c == '0':
@@ -93,11 +98,30 @@ class Superfunction:
         else:
             return '0'
 
-    def parent(self):
+    def _richcmp_(self, other, op):
+        if not op in [op_EQ, op_NE]:
+            return NotImplemented
+        # TODO: Optimize?
+        equal = True
+        for m in set(self._monomial_coeffs.keys()) | set(other._monomial_coeffs.keys()):
+            if self._monomial_coeffs[m] != other._monomial_coeffs[m]:
+                equal = False
+                break
+        return equal if op == op_EQ else not equal
+
+    def monomial_coefficients(self):
         """
-        Return the parent :class:`SuperfunctionAlgebra` that this superfunction belongs to.
+        Return the dictionary of monomial coefficients.
         """
-        return self._parent
+        #from sage.misc.misc_c import prod
+        coeffs = dict()
+        for m, c in self._monomial_coeffs.items():
+            exponents = self._parent._index_to_tuple(m)
+            # TODO: Avoid unhashable type.
+            #monomial = prod(self._parent.gen(k) for (k,i) in enumerate(exponents) if i == 1)
+            #coeffs[monomial] = c
+            coeffs[exponents] = c
+        return coeffs
 
     def __getitem__(self, indices):
         """
@@ -109,7 +133,7 @@ class Superfunction:
         if index is None:
             value = self._parent.base_ring().zero()
         else:
-            value = self._monomial_coefficients[index]
+            value = self._monomial_coeffs[index]
         return sign * value
 
     def __setitem__(self, indices, new_value):
@@ -120,7 +144,7 @@ class Superfunction:
             indices = (indices,)
         sign, index = self._parent._monomial_index(indices)
         if index is not None:
-            self._monomial_coefficients[index] = sign * new_value
+            self._monomial_coeffs[index] = sign * new_value
 
     def _indices(self, degree=None):
         """
@@ -130,7 +154,7 @@ class Superfunction:
 
         - ``degree`` (default: ``None``) -- if not ``None``, yield only indices of degree ``degree``
         """
-        for m in self._monomial_coefficients:
+        for m in self._monomial_coeffs:
             if degree is None or self._parent._monomial_degree(m) == degree:
                 yield m
 
@@ -142,7 +166,7 @@ class Superfunction:
 
         - ``degree`` (default: ``None``) -- if not ``None``, yield only indices of degree ``degree``
         """
-        for m in self._monomial_coefficients:
+        for m in self._monomial_coeffs:
             if degree is None or self._parent._monomial_degree(m) == degree:
                 yield self._parent._index_to_tuple(m)
 
@@ -154,7 +178,7 @@ class Superfunction:
 
             Returns a :class:`Superfunction` whose homogeneous component of degree ``degree`` is a *reference* to the respective component of this superfunction.
         """
-        return self.__class__(self._parent, { m : self._monomial_coefficients[m] for m in self._indices(degree) })
+        return self.__class__(self._parent, { m : self._monomial_coeffs[m] for m in self._indices(degree) })
 
     def map_coefficients(self, f, new_parent=None):
         """
@@ -162,88 +186,49 @@ class Superfunction:
         """
         if new_parent is None:
             new_parent = self._parent
-        monomial_coefficients = defaultdict(new_parent.base_ring().zero)
-        for m in self._monomial_coefficients:
-            monomial_coefficients[m] = new_parent._simplify(f(self._monomial_coefficients[m]))
-        return self.__class__(new_parent, monomial_coefficients)
+        monomial_coeffs = defaultdict(new_parent.base_ring().zero)
+        for m in self._monomial_coeffs:
+            monomial_coeffs[m] = new_parent._simplify(f(self._monomial_coeffs[m]))
+        return self.__class__(new_parent, monomial_coeffs)
 
-    def copy(self):
-        """
-        Return a copy of this superfunction.
-        """
-        return self.map_coefficients(lambda c: c)
-
-    __pos__ = copy
-
-    def __neg__(self):
+    def _neg_(self):
         """
         Return the negative of this superfunction.
         """
         return self.map_coefficients(lambda c: -c)
 
-    def __add__(self, other):
+    def _add_(self, other):
         """
         Return this superfunction added to ``other``.
         """
-        monomial_coefficients = defaultdict(self._parent.base_ring().zero, self._monomial_coefficients)
-        if isinstance(other, self.__class__):
-            for m in other._monomial_coefficients:
-                monomial_coefficients[m] = self._parent._simplify(monomial_coefficients[m] + other._monomial_coefficients[m])
-        elif other in self._parent.base_ring():
-            monomial_coefficients[0] = self._parent._simplify(monomial_coefficients[0] + other)
-        else:
-            return NotImplemented
-        return self.__class__(self._parent, monomial_coefficients)
+        monomial_coeffs = defaultdict(self._parent.base_ring().zero, self._monomial_coeffs)
+        for m in other._monomial_coeffs:
+            monomial_coeffs[m] = self._parent._simplify(monomial_coeffs[m] + other._monomial_coeffs[m])
+        return self.__class__(self._parent, monomial_coeffs)
 
-    def __radd__(self, other):
-        """
-        Return ``other`` added to this superfunction.
-        """
-        return self + other
-
-    def __sub__(self, other):
+    def _sub_(self, other):
         """
         Return this superfunction minus ``other``.
         """
-        monomial_coefficients = defaultdict(self._parent.base_ring().zero, self._monomial_coefficients)
-        if isinstance(other, self.__class__):
-            for m in other._monomial_coefficients:
-                monomial_coefficients[m] = self._parent._simplify(monomial_coefficients[m] - other._monomial_coefficients[m])
-        elif other in self._parent.base_ring():
-            monomial_coefficients[0] = self._parent._simplify(monomial_coefficients[0] - other)
-        else:
-            return NotImplemented
-        return self.__class__(self._parent, monomial_coefficients)
+        monomial_coeffs = defaultdict(self._parent.base_ring().zero, self._monomial_coeffs)
+        for m in other._monomial_coeffs:
+            monomial_coeffs[m] = self._parent._simplify(monomial_coeffs[m] - other._monomial_coeffs[m])
+        return self.__class__(self._parent, monomial_coeffs)
 
-    def __rsub__(self, other):
-        """
-        Return ``other`` minus this superfunction.
-        """
-        return -(self - other)
-
-    def __mul__(self, other):
-        """
-        Return this superfunction multiplied by ``other``.
-        """
-        monomial_coefficients = defaultdict(self._parent.base_ring().zero)
-        if isinstance(other, self.__class__):
-            for m1 in self._monomial_coefficients:
-                if self._parent._is_zero(self._monomial_coefficients[m1]):
+    def _mul_(self, other):
+        monomial_coeffs = defaultdict(self._parent.base_ring().zero)
+        for m1 in self._monomial_coeffs:
+            if self._parent._is_zero(self._monomial_coeffs[m1]):
+                continue
+            for m2 in other._monomial_coeffs:
+                if self._parent._is_zero(other._monomial_coeffs[m2]):
                     continue
-                for m2 in other._monomial_coefficients:
-                    if self._parent._is_zero(other._monomial_coefficients[m2]):
-                        continue
-                    prod, sign = self._parent._mul_on_basis(m1, m2)
-                    if prod is not None:
-                        monomial_coefficients[prod] = self._parent._simplify(monomial_coefficients[prod] + sign * self._monomial_coefficients[m1] * other._monomial_coefficients[m2])
-        elif other in self._parent.base_ring():
-            for m in self._monomial_coefficients:
-                monomial_coefficients[m] = self._parent._simplify(self._monomial_coefficients[m] * other)
-        else:
-            return NotImplemented
-        return self.__class__(self._parent, monomial_coefficients)
+                prod, sign = self._parent._mul_on_basis(m1, m2)
+                if prod is not None:
+                    monomial_coeffs[prod] = self._parent._simplify(monomial_coeffs[prod] + sign * self._monomial_coeffs[m1] * other._monomial_coeffs[m2])
+        return self.__class__(self._parent, monomial_coeffs)
 
-    def __rmul__(self, other):
+    def _lmul_(self, other):
         """
         Return ``other`` multiplied by this superfunction.
 
@@ -252,46 +237,38 @@ class Superfunction:
             This assumes that ``other`` commutes with this superfunction.
             It is justified because this function only gets called when ``other`` is even.
         """
-        return self * other
+        monomial_coeffs = defaultdict(self._parent.base_ring().zero)
+        for m in self._monomial_coeffs:
+            monomial_coeffs[m] = self._parent._simplify(self._monomial_coeffs[m] * other)
+        return self.__class__(self._parent, monomial_coeffs)
 
-    def __truediv__(self, other):
+    def _div_(self, other):
         """
         Return this superfunction divided by ``other``.
         """
         return self.map_coefficients(lambda c: c / other)
 
-    def __pow__(self, exponent):
+    def _pow_(self, exponent):
         """
         Return this superfunction raised to the power ``exponent``.
         """
         return reduce(lambda a,b: a*b, [self]*exponent, self._parent.one())
 
-    def is_zero(self):
+    def __bool__(self):
         """
-        Return ``True`` if this superfunction equals zero and ``False`` otherwise.
+        Return ``False`` if this superfunction equals zero and ``True`` otherwise.
         """
-        for m in self._monomial_coefficients:
-            if not self._parent._is_zero(self._monomial_coefficients[m]):
-                return False
-        return True
-
-    def __eq__(self, other):
-        """
-        Return ``True`` if this superfunction equals ``other`` and ``False`` otherwise.
-
-        .. NOTE::
-
-            This takes the difference and calls ``is_zero()`` on it.
-            For comparison with zero it is faster to call ``is_zero()`` directly.
-        """
-        return (self - other).is_zero()
+        for m in self._monomial_coeffs:
+            if not self._parent._is_zero(self._monomial_coeffs[m]):
+                return True
+        return False
 
     def degrees(self):
         """
         Return an iterator over the degrees of the monomials (in the odd coordinates) of this superfunction.
         """
         seen = set([])
-        for m in self._monomial_coefficients:
+        for m in self._monomial_coeffs:
             d = self._parent._monomial_degree(m)
             if d in seen:
                 continue
@@ -304,8 +281,8 @@ class Superfunction:
         """
         # TODO: optimize?
         max_degree = 0
-        for m in self._monomial_coefficients:
-            if not self._parent._is_zero(self._monomial_coefficients[m]):
+        for m in self._monomial_coeffs:
+            if not self._parent._is_zero(self._monomial_coeffs[m]):
                 max_degree = max(max_degree, self._parent._monomial_degree(m))
         return max_degree
 
@@ -319,17 +296,17 @@ class Superfunction:
         """
         if len(args) == 1 and any(args[0] is xi for xi in self._parent.gens()):
             j = self._parent.gens().index(args[0])
-            monomial_coefficients = defaultdict(self._parent.base_ring().zero)
-            for m in self._monomial_coefficients:
+            monomial_coeffs = defaultdict(self._parent.base_ring().zero)
+            for m in self._monomial_coeffs:
                 derivative, sign = self._parent._derivative_on_basis(m, j)
                 if derivative is not None:
-                    monomial_coefficients[derivative] = self._parent._simplify(sign * self._monomial_coefficients[m])
-            return self.__class__(self._parent, monomial_coefficients)
+                    monomial_coeffs[derivative] = self._parent._simplify(sign * self._monomial_coeffs[m])
+            return self.__class__(self._parent, monomial_coeffs)
         elif len(args) == 1 and any(args[0] is x for x in self._parent.even_coordinates()):
-            monomial_coefficients = defaultdict(self._parent.base_ring().zero)
-            for m in self._monomial_coefficients:
-                monomial_coefficients[m] = self._parent._simplify(self._monomial_coefficients[m].derivative(args[0]))
-            return self.__class__(self._parent, monomial_coefficients)
+            monomial_coeffs = defaultdict(self._parent.base_ring().zero)
+            for m in self._monomial_coeffs:
+                monomial_coeffs[m] = self._parent._simplify(self._monomial_coeffs[m].derivative(args[0]))
+            return self.__class__(self._parent, monomial_coeffs)
         elif len(args) == 1:
             # by now we know args[0] is not identically a coordinate, but maybe it is equal to one:
             try:
@@ -375,7 +352,7 @@ def identity(x):
 def call_method(method_name, x):
     return getattr(x, method_name)()
 
-class SuperfunctionAlgebra:
+class SuperfunctionAlgebra(Parent):
     """
     Supercommutative algebra of superfunctions on a coordinate chart of a `Z_2`-graded space.
 
@@ -383,6 +360,8 @@ class SuperfunctionAlgebra:
     It is a free module over the base ring with a basis consisting of sorted monomials in the odd coordinates.
     The elements encode skew-symmetric multi-derivations of the base ring, or multi-vectors.
     """
+    Element = Superfunction
+
     def __init__(self, base_ring, even_coordinates=None, names='xi', simplify=None, is_zero='is_zero'):
         """
         Initialize this superfunction algebra.
@@ -399,8 +378,9 @@ class SuperfunctionAlgebra:
 
         - ``is_zero`` -- (default: ``'is_zero'``) a string, containing the name of a method of an element of the base ring; that method should return ``True`` when a simplified element of the base ring is equal to zero (will be used to decide equality of elements, to calculate the degree of elements, and to skip terms in some operations on elements)
         """
-        self.element_class = Superfunction
-        self._base_ring = base_ring
+        # TODO: Use category=Algebras(base_ring).WithBasis().Supercommutative(), and implement required methods.
+        Parent.__init__(self, base=base_ring, category=Algebras(base_ring), names=names)
+        self._populate_coercion_lists_()
         if even_coordinates:
             self._even_coordinates = even_coordinates
         elif hasattr(base_ring, 'gens'):
@@ -418,7 +398,7 @@ class SuperfunctionAlgebra:
             raise ValueError("Number of odd coordinate names in {} does not match number of even coordinates".format(names))
         self._names = tuple(names)
         self.__ngens = len(names)
-        self._gens = tuple(self.element_class(self, {1 << m : self._base_ring.one()}) for m in range(self.__ngens))
+        self._gens = tuple(self.element_class(self, {1 << m : self.base_ring().one()}) for m in range(self.__ngens))
         if simplify is None:
             self._simplify = identity
         else:
@@ -431,23 +411,23 @@ class SuperfunctionAlgebra:
         self._tensor_powers = keydefaultdict(partial(tensor_power, self))
         self._schouten_bracket = SuperfunctionAlgebraSchoutenBracket(self._tensor_powers[2], self)
 
-    def __repr__(self):
+    def _repr_(self):
         """
         Return a string representation of this superfunction algebra.
         """
-        return "Superfunction algebra over {} with even coordinates {} and odd coordinates {}".format(self._base_ring, self._even_coordinates, self._gens)
+        return "Superfunction algebra over {} with even coordinates {} and odd coordinates {}".format(self.base_ring(), self._even_coordinates, self._gens)
 
     def _latex_(self):
         """
         Return a LaTeX representation of this superfunction algebra.
         """
         latex_replacements = {'xi' : r'\xi_'}
-        result = r"{}\langle {} \rangle".format(self._base_ring._latex_(), ','.join(map(str,self._gens)))
+        result = r"{}\langle {} \rangle".format(self.base_ring()._latex_(), ','.join(map(str,self._gens)))
         for original, new in latex_replacements.items():
             result = result.replace(original, new)
         return result
 
-    def __call__(self, arg):
+    def _element_constructor_(self, arg):
         """
         Return ``arg`` converted into an element of this superfunction algebra.
 
@@ -455,16 +435,16 @@ class SuperfunctionAlgebra:
 
         If ``arg`` is a :class:`~gcaops.algebra.polydifferential_operator.PolyDifferentialOperator`, it is assumed that its coefficients are skew-symmetric.
         """
-        if arg in self._base_ring:
-            return self.element_class(self, { 0 : arg })
-        elif isinstance(arg, self.element_class):
+        if isinstance(arg, self.element_class):
             if arg.parent() is self:
                 return arg
             else:
                 try: # to convert
-                    return arg.map_coefficients(self._base_ring, new_parent=self)
+                    return arg.map_coefficients(self.base_ring(), new_parent=self)
                 except:
                     raise ValueError('cannot convert {} into element of {}'.format(arg, self))
+        elif arg in self.base_ring():
+            return self.element_class(self, { 0 : self.base_ring()(arg) })
         from .polydifferential_operator import PolyDifferentialOperator
         if isinstance(arg, PolyDifferentialOperator):
             if arg.parent().base_ring() is self.base_ring():
@@ -488,11 +468,16 @@ class SuperfunctionAlgebra:
         else:
             raise ValueError('cannot convert {} into element of {}'.format(arg, self))
 
-    def base_ring(self):
-        """
-        Return the base ring of this superfunction algebra, consisting of (even, degree 0) functions.
-        """
-        return self._base_ring
+    def _coerce_map_from_(self, S):
+        if self.base_ring().has_coerce_map_from(S):
+            return True
+        if isinstance(S, self.__class__):
+            # TODO: Make this more general?
+            return self._names == S._names and self.base_ring().has_coerce_map_from(S.base_ring())
+        return False
+
+    def _an_element_(self):
+        return self.element_class(self, { 0 : self.base_ring().an_element() })
 
     def even_coordinates(self):
         """
@@ -544,24 +529,24 @@ class SuperfunctionAlgebra:
         """
         return '*'.join(self._names[i] for i in range(self.__ngens) if (1 << i) & monomial_index != 0)
 
-    def dimension(self, degree):
+    def dimension(self, degree=None):
         """
-        Return the dimension of the graded component spanned by monomials of the given ``degree`` in the odd coordinates (as a module over the base ring).
+        Return the dimension of the graded component spanned by monomials of the given ``degree`` in the odd coordinates (as a module over the base ring), or the total dimension of all graded components if ``degree`` is ``None``.
 
         INPUT:
 
         - ``degree`` -- a natural number
         """
-        from math import factorial
-        dim_num = factorial(self.__ngens)
-        dim_denom = factorial(self.__ngens - degree) * factorial(degree)
-        return dim_num // dim_denom
+        from sage.functions.other import binomial
+        if degree is None:
+            return 1 << self.__ngens
+        else:
+            return binomial(self.__ngens, degree)
 
     def _monomial_index(self, indices):
         """
         Return the sign and the index of the monomial in the basis.
         """
-        degree = len(indices)
         indices = list(indices)
         sign = selection_sort(indices)
         zero = False
@@ -624,18 +609,6 @@ class SuperfunctionAlgebra:
         lst = list(monomial)
         sign = 1 if lst.index(j) % 2 == 0 else -1
         return m ^ (1 << j), sign
-
-    def zero(self):
-        """
-        Return the zero element of this superfunction algebra.
-        """
-        return self.element_class(self, {})
-
-    def one(self):
-        """
-        Return the unit element of this superfunction algebra.
-        """
-        return self.element_class(self, {0 : self._base_ring.one()})
 
     def tensor_power(self, n):
         """
