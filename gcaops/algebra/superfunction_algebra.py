@@ -414,7 +414,8 @@ class SuperfunctionAlgebra(UniqueRepresentation, Parent):
 
     @staticmethod
     def __classcall__(cls, base_ring, even_coordinates=None, names='xi', simplify=None, is_zero='is_zero'):
-        even_coordinates = tuple(even_coordinates)
+        if even_coordinates is not None:
+            even_coordinates = tuple(even_coordinates)
         if isinstance(names, list):
             names = tuple(names)
         return super().__classcall__(cls, base_ring, even_coordinates, names, simplify, is_zero)
