@@ -6,6 +6,7 @@ from collections.abc import Iterable, MutableMapping
 from functools import reduce, partial
 from gcaops.util.misc import keydefaultdict
 from gcaops.util.permutation import selection_sort
+from sage.structure.unique_representation import UniqueRepresentation
 from sage.structure.parent import Parent
 from sage.structure.element import AlgebraElement
 from sage.structure.richcmp import op_EQ, op_NE
@@ -352,7 +353,7 @@ def identity(x):
 def call_method(method_name, x):
     return getattr(x, method_name)()
 
-class SuperfunctionAlgebra(Parent):
+class SuperfunctionAlgebra(UniqueRepresentation, Parent):
     """
     Supercommutative algebra of superfunctions on a coordinate chart of a `Z_2`-graded space.
 
@@ -370,9 +371,9 @@ class SuperfunctionAlgebra(Parent):
 
         - ``base_ring`` -- a commutative ring, considered as a ring of (even, degree 0) functions
 
-        - ``even_coordinates`` -- (default: ``None``) a list or tuple of elements of ``base_ring``; if none is provided, then it is set to ``base_ring.gens()``
+        - ``even_coordinates`` -- (default: ``None``) a tuple of elements of ``base_ring``; if none is provided, then it is set to ``base_ring.gens()``
 
-        - ``names`` -- (default: ``'xi'``) a list or tuple of strings or a comma separated string, consisting of names for the odd coordinates; or a single string consisting of a prefix that will be used to generate a list of numbered names
+        - ``names`` -- (default: ``'xi'``) a tuple of strings or a comma separated string, consisting of names for the odd coordinates; or a single string consisting of a prefix that will be used to generate a list of numbered names
 
         - ``simplify`` -- (default: ``None``) a string, containing the name of a method of an element of the base ring; that method should return a simplification of the element (will be used in each operation on elements that affects coefficients), or ``None`` (which amounts to no simplification).
 
@@ -410,6 +411,13 @@ class SuperfunctionAlgebra(Parent):
         self._is_zero = partial(call_method, is_zero)
         self._tensor_powers = keydefaultdict(partial(tensor_power, self))
         self._schouten_bracket = SuperfunctionAlgebraSchoutenBracket(self._tensor_powers[2], self)
+
+    @staticmethod
+    def __classcall__(cls, base_ring, even_coordinates=None, names='xi', simplify=None, is_zero='is_zero'):
+        even_coordinates = tuple(even_coordinates)
+        if isinstance(names, list):
+            names = tuple(names)
+        return super().__classcall__(cls, base_ring, even_coordinates, names, simplify, is_zero)
 
     def _repr_(self):
         """
