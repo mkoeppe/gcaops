@@ -36,34 +36,34 @@ class DifferentialPolynomial(RingElement):
         return hash((self._parent, self._polynomial))
 
     def _neg_(self):
-        return __class__(self._parent, -self._polynomial)
+        return self.__class__(self._parent, -self._polynomial)
 
     def _add_(self, other):
-        return __class__(self._parent, self._polynomial + other._polynomial)
+        return self.__class__(self._parent, self._polynomial + other._polynomial)
 
     def _sub_(self, other):
-        return __class__(self._parent, self._polynomial - other._polynomial)
+        return self.__class__(self._parent, self._polynomial - other._polynomial)
 
     def _mul_(self, other):
-        return __class__(self._parent, self._polynomial * other._polynomial)
+        return self.__class__(self._parent, self._polynomial * other._polynomial)
 
     def _lmul_(self, other):
-        return __class__(self._parent, self._polynomial * other)
+        return self.__class__(self._parent, self._polynomial * other)
 
     def _rmul_(self, other):
-        return __class__(self._parent, self._polynomial * other)
+        return self.__class__(self._parent, self._polynomial * other)
 
     def _pow_(self, other):
-        return __class__(self._parent, self._polynomial**other)
+        return self.__class__(self._parent, self._polynomial**other)
 
     def _div_(self, other):
-        return __class__(self._parent, self._parent._polynomial_ring(self._polynomial / other._polynomial))
+        return self.__class__(self._parent, self._parent._polynomial_ring(self._polynomial / other._polynomial))
 
     def _floordiv_(self, other):
-        return __class__(self._parent, self._polynomial // other._polynomial)
+        return self.__class__(self._parent, self._polynomial // other._polynomial)
 
     def _mod_(self, other):
-        return __class__(self._parent, self._polynomial % other._polynomial)
+        return self.__class__(self._parent, self._polynomial % other._polynomial)
 
     def __bool__(self):
         return bool(self._polynomial)
@@ -75,7 +75,7 @@ class DifferentialPolynomial(RingElement):
         result = self._polynomial
         for v in x:
             result = result.derivative(v._polynomial)
-        return __class__(self._parent, result)
+        return self.__class__(self._parent, result)
 
     pdiff = partial_derivative
 
@@ -92,7 +92,7 @@ class DifferentialPolynomial(RingElement):
                 if not w in all_fibre_vars:
                     continue
                 result += prev_result.derivative(w) * self._parent._diff_single_var(w, v._polynomial)
-        return __class__(self._parent, result)
+        return self.__class__(self._parent, result)
 
     derivative = total_derivative
     diff = total_derivative
@@ -102,7 +102,7 @@ class DifferentialPolynomial(RingElement):
         result = set([])
         for v in self._polynomial.variables():
             f = (self._polynomial // v) * self._parent._integrate_single_var(v, x._polynomial)
-            result.add(__class__(self._parent, f))
+            result.add(self.__class__(self._parent, f))
         return result
 
     def integral_monomials(self, *x):
@@ -119,7 +119,7 @@ class DifferentialPolynomial(RingElement):
         if not isinstance(arg, dict):
             raise ValueError('can only substitute dict')
         poly_arg = {k._polynomial : v._polynomial for (k,v) in arg.items()}
-        return __class__(self._parent, self._polynomial.subs(poly_arg))
+        return self.__class__(self._parent, self._polynomial.subs(poly_arg))
 
     subs = substitute
 
@@ -132,10 +132,10 @@ class DifferentialPolynomial(RingElement):
         return self._polynomial.degree()
 
     def variables(self):
-        return tuple(__class__(self._parent, v) for v in self._polynomial.variables())
+        return tuple(self.__class__(self._parent, v) for v in self._polynomial.variables())
 
     def monomials(self):
-        return tuple(__class__(self._parent, m) for m in self._polynomial.monomials())
+        return tuple(self.__class__(self._parent, m) for m in self._polynomial.monomials())
 
     def coefficients(self):
         return self._polynomial.coefficients()
@@ -145,7 +145,7 @@ class DifferentialPolynomial(RingElement):
 
     def __iter__(self):
         for (c,m) in self._polynomial:
-            yield (c, __class__(self._parent, m))
+            yield (c, self.__class__(self._parent, m))
 
     def variable_subscript(self):
         idx = self._parent._var_to_idx[self._polynomial]
