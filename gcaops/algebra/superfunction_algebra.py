@@ -444,7 +444,7 @@ class SuperfunctionAlgebra(UniqueRepresentation, Parent):
 
         If ``arg`` is a :class:`~gcaops.algebra.polydifferential_operator.PolyDifferentialOperator`, it is assumed that its coefficients are skew-symmetric.
         """
-        if isinstance(arg, self.element_class):
+        if isinstance(arg, self.Element):
             if arg.parent() is self:
                 return arg
             else:

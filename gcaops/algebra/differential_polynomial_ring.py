@@ -262,10 +262,11 @@ class DifferentialPolynomialRing(UniqueRepresentation, Parent):
         return 'Differential Polynomial Ring in {} over {}'.format(', '.join(map(repr, self._polynomial_ring.gens())), self._polynomial_ring.base_ring())
 
     def _element_constructor_(self, arg):
-        if isinstance(arg, self.element_class) and arg.parent() is self:
-            return arg
-        elif isinstance(arg, self.element_class):
-            return self.element_class(self, self._polynomial_ring(arg._polynomial))
+        if isinstance(arg, self.Element):
+            if arg.parent() is self:
+                return arg
+            else:
+                return self.element_class(self, self._polynomial_ring(arg._polynomial))
         elif arg in self._polynomial_ring.base_ring():
             return self.element_class(self, self._polynomial_ring(arg))
         from sage.structure.element import Expression
