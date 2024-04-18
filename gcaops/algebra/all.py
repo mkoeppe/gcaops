@@ -3,3 +3,4 @@ from .differential_polynomial_solver import solve_homogeneous_diffpoly
 from .polydifferential_operator import PolyDifferentialOperatorAlgebra
 from .superfunction_algebra import SuperfunctionAlgebra
 from .r_matrix_poisson import r_matrix_poisson_bivector
+from .homogeneous_polynomial_poisson_complex import PoissonComplex
