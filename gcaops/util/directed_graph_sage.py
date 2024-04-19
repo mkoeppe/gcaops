@@ -31,7 +31,7 @@ def directed_graph_canonicalize(g):
     n = len(g)
     edges = g.edges()
     G, sigma = DiGraph([list(range(n)), edges]).canonical_label(certificate=True)
-    new_edges = list(G.edges(labels=False))
+    new_edges = list(G.edges(labels=False, sort=True))
     edge_permutation = [tuple([sigma[edge[0]],sigma[edge[1]]]) for edge in edges]
     index_permutation = [new_edges.index(e) for e in edge_permutation]
     undo_canonicalize = [0]*n
@@ -54,7 +54,7 @@ def directed_graph_generate_from_undirected(undirected_graph, num_directed_edges
     num_vertices = len(undirected_graph)
     for h in nauty_generate_directed_from_undirected(undirected_graph, num_directed_edges, loops=loops):
         h = h.canonical_label()
-        g = DirectedGraph(num_vertices, list(h.edges(labels=False)))
+        g = DirectedGraph(num_vertices, list(h.edges(labels=False, sort=True)))
         g.canonicalize_edges()
         if has_odd_automorphism is None or directed_graph_has_odd_automorphism(g) == has_odd_automorphism:
             yield g
@@ -78,4 +78,4 @@ def directed_graph_to_encoding(g):
 
 def directed_graph_from_encoding(digraph6_string):
     G = DiGraph(digraph6_string[1:])
-    return DirectedGraph(len(G.vertices()), list(G.edges(labels=False)))
+    return DirectedGraph(len(G.vertices()), list(G.edges(labels=False, sort=True)))

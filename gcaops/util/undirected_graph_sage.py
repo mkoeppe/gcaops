@@ -29,7 +29,7 @@ def undirected_graph_canonicalize(g):
     n = len(g)
     edges = g.edges()
     G, sigma = Graph([list(range(n)), edges]).canonical_label(certificate=True)
-    new_edges = list(G.edges(labels=False))
+    new_edges = list(G.edges(labels=False, sort=True))
     edge_permutation = [tuple(sorted([sigma[edge[0]],sigma[edge[1]]])) for edge in edges]
     index_permutation = [new_edges.index(e) for e in edge_permutation]
     undo_canonicalize = [0]*n
@@ -51,7 +51,7 @@ def undirected_graph_has_odd_automorphism(g):
 def undirected_graph_generate(num_vertices, num_edges, connected=None, biconnected=None, min_degree=0, has_odd_automorphism=None):
     for G in nauty_generate_undirected(num_vertices, num_edges, connected=connected, biconnected=biconnected, min_degree=min_degree):
         G = G.canonical_label()
-        g = UndirectedGraph(num_vertices, list(G.edges(labels=False)))
+        g = UndirectedGraph(num_vertices, list(G.edges(labels=False, sort=True)))
         if has_odd_automorphism is None or undirected_graph_has_odd_automorphism(g) == has_odd_automorphism:
             yield g
 
@@ -63,4 +63,4 @@ def undirected_graph_to_encoding(g):
 
 def undirected_graph_from_encoding(graph6_string):
     G = Graph(graph6_string)
-    return UndirectedGraph(len(G.vertices()), list(G.edges(labels=False)))
+    return UndirectedGraph(len(G.vertices()), list(G.edges(labels=False, sort=True)))

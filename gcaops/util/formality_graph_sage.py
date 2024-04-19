@@ -66,7 +66,7 @@ def formality_graph_generate(num_ground_vertices, num_aerial_vertices, num_edges
                 for sigma in ground_permutations:
                     hh = k.relabel(dict(zip(range(num_ground_vertices), sigma)), inplace=False)
                     hh = hh.canonical_label(partition=partition)
-                    g = FormalityGraph(num_ground_vertices, num_aerial_vertices, list(hh.edges(labels=False)))
+                    g = FormalityGraph(num_ground_vertices, num_aerial_vertices, list(hh.edges(labels=False, sort=True)))
                     g.canonicalize_edges()
                     if g in seen:
                         continue
@@ -88,7 +88,7 @@ def formality_graph_canonicalize(g):
     if len(H.edges()) != len(g.edges()):
         raise ValueError("don't know how to canonicalize graph with double edges")
     G, sigma = H.canonical_label(partition=partition, certificate=True)
-    new_edges = list(G.edges(labels=False))
+    new_edges = list(G.edges(labels=False, sort=True))
     edge_permutation = [tuple([sigma[edge[0]],sigma[edge[1]]]) for edge in edges]
     index_permutation = [new_edges.index(e) for e in edge_permutation]
     undo_canonicalize = [0]*n
@@ -123,4 +123,4 @@ def formality_graph_to_encoding(g):
 def formality_graph_from_encoding(encoding):
     num_ground, num_aerial, dig6_string = encoding
     G = DiGraph(dig6_string)
-    return FormalityGraph(num_ground, num_aerial, list(G.edges(labels=False)))
+    return FormalityGraph(num_ground, num_aerial, list(G.edges(labels=False, sort=True)))
