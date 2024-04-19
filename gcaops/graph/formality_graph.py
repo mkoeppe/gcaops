@@ -653,25 +653,12 @@ class FormalityGraph:
         from sage.graphs.graph_plot import GraphPlot
         num_vertices = self._num_ground_vertices + self._num_aerial_vertices
         g = self._sage_()
-        ground_pos = { v : [1.0 + float(v), 0.0] for v in range(self._num_ground_vertices)}
-        aerial_vertices = range(self._num_ground_vertices, num_vertices)
         vertex_positions = self.get_pos()
         if vertex_positions:
             g.set_pos(vertex_positions)
-            plot = GraphPlot(graph=g, options=options).plot()
-            pos = g.get_pos()
-        else:
-            # NOTE: naively retries plotting until all aerial vertices are above the real axis
-            while True:
-                new_pos = {}
-                new_pos.update(ground_pos)
-                g.set_pos(new_pos)
-                plot = GraphPlot(graph=g, options=options).plot()
-                pos = g.get_pos()
-                if all(pos[v][1] > 0 for v in aerial_vertices):
-                    break
+        plot = GraphPlot(graph=g, options=options).plot()
         if options.get('save_pos', False):
-            self.set_pos(pos)
+            self.set_pos(g.get_pos())
         return plot
 
     def show(self, **options):
