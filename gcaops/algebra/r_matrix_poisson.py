@@ -69,7 +69,7 @@ def r_matrix_poisson_bivector(basis, polynomial_degree, R_matrix=identity, form=
     EXAMPLES::
 
         sage: from itertools import product
-        sage: gl2_basis = [matrix(2, lambda i,j: 1 if (i,j) == (a,b) else 0) for (a,b) in product(range(2),repeat=2)]
+        sage: gl2_basis = [matrix(QQ, 2, lambda i,j: 1 if (i,j) == (a,b) else 0) for (a,b) in product(range(2),repeat=2)]
         sage: P1 = r_matrix_poisson_bivector(gl2_basis, 1); P1
         (-x1)*xi0*xi1 + (x2)*xi0*xi2 + (-x0 + x3)*xi1*xi2 + (-x1)*xi1*xi3 + (x2)*xi2*xi3
         sage: P1.bracket(P1)
