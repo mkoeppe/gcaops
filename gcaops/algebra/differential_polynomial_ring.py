@@ -391,5 +391,12 @@ class DifferentialPolynomialRing(UniqueRepresentation, Parent):
                 monomials.append(prod(term))
         return monomials
 
+    def is_field(self, proof=True):
+        """
+        Return True if this differential polynomial ring has no variables and the base ring is a field, and return False otherwise.
+        """
+        return self._polynomial_ring.is_field(proof=proof)
+
+
 def TD(a,*x):
     return a.total_derivative(*x)
