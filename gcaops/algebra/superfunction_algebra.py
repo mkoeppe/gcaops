@@ -657,3 +657,15 @@ class SuperfunctionAlgebra(UniqueRepresentation, Parent):
         from gcaops.graph.directed_graph_vector import DirectedGraphVector
         if isinstance(graph_vector, DirectedGraphVector):
             return SuperfunctionAlgebraDirectedGraphOperation(self.tensor_power(arity), self, graph_vector)
+
+    def is_field(self, proof=True):
+        """
+        Return True if this superfunction algebra is a field (i.e. it has no odd coordinates and the base ring is a field), and return False otherwise.
+        """
+        return self.__ngens == 0 and self.base_ring().is_field(proof=proof)
+
+    def is_commutative(self):
+        """
+        Return True if this superfunction algebra is commutative (i.e. it has at most one odd coordinate and the base ring is commutative), and return False otherwise.
+        """
+        return self.__ngens <= 1 and self.base_ring().is_commutative()
