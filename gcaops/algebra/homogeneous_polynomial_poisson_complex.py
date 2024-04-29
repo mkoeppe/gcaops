@@ -56,13 +56,13 @@ class HomogeneousPolynomialPoissonCochain:
         S = self._f.parent()
         xi = S.odd_coordinates()
         R = S.base_ring()
-        basis = self._parent._monomial_basis(self._xi_degree, self._x_degree)
-        v = vector(R.base_ring(), len(basis), sparse=True)
+        v = vector(R.base_ring(), len(self._parent._even_monomial_basis[self._x_degree]) * len(self._parent._odd_monomial_basis[self._xi_degree]), sparse=True)
         for I in self._f.indices(self._xi_degree):
             m_odd = prod(xi[i] for i in I)
+            i_odd = self._parent._odd_monomial_basis[self._xi_degree].index(m_odd)
             for (c, m_even) in zip(self._f[I].coefficients(), self._f[I].monomials()):
-                m = m_even * m_odd
-                i = basis.index(m)
+                i_even = self._parent._even_monomial_basis[self._x_degree].index(m_even)
+                i = len(self._parent._odd_monomial_basis[self._xi_degree])*i_even + i_odd
                 v[i] = c
         return v
 
@@ -80,10 +80,11 @@ class HomogeneousPolynomialPoissonCochain:
             d = self._parent._differentials[self._xi_degree - 1, self._x_degree - self._parent._P_degree + 1]
             v = self._vector()
             x = d.solve_right(v)
-            basis = self._parent._monomial_basis(self._xi_degree - 1, self._x_degree - self._parent._P_degree + 1)
-            f = sum((c*m for (c,m) in zip(x, basis)), self._parent._P.parent().zero())
+            x_degree_even = self._x_degree - self._parent._P_degree + 1
+            x_degree_odd = self._xi_degree - 1
+            f = self._parent._element_from_vector(x, x_degree_odd, x_degree_even)
             if certificate:
-                return (True, self.__class__(self._parent, f))
+                return (True, f)
             else:
                 return True
         except ValueError:
@@ -115,6 +116,8 @@ class HomogeneousPolynomialPoissonComplex:
             if P[I].degree() > 0:
                 self._P_degree = P[I].degree()
                 break
+        self._even_monomial_basis = keydefaultdict(partial(self.__class__._even_monomial_basis_, self))
+        self._odd_monomial_basis = keydefaultdict(partial(self.__class__._odd_monomial_basis_, self))
         self._differentials = keydefaultdict(partial(self.__class__._differential_matrix, self))
 
     def __repr__(self):
@@ -133,29 +136,46 @@ class HomogeneousPolynomialPoissonComplex:
         """
         return HomogeneousPolynomialPoissonCochain(self, arg)
 
-    def _monomial_basis(self, xi_degree, x_degree):
-        # TODO: Do not actually store this product, just the separate monomials, and calculate indices by multiplication?
+    def _even_monomial_basis_(self, x_degree):
+        S = self._P.parent()
+        x = S.even_coordinates()
+        from itertools import combinations_with_replacement
+        return [prod(p) for p in combinations_with_replacement(x, x_degree)]
+
+    def _odd_monomial_basis_(self, xi_degree):
         S = self._P.parent()
         xi = S.odd_coordinates()
-        x = S.even_coordinates()
-        from itertools import product, combinations, combinations_with_replacement
-        return [prod(p)*prod(m) for (p,m) in product(combinations_with_replacement(x, x_degree), combinations(xi, xi_degree))]
+        from itertools import combinations
+        return [prod(m) for m in combinations(xi, xi_degree)]
+
+    def _element_from_vector(self, v, xi_degree, x_degree):
+        len_odd = len(self._odd_monomial_basis[xi_degree])
+        f = self._P.parent().zero()
+        for i in v.nonzero_positions():
+            i_odd = i % len_odd
+            i_even = i // len_odd
+            f += v[i] * self._even_monomial_basis[x_degree][i_even] * self._odd_monomial_basis[xi_degree][i_odd]
+        return self.element_class(self, f)
 
     def _differential_matrix(self, bi_grading):
         xi_degree, x_degree = bi_grading
-        source_basis = self._monomial_basis(xi_degree, x_degree)
-        target_basis = self._monomial_basis(xi_degree + 1, x_degree + self._P_degree - 1)
+        source_basis_even = self._even_monomial_basis[x_degree]
+        source_basis_odd = self._odd_monomial_basis[xi_degree]
+        target_basis_even = self._even_monomial_basis[x_degree + self._P_degree - 1]
+        target_basis_odd = self._odd_monomial_basis[xi_degree + 1]
         S = self._P.parent()
         xi = S.gens()
         R = S.base_ring()
-        M = matrix(R.base_ring(), len(target_basis), len(source_basis), sparse=True)
-        for j, f in enumerate(source_basis):
-            df = self._P.bracket(f)
+        from itertools import product
+        M = matrix(R.base_ring(), len(target_basis_even)*len(target_basis_odd), len(source_basis_even)*len(source_basis_odd), sparse=True)
+        for j, (f1, f2) in enumerate(product(source_basis_even, source_basis_odd)):
+            df = self._P.bracket(f1 * f2)
             for I in df.indices(degree=xi_degree + 1):
                 m_odd = prod(xi[i] for i in I)
+                i_odd = target_basis_odd.index(m_odd)
                 for c, m_even in zip(df[I].coefficients(), df[I].monomials()):
-                    m = m_even * m_odd
-                    i = target_basis.index(m)
+                    i_even = target_basis_even.index(m_even)
+                    i = len(target_basis_odd)*i_even + i_odd
                     M[i,j] = c
         return M
 
@@ -174,7 +194,7 @@ class HomogeneousPolynomialPoissonComplex:
         cocycles = im_d.augment(ker_d)
         pivots = cocycles.pivots() # Computes reduced row echelon form internally.
         quotient_pivots = [p for p in pivots if p >= im_d.dimensions()[1]]
-        return [self.element_class(self, sum((c*m for (c,m) in zip(cocycles.column(p), self._monomial_basis(xi_degree, x_degree))), self._P.parent().zero())) for p in quotient_pivots]
+        return [self._element_from_vector(cocycles.column(p), xi_degree, x_degree) for p in quotient_pivots]
 
 
 def PoissonComplex(P):
