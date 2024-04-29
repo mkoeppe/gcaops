@@ -48,7 +48,7 @@ class Superfunction(AlgebraElement):
         """
         terms = []
         for degree in reversed(sorted(self.degrees())):
-            for m in self._indices(degree):
+            for m in sorted(self._indices(degree)):
                 coefficient = self._monomial_coeffs[m]
                 c = repr(coefficient)
                 if c == '0':
@@ -72,7 +72,7 @@ class Superfunction(AlgebraElement):
         latex_replacements = {'xi' : r'\xi_', r'\left(' + ', '.join(v._latex_() for v in self.parent().even_coordinates()) + r'\right)' : ''}
         terms = []
         for degree in reversed(sorted(self.degrees())):
-            for m in self._indices(degree):
+            for m in sorted(self._indices(degree)):
                 coefficient = self._monomial_coeffs[m]
                 c = coefficient._latex_()
                 monomial = self._parent._repr_monomial(m).replace('*', '')
