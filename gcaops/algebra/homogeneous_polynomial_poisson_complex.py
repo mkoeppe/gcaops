@@ -137,12 +137,16 @@ class HomogeneousPolynomialPoissonComplex:
         return HomogeneousPolynomialPoissonCochain(self, arg)
 
     def _even_monomial_basis_(self, x_degree):
+        if x_degree < 0:
+            return []
         S = self._P.parent()
         x = S.even_coordinates()
         from itertools import combinations_with_replacement
         return [prod(p) for p in combinations_with_replacement(x, x_degree)]
 
     def _odd_monomial_basis_(self, xi_degree):
+        if xi_degree < 0:
+            return []
         S = self._P.parent()
         xi = S.odd_coordinates()
         from itertools import combinations
