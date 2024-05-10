@@ -85,7 +85,7 @@ class PolyDifferentialOperator:
                     elif not '+' in c and not '-' in c:
                         prefix = r'{}\cdot '.format(c)
                     else:
-                        prefix = r'\left({}\right)\cdot'.format(c)
+                        prefix = r'\left({}\right)\cdot '.format(c)
                 term = prefix + monomial
                 for original, new in latex_replacements.items():
                     term = term.replace(original, new)
