@@ -19,17 +19,23 @@ class HomogeneousPolynomialPoissonCochain:
 
         - ``parent`` -- a :class:`HomogeneousPolynomialPoissonComplex`
 
-        - ``f`` -- a :class:`~gcaops.algebra.superfunction_algebra.Superfunction` with homogeneous polynomial coefficients
+        - ``f`` -- a homogeneous :class:`~gcaops.algebra.superfunction_algebra.Superfunction` with coefficients that are homogeneous polynomials of uniform degree
         """
         self._parent = parent
-        # TODO: Check homogeneity.
         self._f = f
         self._xi_degree = self._f.degree()
         self._x_degree = -1
-        for I in self._f.indices(self._xi_degree):
-            if self._f[I].degree() >= 0:
-                self._x_degree = self._f[I].degree()
-                break
+        for I in self._f.indices():
+            if not self._f[I].is_homogeneous():
+                raise ValueError("input does not have homogeneous polynomial coefficients")
+            if len(I) != self._xi_degree and not self._f[I].is_zero():
+                raise ValueError("input is not a homogeneous superfunction")
+            d = self._f[I].degree()
+            if d >= 0:
+                if self._x_degree == -1:
+                    self._x_degree = d
+                elif d != self._x_degree:
+                    raise ValueError("input does not have coefficients of uniform degree")
 
     def __repr__(self):
         """
@@ -106,16 +112,22 @@ class HomogeneousPolynomialPoissonComplex:
 
         INPUT:
 
-        - ``P`` -- a :class:`~gcaops.algebra.superfunction_algebra.Superfunction` which is a Poisson structure with homogeneous polynomial coefficients
+        - ``P`` -- a :class:`~gcaops.algebra.superfunction_algebra.Superfunction` which is a Poisson structure with coefficients which are homogeneous polynomials of uniform degree
         """
-        # TODO: Check that P is homogeneous.
         # TODO: Check Jacobi identity.
         self._P = P
         self._P_degree = 0
-        for I in P.indices(degree=2):
-            if P[I].degree() > 0:
-                self._P_degree = P[I].degree()
-                break
+        for I in P.indices():
+            if not P[I].is_homogeneous():
+                raise ValueError("input does not have homogeneous polynomial coefficients")
+            if len(I) != 2 and not P[I].is_zero():
+                raise ValueError("input is not a bi-vector field")
+            d = P[I].degree()
+            if d >= 0:
+                if self._P_degree == 0:
+                    self._P_degree = d
+                elif d != self._P_degree:
+                    raise ValueError("input does not have coefficients of uniform degree")
         self._even_monomial_basis = keydefaultdict(partial(self.__class__._even_monomial_basis_, self))
         self._odd_monomial_basis = keydefaultdict(partial(self.__class__._odd_monomial_basis_, self))
         self._differentials = keydefaultdict(partial(self.__class__._differential_matrix, self))
@@ -132,7 +144,7 @@ class HomogeneousPolynomialPoissonComplex:
 
         INPUT:
 
-        - ``arg`` -- a :class:`~gcaops.algebra.superfunction_algebra.Superfunction` with homogeneous polynomial coefficients
+        - ``arg`` -- a homogeneous :class:`~gcaops.algebra.superfunction_algebra.Superfunction` with coefficients that are homogeneous polynomials of uniform degree
         """
         return HomogeneousPolynomialPoissonCochain(self, arg)
 
@@ -211,6 +223,6 @@ def PoissonComplex(P):
 
     ASSUMPTIONS:
 
-    Assumes ``P`` has homogeneous polynomial coefficients.
+    Assumes ``P`` has coefficients that are homogeneous polynomials of uniform degree.
     """
     return HomogeneousPolynomialPoissonComplex(P)
