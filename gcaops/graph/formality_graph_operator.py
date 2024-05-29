@@ -65,16 +65,22 @@ class FormalityGraphOperator:
                 odd_derivative = term[new_edge[0]].derivative(odds[k])
                 if odd_derivative.is_zero():
                     continue
-                if new_edge[1] < num_ground:
-                    even_derivative = derivatives[k] * term[new_edge[1]]
-                else:
-                    even_derivative = term[new_edge[1]].derivative(evens[k])
-                if even_derivative.is_zero():
-                    continue
+                edge_is_tadpole = new_edge[0] == new_edge[1]
+                even_derivative = 1
+                if not edge_is_tadpole:
+                    if new_edge[1] < num_ground:
+                        even_derivative = derivatives[k] * term[new_edge[1]]
+                    else:
+                        even_derivative = term[new_edge[1]].derivative(evens[k])
+                    if even_derivative.is_zero():
+                        continue
+                else: # tadpole:
+                    odd_derivative = odd_derivative.derivative(evens[k])
                 new_term = [f for f in term]
                 new_sign = 1 if sum(new_term[j].degree() for j in range(num_ground, new_edge[0])) % 2 == 0 else -1
                 new_term[new_edge[0]] = odd_derivative
-                new_term[new_edge[1]] = even_derivative
+                if not edge_is_tadpole:
+                    new_term[new_edge[1]] = even_derivative
                 term_data.append((indices + [k], sign * new_sign, new_term))
         return result
 
