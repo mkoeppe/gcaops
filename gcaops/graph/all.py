@@ -5,6 +5,7 @@ from .formality_graph import FormalityGraph
 from .formality_graph_basis import KontsevichGraphBasis, LeibnizGraphBasis
 from .formality_graph_complex import FormalityGraphComplex
 from .formality_graph_operad import FormalityGraphOperad
+from .formality_graph_operator import FormalityGraphOperator
 from .undirected_graph import UndirectedGraph
 from .undirected_graph_complex import UndirectedGraphComplex
 from .undirected_graph_operad import UndirectedGraphOperad
