@@ -125,6 +125,9 @@ class DifferentialPolynomial(RingElement):
 
     subs = substitute
 
+    def map_coefficients(self, f, new_base_ring=None):
+        return self.__class__(self._parent, self._polynomial.map_coefficients(f, new_base_ring=new_base_ring))
+
     def _symbolic_(self, ring):
         result = ring(self._polynomial)
         result = self._parent._subs_tot_ders(result)
