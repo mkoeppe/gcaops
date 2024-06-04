@@ -105,7 +105,7 @@ class Superfunction(AlgebraElement):
         # TODO: Optimize?
         equal = True
         for m in set(self._monomial_coeffs.keys()) | set(other._monomial_coeffs.keys()):
-            if self._monomial_coeffs[m] != other._monomial_coeffs[m]:
+            if not self._parent._is_zero(self._parent._simplify(self._monomial_coeffs[m] - other._monomial_coeffs[m])):
                 equal = False
                 break
         return equal if op == op_EQ else not equal
@@ -217,6 +217,9 @@ class Superfunction(AlgebraElement):
         return self.__class__(self._parent, monomial_coeffs)
 
     def _mul_(self, other):
+        """
+        Return this superfunction multiplied by ``other`` on the right.
+        """
         monomial_coeffs = defaultdict(self._parent.base_ring().zero)
         for m1 in self._monomial_coeffs:
             if self._parent._is_zero(self._monomial_coeffs[m1]):
