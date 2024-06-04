@@ -6,6 +6,7 @@ from itertools import product, combinations, permutations
 from functools import reduce, partial
 from operator import mul
 from collections import defaultdict
+from sage.structure.unique_representation import UniqueRepresentation
 from sage.structure.parent import Parent
 from sage.structure.element import AlgebraElement
 from sage.structure.richcmp import op_EQ, op_NE
@@ -345,7 +346,7 @@ def identity(x):
 def call_method(method_name, x):
     return getattr(x, method_name)()
 
-class PolyDifferentialOperatorAlgebra(Parent):
+class PolyDifferentialOperatorAlgebra(UniqueRepresentation, Parent):
     """
     Noncommutative algebra of polydifferential operators on a coordinate chart.
     """
@@ -396,6 +397,14 @@ class PolyDifferentialOperatorAlgebra(Parent):
         if not isinstance(is_zero, str):
             raise ValueError('is_zero must be a string (the name of a method of an element of the base ring)')
         self._is_zero = partial(call_method, is_zero)
+
+    @staticmethod
+    def __classcall__(cls, base_ring, coordinates=None, names='ddx', simplify=None, is_zero='is_zero'):
+        if coordinates is not None:
+            coordinates = tuple(coordinates)
+        if isinstance(names, list):
+            names = tuple(names)
+        return super().__classcall__(cls, base_ring, coordinates, names, simplify, is_zero)
 
     def _repr_(self):
         """
