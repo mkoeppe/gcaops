@@ -6,6 +6,10 @@ from itertools import product, combinations, permutations
 from functools import reduce, partial
 from operator import mul
 from collections import defaultdict
+from sage.structure.parent import Parent
+from sage.structure.element import AlgebraElement
+from sage.structure.richcmp import op_EQ, op_NE
+from sage.categories.algebras import Algebras
 
 def compositions(num, width):
     m = num + width - 1
@@ -14,7 +18,7 @@ def compositions(num, width):
     for t in combinations(range(m), width - 1):
         yield [v - u - 1 for u, v in zip(first + t, t + last)]
 
-class PolyDifferentialOperator:
+class PolyDifferentialOperator(AlgebraElement):
     """
     Polydifferential operator on a coordinate chart.
 
@@ -30,6 +34,7 @@ class PolyDifferentialOperator:
 
         - ``coefficients`` - a dictionary, mapping the arity ``m`` to a dictionary that maps ``m``-tuples of multi-indices to elements in the base ring of ``parent``
         """
+        AlgebraElement.__init__(self, parent)
         if not isinstance(parent, PolyDifferentialOperatorAlgebra):
             raise TypeError('parent must be a PolyDifferentialOperatorAlgebra')
         self._parent = parent
@@ -40,7 +45,7 @@ class PolyDifferentialOperator:
             for (multi_indices, coefficient) in coefficients[arity].items():
                 self._coefficients[arity][multi_indices] = self._parent.base_ring()(coefficient) # conversion
 
-    def __repr__(self):
+    def _repr_(self):
         """
         Return a string representation of this polydifferential operator.
         """
@@ -95,11 +100,22 @@ class PolyDifferentialOperator:
         else:
             return '0'
 
-    def parent(self):
-        """
-        Return the parent :class:`PolyDifferentialOperatorAlgebra` that this polydifferential operator belongs to.
-        """
-        return self._parent
+    def _richcmp_(self, other, op):
+        if not op in [op_EQ, op_NE]:
+            return NotImplemented
+        # TODO: Optimize?
+        equal = True
+        for arity in set(self._coefficients.keys()) | set(other._coefficients.keys()):
+            keys = set(self._coefficients[arity].keys()) | set(other._coefficients[arity].keys())
+            for multi_indices in keys:
+                c1 = self._coefficients[arity].get(multi_indices, self._parent.base_ring().zero())
+                c2 = other._coefficients[arity].get(multi_indices, self._parent.base_ring().zero())
+                if not self._parent._is_zero(self._parent._simplify(c1 - c2)):
+                    equal = False
+                    break
+            if not equal:
+                break
+        return equal if op == op_EQ else not equal
 
     def __getitem__(self, multi_indices):
         """
@@ -148,21 +164,13 @@ class PolyDifferentialOperator:
                 coefficients[arity][multi_indices] = new_parent._simplify(f(coefficient))
         return self.__class__(new_parent, coefficients)
 
-    def copy(self):
-        """
-        Return a copy of this polydifferential operator.
-        """
-        return self.map_coefficients(lambda c: c)
-
-    __pos__ = copy
-
-    def __neg__(self):
+    def _neg_(self):
         """
         Return the negative of this polydifferential operator.
         """
         return self.map_coefficients(lambda c: -c)
 
-    def __add__(self, other):
+    def _add_(self, other):
         """
         Return this polydifferential operator added to ``other``.
         """
@@ -170,23 +178,12 @@ class PolyDifferentialOperator:
         for arity in self._coefficients:
             for multi_indices, coefficient in self._coefficients[arity].items():
                 coefficients[arity][multi_indices] = coefficient
-        if isinstance(other, self.__class__):
-            for arity in other._coefficients:
-                for multi_indices, coefficient in other._coefficients[arity].items():
-                    coefficients[arity][multi_indices] = self._parent._simplify(coefficients[arity].get(multi_indices, self._parent.base_ring().zero()) + coefficient)
-        elif other in self._parent.base_ring():
-            return self + self._parent(other)
-        else:
-            return NotImplemented
+        for arity in other._coefficients:
+            for multi_indices, coefficient in other._coefficients[arity].items():
+                coefficients[arity][multi_indices] = self._parent._simplify(coefficients[arity].get(multi_indices, self._parent.base_ring().zero()) + coefficient)
         return self.__class__(self._parent, coefficients)
 
-    def __radd__(self, other):
-        """
-        Return ``other`` added to this polydifferential operator.
-        """
-        return self + other
-
-    def __sub__(self, other):
+    def _sub_(self, other):
         """
         Return this polydifferential operator minus ``other``.
         """
@@ -194,21 +191,10 @@ class PolyDifferentialOperator:
         for arity in self._coefficients:
             for multi_indices, coefficient in self._coefficients[arity].items():
                 coefficients[arity][multi_indices] = coefficient
-        if isinstance(other, self.__class__):
-            for arity in other._coefficients:
-                for multi_indices, coefficient in other._coefficients[arity].items():
-                    coefficients[arity][multi_indices] = self._parent._simplify(coefficients[arity].get(multi_indices, self._parent.base_ring().zero()) - coefficient)
-        elif other in self._parent.base_ring():
-            return self - self._parent(other)
-        else:
-            return NotImplemented
+        for arity in other._coefficients:
+            for multi_indices, coefficient in other._coefficients[arity].items():
+                coefficients[arity][multi_indices] = self._parent._simplify(coefficients[arity].get(multi_indices, self._parent.base_ring().zero()) - coefficient)
         return self.__class__(self._parent, coefficients)
-
-    def __rsub__(self, other):
-        """
-        Return ``other`` minus this polydifferential operator.
-        """
-        return -(self - other)
 
     def insertion(self, position, other):
         """
@@ -244,71 +230,52 @@ class PolyDifferentialOperator:
                             coefficients[arity1 + arity2 - 1][prod] = self._parent._simplify(coefficients[arity1 + arity2 - 1].get(prod, self._parent.base_ring().zero()) + coeff)
         return self.__class__(self._parent, coefficients)
 
-    def __mul__(self, other):
+    def _mul_(self, other):
         """
-        Return this polydifferential operator multiplied by ``other``.
+        Return this polydifferential operator multiplied by ``other`` on the right.
 
         .. NOTE::
 
             This is the pre-Lie product, a sum (with signs) of insertions of ``other`` into this polydifferential operator.
-            For unary operators, it is simply composition.
+            For unary operators, this is composition.
         """
-        if isinstance(other, self.__class__):
-            return sum((1 if (i*(other.arity()-1)) % 2 == 0 else -1)*self.insertion(i, other) for i in range(self.arity()))
-        elif other in self._parent.base_ring():
-            return self * self._parent(other)
-        else:
-            return NotImplemented
+        return sum((1 if (i*(other.arity()-1)) % 2 == 0 else -1)*self.insertion(i, other) for i in range(self.arity()))
 
-    def __rmul__(self, other):
+    def _lmul_(self, other):
         """
-        Return ``other`` multiplied by this polydifferential operator.
+        Return this polydifferential operator multiplied by ``other`` on the left.
 
         .. NOTE::
 
             This is only defined for elements of the base ring.
         """
-        if other in self._parent.base_ring():
-            coefficients = defaultdict(dict)
-            for arity in self._coefficients:
-                for multi_indices, coefficient in self._coefficients[arity].items():
-                    coefficients[arity][multi_indices] = self._parent._simplify(coefficient * other)
-            return self.__class__(self._parent, coefficients)
-        else:
-            return NotImplemented
+        coefficients = defaultdict(dict)
+        for arity in self._coefficients:
+            for multi_indices, coefficient in self._coefficients[arity].items():
+                coefficients[arity][multi_indices] = self._parent._simplify(coefficient * other)
+        return self.__class__(self._parent, coefficients)
 
-    def __truediv__(self, other):
+    def _div_(self, other):
         """
         Return this polydifferential operator divided by ``other``.
         """
         return self.map_coefficients(lambda c: c / other)
 
-    def __pow__(self, exponent):
+    def _pow_(self, exponent):
         """
         Return this polydifferential operator raised to the power ``exponent``.
         """
         return reduce(mul, [self]*exponent, self._parent.identity_operator())
 
-    def is_zero(self):
+    def __bool__(self):
         """
-        Return ``True`` if this polydifferential operator equals zero and ``False`` otherwise.
+        Return ``False`` if this polydifferential operator equals zero and ``True`` otherwise.
         """
         for arity in self._coefficients:
             for coefficient in self._coefficients[arity].values():
                 if not self._parent._is_zero(coefficient):
-                    return False
-        return True
-
-    def __eq__(self, other):
-        """
-        Return ``True`` if this polydifferential operator equals ``other`` and ``False`` otherwise.
-
-        .. NOTE::
-
-            This takes the difference and calls ``is_zero()`` on it.
-            For comparison with zero it is faster to call ``is_zero()`` directly.
-        """
-        return (self - other).is_zero()
+                    return True
+        return False
 
     def arity(self):
         """
@@ -378,10 +345,12 @@ def identity(x):
 def call_method(method_name, x):
     return getattr(x, method_name)()
 
-class PolyDifferentialOperatorAlgebra:
+class PolyDifferentialOperatorAlgebra(Parent):
     """
     Noncommutative algebra of polydifferential operators on a coordinate chart.
     """
+    Element = PolyDifferentialOperator
+
     def __init__(self, base_ring, coordinates=None, names='ddx', simplify=None, is_zero='is_zero'):
         """
         Initialize this polydifferential operator algebra.
@@ -398,8 +367,8 @@ class PolyDifferentialOperatorAlgebra:
 
         - ``is_zero`` -- (default: ``'is_zero'``) a string, containing the name of a method of an element of the base ring; that method should return ``True`` when a simplified element of the base ring is equal to zero (will be used to decide equality of elements, to calculate the arity of elements, and to skip terms in some operations on elements)
         """
-        self.element_class = PolyDifferentialOperator
-        self._base_ring = base_ring
+        Parent.__init__(self, base=base_ring, category=Algebras(base_ring), names=names)
+        self._populate_coercion_lists_()
         if coordinates:
             self._coordinates = coordinates
         elif hasattr(base_ring, 'gens'):
@@ -417,7 +386,7 @@ class PolyDifferentialOperatorAlgebra:
             raise ValueError("Number of derivative names in {} does not match number of coordinates".format(names))
         self._names = tuple(names)
         self.__ngens = len(names)
-        self._gens = tuple(self.element_class(self, {1 : {(tuple(1 if j == k else 0 for j in range(self.__ngens)),) : self._base_ring.one() } }) for k in range(self.__ngens))
+        self._gens = tuple(self.element_class(self, {1 : {(tuple(1 if j == k else 0 for j in range(self.__ngens)),) : self.base_ring().one() } }) for k in range(self.__ngens))
         if simplify is None:
             self._simplify = identity
         else:
@@ -428,57 +397,75 @@ class PolyDifferentialOperatorAlgebra:
             raise ValueError('is_zero must be a string (the name of a method of an element of the base ring)')
         self._is_zero = partial(call_method, is_zero)
 
-    def __repr__(self):
+    def _repr_(self):
         """
         Return a string representation of this polydifferential operator algebra.
         """
-        return "Algebra of multi-linear polydifferential operators over {} with coordinates {} and derivatives {}".format(self._base_ring, self._coordinates, self._gens)
+        return "Algebra of multi-linear polydifferential operators over {} with coordinates {} and derivatives {}".format(self.base_ring(), self._coordinates, self._gens)
 
     def _latex_(self):
         """
         Return a LaTeX representation of this polydifferential operator algebra.
         """
         latex_replacements = {}
-        result = r"{}\langle {} \rangle".format(self._base_ring._latex_(), ','.join(map(str,self._gens)))
+        result = r"{}\langle {} \rangle".format(self.base_ring()._latex_(), ','.join(map(str,self._gens)))
         for original, new in latex_replacements.items():
             result = result.replace(original, new)
         return result
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
+        # NOTE: This is a workaround to support the shorthand notation D(ddx, ddy).
+        if len(args) > 1:
+            return self.tensor_product(*args)
+        else:
+            return super().__call__(*args, **kwargs)
+
+    def _element_constructor_(self, arg):
         """
         Return ``arg`` converted into an element of this polydifferential operator algebra.
         """
-        if len(args) > 1:
-            return self.tensor_product(*args)
-        if len(args) == 1:
-            arg = args[0]
-            if arg in self._base_ring:
-                zero_multi_index = tuple(0 for i in range(self.__ngens))
-                return self.element_class(self, { 1 : {tuple([zero_multi_index]) : arg} })
-            elif isinstance(arg, self.element_class):
-                if arg.parent() is self:
-                    return arg
-                else:
-                    try: # to convert
-                        return arg.map_coefficients(self._base_ring, new_parent=self)
-                    except:
-                        raise ValueError('cannot convert {} into element of {}'.format(arg, self))
-            from .superfunction_algebra import Superfunction
-            if isinstance(arg, Superfunction):
-                if arg.parent().base_ring() is self.base_ring():
-                    result = self.zero()
-                    for indices in arg.indices():
-                        coeff = arg[indices]
-                        if len(indices) == 0:
-                            op = self.identity_operator()
-                        else:
-                            op = self.tensor_product(*[self.derivative(index) for index in indices])
-                        result += coeff * op.skew_symmetrization()
-                    return result
-                else:
+        from .superfunction_algebra import Superfunction
+        if isinstance(arg, self.Element):
+            if arg.parent() is self:
+                return arg
+            else:
+                try: # to convert
+                    return arg.map_coefficients(self.base_ring(), new_parent=self)
+                except:
                     raise ValueError('cannot convert {} into element of {}'.format(arg, self))
+        elif isinstance(arg, Superfunction):
+            if arg.parent().base_ring() is self.base_ring():
+                result = self.zero()
+                for indices in arg.indices():
+                    coeff = arg[indices]
+                    if len(indices) == 0:
+                        op = self.identity_operator()
+                    else:
+                        op = self.tensor_product(*[self.derivative(index) for index in indices])
+                    result += coeff * op.skew_symmetrization()
+                return result
             else:
                 raise ValueError('cannot convert {} into element of {}'.format(arg, self))
+        elif arg in self.base_ring():
+            zero_multi_index = tuple(0 for i in range(self.__ngens))
+            return self.element_class(self, { 1 : {tuple([zero_multi_index]) : arg} })
+        else:
+            raise ValueError('cannot convert {} into element of {}'.format(arg, self))
+
+    def _coerce_map_from_(self, S):
+        if self.base_ring().has_coerce_map_from(S):
+            return True
+        if isinstance(S, self.__class__):
+            # TODO: Make this more general?
+            return self._names == S._names and self.base_ring().has_coerce_map_from(S.base_ring())
+        from .superfunction_algebra import SuperfunctionAlgebra
+        if isinstance(S, SuperfunctionAlgebra):
+            # TODO: Make this more specific.
+            return self.base_ring().has_coerce_map_from(S.base_ring())
+        return False
+
+    def _an_element_(self):
+        return self.base_ring().an_element() * self.identity_operator()
 
     def tensor_product(self, *args):
         """
@@ -493,12 +480,6 @@ class PolyDifferentialOperatorAlgebra:
             coeff = reduce(mul, (arg._coefficients[1][multi_index] for (arg, multi_index) in zip(args, multi_indices)), self.base_ring().one())
             coefficients[arity][multi_index] = self._simplify(coefficients[arity].get(multi_index, self.base_ring().zero()) + coeff)
         return self.element_class(self, coefficients)
-
-    def base_ring(self):
-        """
-        Return the base ring of this polydifferential operator algebra, consisting of functions.
-        """
-        return self._base_ring
 
     def coordinates(self):
         """
@@ -576,12 +557,6 @@ class PolyDifferentialOperatorAlgebra:
             multi_indices.append(tuple(multi_index1[i] + multi_index2[i] for i in range(self.__ngens)))
         return tuple(multi_indices)
 
-    def zero(self):
-        """
-        Return the zero element of this polydifferential operator algebra.
-        """
-        return self.element_class(self, {})
-
     def identity_operator(self):
         """
         Return the (unary) identity operator of this polydifferential operator algebra.
@@ -595,4 +570,3 @@ class PolyDifferentialOperatorAlgebra:
         """
         zero_multi_index = tuple(0 for i in range(self.__ngens))
         return self.element_class(self, {2 : { (zero_multi_index, zero_multi_index) : self.base_ring().one()} })
-
