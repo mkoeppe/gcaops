@@ -84,7 +84,7 @@ def formality_graph_canonicalize(g):
     n = len(g)
     edges = g.edges()
     partition = [[v] for v in range(g.num_ground_vertices())] + [list(range(g.num_ground_vertices(), g.num_ground_vertices() + g.num_aerial_vertices()))]
-    H = DiGraph([list(range(n)), edges])
+    H = DiGraph([list(range(n)), edges], loops=True)
     if len(H.edges()) != len(g.edges()):
         raise ValueError("don't know how to canonicalize graph with double edges")
     G, sigma = H.canonical_label(partition=partition, certificate=True)
