@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
-from functools import reduce
+from functools import reduce, partial
 from itertools import combinations
 import operator
 from gcaops.util.permutation import selection_sort_graded
 from .tensor_product import TensorProduct
 
 # TODO: sum of operations
+
+def graph_term_to_formula_term_helper(self, arg, term):
+    c, g = term
+    return c * self._act_with_graph(g, arg)
 
 class SuperfunctionAlgebraOperation(ABC):
     """
@@ -222,9 +226,14 @@ class SuperfunctionAlgebraUndirectedGraphOperation(SuperfunctionAlgebraOperation
                     term_data.append((indices + [k], sign * new_sign, new_term))
         return result
 
-    def __call__(self, *args):
+    def __call__(self, *args, max_workers=None):
         """
         Return the evaluation of this operation at ``args``.
+
+        INPUT:
+
+        - ``args`` -- either a list of arguments or a singleton list containing an element of the domain (tensor product).
+        - ``max_workers`` -- the number of worker processes to use, or ``None`` to use ``os.cpu_count()``.
 
         ASSUMPTION:
 
@@ -232,8 +241,13 @@ class SuperfunctionAlgebraUndirectedGraphOperation(SuperfunctionAlgebraOperation
         """
         if len(args) == 1 and isinstance(args[0], self._domain.element_class) and args[0].parent() is self._domain:
             result = self._codomain.zero()
-            for (c, g) in self._graph_vector:
-                result += c*self._act_with_graph(g, args[0])
+            from concurrent.futures import ProcessPoolExecutor, as_completed
+            graph_term_to_formula_term = partial(graph_term_to_formula_term_helper, self, args[0])
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                # TODO: Don't consume the whole self._graph_vector iterator at once.
+                futures = {executor.submit(graph_term_to_formula_term, term) for term in self._graph_vector}
+                for f in as_completed(futures):
+                    result += f.result()
             return result
         elif len(args) == self._domain.nfactors():
             return self(self._domain([list(args)]))
@@ -320,9 +334,14 @@ class SuperfunctionAlgebraDirectedGraphOperation(SuperfunctionAlgebraOperation):
                 term_data.append((indices + [k], sign * new_sign, new_term))
         return result
 
-    def __call__(self, *args):
+    def __call__(self, *args, max_workers=None):
         """
         Return the evaluation of this operation at ``args``.
+
+        INPUT:
+
+        - ``args`` -- either a list of arguments or a singleton list containing an element of the domain (tensor product).
+        - ``max_workers`` -- the number of worker processes to use, or ``None`` to use ``os.cpu_count()``.
 
         ASSUMPTION:
 
@@ -330,8 +349,13 @@ class SuperfunctionAlgebraDirectedGraphOperation(SuperfunctionAlgebraOperation):
         """
         if len(args) == 1 and isinstance(args[0], self._domain.element_class) and args[0].parent() is self._domain:
             result = self._codomain.zero()
-            for (c, g) in self._graph_vector:
-                result += c*self._act_with_graph(g, args[0])
+            from concurrent.futures import ProcessPoolExecutor, as_completed
+            graph_term_to_formula_term = partial(graph_term_to_formula_term_helper, self, args[0])
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                # TODO: Don't consume the whole self._graph_vector iterator at once.
+                futures = {executor.submit(graph_term_to_formula_term, term) for term in self._graph_vector}
+                for f in as_completed(futures):
+                    result += f.result()
             return result
         elif len(args) == self._domain.nfactors():
             return self(self._domain([list(args)]))
