@@ -238,9 +238,9 @@ class FormalityGraph:
         """
         return selection_sort(self._edges)
 
-    def canonicalize_vertices(self, algorithm=None):
+    def canonicalize_vertices(self, algorithm=None, mod_ground_permutations=False):
         """"
-        Canonically label the vertices of this graph and return the vertex permutation.
+        Canonically label the ground and aerial vertices of this graph (the ground vertices remain fixed pointwise if ``mod_ground_permutations`` is ``False``) and return the vertex permutation.
 
         EXAMPLES::
 
@@ -250,10 +250,12 @@ class FormalityGraph:
             sage: g
             FormalityGraph(3, 3, [(5, 0), (5, 1), (4, 2), (4, 5)])
         """
-        _, c = self._sage_().canonical_label(certificate=True,
-                                             algorithm=algorithm,
-                                             partition=[[v] for v in range(self._num_ground_vertices)] + \
-                                                [list(range(self._num_ground_vertices, self._num_ground_vertices + self._num_aerial_vertices))])
+        if mod_ground_permutations:
+            ground_partition = [list(range(self._num_ground_vertices))]
+        else:
+            ground_partition = [[v] for v in range(self._num_ground_vertices)]
+        air_partition = [list(range(self._num_ground_vertices, self._num_ground_vertices + self._num_aerial_vertices))]
+        _, c = self._sage_().canonical_label(certificate=True, algorithm=algorithm, partition=ground_partition + air_partition)
         self._edges = [(c[a], c[b]) for (a,b) in self._edges]
         return c
 
@@ -274,9 +276,9 @@ class FormalityGraph:
         """
         return FormalityGraph(self._num_ground_vertices, self._num_aerial_vertices, list(self._edges))
 
-    def canonical_form(self, algorithm=None):
+    def canonical_form(self, algorithm=None, mod_ground_permutations=False):
         """
-        Return the canonical form of this graph, possibly with the aerial vertices permuted and the edges reordered.
+        Return the canonical form of this graph, possibly with the aerial vertices (and ground vertices if ``mod_ground_permutations`` is ``True``) permuted and the edges reordered.
 
         EXAMPLES::
 
@@ -288,13 +290,13 @@ class FormalityGraph:
             FormalityGraph(3, 3, [(4, 2), (4, 5), (5, 0), (5, 1)])
         """
         g = self.copy()
-        g.canonicalize_vertices(algorithm=algorithm)
+        g.canonicalize_vertices(algorithm=algorithm, mod_ground_permutations=mod_ground_permutations)
         g.canonicalize_edges()
         return g
 
-    def is_isomorphic(self, other, algorithm=None):
+    def is_isomorphic(self, other, algorithm=None, mod_ground_permutations=False):
         """
-        Return ``True`` if this graph is isomorphic to ``other``, under a directed graph isomorphism that fixes the ground vertices.
+        Return ``True`` if this graph is isomorphic to ``other``, under a directed graph isomorphism that fixes the ground vertices (pointwise if ``mod_ground_permutations`` is ``False``).
 
         EXAMPLES::
 
@@ -305,7 +307,7 @@ class FormalityGraph:
             sage: g.is_isomorphic(h)
             True
         """
-        return self.canonical_form(algorithm=algorithm) == other.canonical_form(algorithm=algorithm)
+        return self.canonical_form(algorithm=algorithm, mod_ground_permutations=mod_ground_permutations) == other.canonical_form(algorithm=algorithm, mod_ground_permutations=mod_ground_permutations)
 
     def has_multiple_edges(self):
         """
