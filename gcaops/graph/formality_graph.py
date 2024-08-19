@@ -238,6 +238,75 @@ class FormalityGraph:
         """
         return selection_sort(self._edges)
 
+    def canonicalize_vertices(self, algorithm=None):
+        """"
+        Canonically label the vertices of this graph and return the vertex permutation.
+
+        EXAMPLES::
+
+            sage: g = FormalityGraph(3, 3, [(4, 0), (4, 1), (3, 2), (3, 4)])
+            sage: g.canonicalize_vertices()
+            {0: 0, 1: 1, 2: 2, 3: 4, 4: 5, 5: 3}
+            sage: g
+            FormalityGraph(3, 3, [(5, 0), (5, 1), (4, 2), (4, 5)])
+        """
+        _, c = self._sage_().canonical_label(certificate=True,
+                                             algorithm=algorithm,
+                                             partition=[[v] for v in range(self._num_ground_vertices)] + \
+                                                [list(range(self._num_ground_vertices, self._num_ground_vertices + self._num_aerial_vertices))])
+        self._edges = [(c[a], c[b]) for (a,b) in self._edges]
+        return c
+
+    def copy(self):
+        """
+        Return a copy of this graph.
+
+        EXAMPLES::
+
+            sage: g = FormalityGraph(2, 1, [(2, 1), (2, 0)])
+            sage: h = g.copy()
+            sage: h.canonicalize_edges()
+            -1
+            sage: h
+            FormalityGraph(2, 1, [(2, 0), (2, 1)])
+            sage: g
+            FormalityGraph(2, 1, [(2, 1), (2, 0)])
+        """
+        return FormalityGraph(self._num_ground_vertices, self._num_aerial_vertices, list(self._edges))
+
+    def canonical_form(self, algorithm=None):
+        """
+        Return the canonical form of this graph, possibly with the aerial vertices permuted and the edges reordered.
+
+        EXAMPLES::
+
+            sage: g = FormalityGraph(2, 1, [(2, 1), (2, 0)])
+            sage: g.canonical_form()
+            FormalityGraph(2, 1, [(2, 0), (2, 1)])
+            sage: h = FormalityGraph(3, 3, [(4, 0), (4, 1), (3, 2), (3, 4)])
+            sage: h.canonical_form()
+            FormalityGraph(3, 3, [(4, 2), (4, 5), (5, 0), (5, 1)])
+        """
+        g = self.copy()
+        g.canonicalize_vertices(algorithm=algorithm)
+        g.canonicalize_edges()
+        return g
+
+    def is_isomorphic(self, other, algorithm=None):
+        """
+        Return ``True`` if this graph is isomorphic to ``other``, under a directed graph isomorphism that fixes the ground vertices.
+
+        EXAMPLES::
+
+            sage: g = FormalityGraph(3, 3, [(4, 0), (4, 1), (3, 2), (3, 4)])
+            sage: g.is_isomorphic(g)
+            True
+            sage: h = FormalityGraph(3, 3, [(4, 2), (4, 5), (5, 0), (5, 1)])
+            sage: g.is_isomorphic(h)
+            True
+        """
+        return self.canonical_form(algorithm=algorithm) == other.canonical_form(algorithm=algorithm)
+
     def has_multiple_edges(self):
         """
         Return ``True`` if this graph contains multiple edges, and ``False`` otherwise.
