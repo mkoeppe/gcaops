@@ -238,9 +238,12 @@ class FormalityGraph:
         """
         return selection_sort(self._edges)
 
-    def canonicalize_vertices(self, algorithm=None, mod_ground_permutations=False):
+    def canonicalize_vertices(self, algorithm=None, mod_ground_permutations=False, aerial_vertex_partition=None):
         """"
-        Canonically label the ground and aerial vertices of this graph (the ground vertices remain fixed pointwise if ``mod_ground_permutations`` is ``False``) and return the vertex permutation.
+        Canonically label the ground and aerial vertices of this graph and return the vertex permutation.
+
+        The ground vertices remain fixed pointwise if ``mod_ground_permutations`` is ``False``.
+        If ``aerial_vertex_partition`` is not ``None``, then the relabeling will respect the given partition.
 
         EXAMPLES::
 
@@ -254,7 +257,10 @@ class FormalityGraph:
             ground_partition = [list(range(self._num_ground_vertices))]
         else:
             ground_partition = [[v] for v in range(self._num_ground_vertices)]
-        air_partition = [list(range(self._num_ground_vertices, self._num_ground_vertices + self._num_aerial_vertices))]
+        if aerial_vertex_partition is None:
+            air_partition = [list(range(self._num_ground_vertices, self._num_ground_vertices + self._num_aerial_vertices))]
+        else:
+            air_partition = aerial_vertex_partition
         _, c = self._sage_().canonical_label(certificate=True, algorithm=algorithm, partition=ground_partition + air_partition)
         self._edges = [(c[a], c[b]) for (a,b) in self._edges]
         return c
@@ -276,9 +282,12 @@ class FormalityGraph:
         """
         return FormalityGraph(self._num_ground_vertices, self._num_aerial_vertices, list(self._edges))
 
-    def canonical_form(self, algorithm=None, mod_ground_permutations=False):
+    def canonical_form(self, algorithm=None, mod_ground_permutations=False, aerial_vertex_partition=None):
         """
-        Return the canonical form of this graph, possibly with the aerial vertices (and ground vertices if ``mod_ground_permutations`` is ``True``) permuted and the edges reordered.
+        Return the canonical form of this graph, possibly with the vertices permuted and the edges reordered.
+
+        The ground vertices are allowed to be permuted only if ``mod_ground_permutations`` is ``True``.
+        If ``aerial_vertex_partition`` is not ``None``, then the relabeling will respect the given partition.
 
         EXAMPLES::
 
@@ -288,9 +297,13 @@ class FormalityGraph:
             sage: h = FormalityGraph(3, 3, [(4, 0), (4, 1), (3, 2), (3, 4)])
             sage: h.canonical_form()
             FormalityGraph(3, 3, [(4, 2), (4, 5), (5, 0), (5, 1)])
+            sage: h.canonical_form(aerial_vertex_partition=[[3, 4], [5]])
+            FormalityGraph(3, 3, [(3, 2), (3, 4), (4, 0), (4, 1)])
         """
         g = self.copy()
-        g.canonicalize_vertices(algorithm=algorithm, mod_ground_permutations=mod_ground_permutations)
+        g.canonicalize_vertices(algorithm=algorithm,
+                                mod_ground_permutations=mod_ground_permutations,
+                                aerial_vertex_partition=aerial_vertex_partition)
         g.canonicalize_edges()
         return g
 
